@@ -137,6 +137,9 @@ const TOWER_UNIT = 100;
  * it.** It has now been done this way five times: 21e–21k for the second hundred, again for the third,
  * again for the fourth, again for the fifth, and this.
  *
+ * ⚠️ **The Dwarf Tower is off the list**: its sixth hundred — the Deepworks — shipped, so two of seven
+ * stand at six hundred floors and five are still at five hundred.
+ *
  * ⚠️ **The list is owed in the same session as the bump, not in the session that authors the first
  * tower.** Between the two there is nothing at all holding the six short towers. The fourth hundred's
  * note asked for it, the fifth did it, and this one does it again — the Human Tower is authored in the
@@ -159,7 +162,6 @@ const TOWER_UNIT = 100;
  * on every tower, pending or not** — see `core/towers.ts`.
  */
 const PENDING: readonly string[] = [
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',

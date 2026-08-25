@@ -168,8 +168,10 @@ import { TOWER_UNDEAD } from './tower-undead';
  * 1,450 stages, and the *same* seven five-hundred-floor towers were really at **2.585** by the time
  * this session opened. **A ratio between two moving ladders decays without anybody touching it.**
  *
- * Measured now: seven towers with one at six hundred floors and six pending pay **1,116,300** against
- * 420,500, a ratio of **2.655**. A completed round is **1,304,100** and **3.101** — which is the
+ * Measured now: seven towers with **two** at six hundred floors and five pending pay **1,147,600**
+ * against 420,500, a ratio of **2.729** — recomputed rather than carried, which is what every session
+ * owes. (It read 2.655 with one tower extended; the campaign has not moved since, so the whole
+ * difference is the Dwarf Tower's hundred.) A completed round is **1,304,100** and **3.101** — which is the
  * figure to weigh before a seventh hundred, and which lands almost exactly where the fifth hundred's
  * (stale) reading did, for entirely different reasons on both sides. ⚠️ **Recompute both totals
  * rather than carrying either.**
@@ -177,7 +179,7 @@ import { TOWER_UNDEAD } from './tower-undead';
  * ⚠️ **While the round is in flight a tower still waiting for its floors pays 155,000 rather than the
  * 155,300 a five-hundred-floor tower would pay on its own rules**, because `floorKindAt` reads the
  * *rules'* height and its floor 500 resolves as a mini-boss — the payout regression this file
- * describes, in the arithmetic. Six towers are on that footing today. ⚠️ **The direction is the finding.** The retired
+ * describes, in the arithmetic. **Five** towers are on that footing today. ⚠️ **The direction is the finding.** The retired
  * guard's *floor* was expected to fall as chapters shipped and its *ceiling* of 4 is the half that
  * would now be under pressure: the campaign tripled in stage count between the third hundred and this
  * one and its crystal total rose only 12%, because `firstClearSummons` is nearly flat per stage while

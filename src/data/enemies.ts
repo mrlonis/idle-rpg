@@ -371,6 +371,10 @@ import {
   THE_STEP_RUNS_AWAY,
   NO_ORDER_TO_HALT,
   IT_CANNOT_STOP,
+  SET_THE_TIMBER,
+  COURSE_THE_STONE,
+  DRIVE_THE_HEADING,
+  THE_ROOF_COMES_DOWN,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -15263,6 +15267,240 @@ export const THE_HEADLONG = {
   skills: [IT_CANNOT_STOP, NO_ORDER_TO_HALT, THE_STEP_RUNS_AWAY],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's sixth hundred — the Deepworks, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **Four blocks, which is 14.3% of the 28 distinct archetypes this hundred fields rather than a
+// quarter of them.** The quota is a count with six hundreds of precedent behind it, not a fraction to
+// solve for. Humans go 64 → 68.
+//
+// ## ⚠️ The axis is `physicalResist`, and it is the two hundreds below it read backwards
+//
+// The Proof House is built on `physicalPierce` and the Masterworks on that pierce carried with the
+// attack behind it — two hundred floors of the hold's own picks, taking the deepest armour in the game
+// off. ⚠️ **`core/battle/damage.ts` computes `effectiveDefence` as `def × (1 − pierce)` and applies
+// `resistedShare` — `1 − resist` — *afterwards*, untouched by any pierce.** So this hundred is not a
+// third dial on the same axis: it is the one wall the two hundreds below it taught the player to open,
+// and cannot.
+//
+// Priced against a control of an `ascended` 380/36 behind four `legendary` 220/27 at level 283 in
+// Relic 100, reading **3.83 / 3.83 of five at 27.3s** and moving in both directions (health ×1.15
+// reads 3.20, ×0.85 reads 4.00). Forty seeds on one stage id, so every row below is the same forty
+// fights — zero timeouts anywhere:
+//
+// | four carriers at      | ref survivors | worth | mean fight |
+// | --------------------- | ------------- | ----- | ---------- |
+// | 0.00 — the control    | 3.83          | —     | 27.3s      |
+// | `physicalResist` 0.12 | 3.45          | 0.38  | 29.0s      |
+// | `physicalResist` 0.20 | 3.02          | 0.80  | 33.6s      |
+// | `physicalResist` 0.28 | 2.73          | 1.10  | 40.1s      |
+// | `physicalResist` 0.36 | 1.90          | 1.93  | 47.7s      |
+// | `physicalResist` 0.45 | 1.40          | 2.43  | 54.7s      |
+// | `physicalResist` 0.55 | 0.30 · 30%    | 3.53  | 55.6s      |
+//
+// 1. ⚠️ **It grades in carrier _counts_ as well as in value**, which is what six bands needs: at 0.36,
+//    zero through four carriers read 3.83 / 3.02 / 2.73 / 2.65 / **1.90**. So the bands walk the count
+//    and the value together.
+// 2. ⚠️ **"Is it ours" comes back _first and second of fourteen_, which is exclusivity rather than
+//    margin** — the stronger of the two licences, and the first time this tower has had it. Each
+//    arrangement calibrated to the heaviest control it still reads ≥3.60 on, then given
+//    `physicalResist` 0.20: **dwarf-ref 1.35, dwarf-alt 1.28**, elf-alt 1.02, human-ref 0.90,
+//    undead-alt 0.67, monster-ref 0.63, monster-alt 0.58, human-alt 0.45, elf-ref 0.33, demon-ref
+//    0.22, demon-alt 0.20, angel-alt 0.15, angel-ref 0.02, undead-ref 0.00.
+// 3. ⚠️ **The fight-length confound is disproved outright rather than fitted away, and that is worth
+//    more than the correlation is.** A Dwarf five is the **slowest mortal arrangement in the game**
+//    (`haste` Σ378 / Σ354 against elf-alt's Σ620) and calibrates to a 27.9s control where most crews
+//    sit at 8–16s, so the Demon fifth hundred's warning applies directly: this could be a tax on slow
+//    crews. It is not. **angel-alt is the slowest arrangement of all fourteen at 35.7s and reads 0.15,
+//    twelfth**, and the correlation across the table is **0.177**. Ranking the residual moves nothing.
+// 4. ⚠️ **What makes it theirs is the damage type on the party's side, and it is total.** The two Dwarf
+//    arrangements field **5 and 7 physical damage effects and zero magical** — so a physical ward taxes
+//    every point of the lowest `atk` in the game — while carrying `physicalPierce` Σ0.15 / Σ0.15
+//    against the Monsters' Σ0.56 / Σ0.70. They neither dodge it, out-run it nor open it.
+// 5. ⚠️ **It is not the Monster Tower's third-hundred lock wearing a new name, and the argument is
+//    where they differ.** That tower's is "the crew built to open armour has no answer to the wall
+//    that is not armour" — a sentence about the *Monsters'* pierce. This one is about a crew that has
+//    almost no pierce at all and whose entire output is one damage type, on a tower that has spent two
+//    hundred floors making pierce the thing the player watches.
+// 6. ⚠️ **Every pairing measured is flat, so the axis ships alone.** `physicalResist` 0.20 with `dodge`
+//    0.20 reads ×1.02 of its halves, with `tenacity` 0.60 ×0.98, and `dodge` with `tenacity` ×0.91.
+//    Only `physicalResist` with `def` 55 is super-additive at **×1.23** (2.08 → 2.55) — and it costs
+//    **+25.7 seconds**, which on this tower is the ninety-second clock rather than a licence.
+// 7. ⚠️ **Inert, measured, and not worth re-measuring**: `magicResist` 0.40 is worth **0.27** and
+//    `accuracy` 1.5 is worth **0.23**, both disqualified by the formula rather than by size — the
+//    party deals no magical damage at all and carries `dodge` Σ0.00, so there is nothing for either to
+//    act on. `tenacity` reads 0.70 / 0.83 / 0.95 across 0.30 / 0.60 / 0.85 and **saturates**, which is
+//    the third hundred in a row on this tower to decline it. `def` is a cliff rather than a dial (0.85
+//    at 50, a total wipe at 70).
+// 8. ⚠️ **`attackSpeed` grades and was refused twice over.** It reads 1.05 / 2.33 / 3.52 across
+//    25 / 50 / 80 — but `effectiveSpeed` adds it to `haste` and applies the slow multiplier to the
+//    **sum**, which is this tower's own third-hundred finding, so it is the second and third hundreds'
+//    tempo axis wearing a new stat; and its cost correlates **0.726** with how long each crew's fights
+//    already are, the highest of anything measured here. **A speed tax belongs to whichever crew is
+//    slowest**, and that is what a Dwarf five is.
+// 9. ⚠️ **The rank a carrier stands in is _not_ a priced dial on this axis, which is the third
+//    different answer that question has given in four hundreds.** One body moved between ranks is
+//    worth **4.00 in front against 4.08 behind**. A dodge bills what is *aimed at* (the Demon fifth
+//    hundred: 0.75 against 0.28) and an `attackSpeed` bills what is *left alive* (chapter 28: 0.00
+//    against 0.77); a resist bills **every blow that reaches the body, whenever it arrives**. Carry the
+//    measurement, never the precedent.
+//
+// ⚠️ **The register, measured before these four blocks joined the pool.** `physicalResist` sat on
+// **193 of 422** blocks at a median of **0.10** and a game-wide ceiling of **0.40** (the Unbitten);
+// across the 64 Human blocks, **32** carriers, median **0.08**, ceiling **0.16**. ⚠️ **So this hundred
+// is authored almost entirely *above* the Human register**, and that is forced rather than chosen:
+// board-wide 0.12 — three quarters of the way to the Human ceiling — is worth **0.38 of five**, which
+// is texture. The three legendaries run 0.14 / 0.20 / 0.26 and the roof holds **0.30**, under the
+// Dwarf faction's own shipped 0.34 and the game's 0.40. **State which side of the register a band
+// landed on**: this one is the Monster third hundred's shape rather than the Elf Tower's.
+//
+// ⚠️ **The carriers wear `brawler`, and `tank` would switch the axis off.** Held at an identical stat
+// line on the same board, all-`tank` reads **5.00 of five** where all-`brawler` reads 4.00: a tank set
+// pays its grade into health, which on a refusal axis buys the party seconds rather than costing it
+// members. The Proof House's allocation finding, arriving with the opposite sign because the axis is
+// the opposite kind.
+//
+// ⚠️ **Nothing here restores anything.** No block below carries `lifeLeech`, `recovery`,
+// `healthRegen`, a heal, a drain, a shield or a taunt, and the claim about the *boards* is stated as
+// counts in [`tower-dwarf.ts`](./tower-dwarf.ts).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold shored its galleries against the mountain. It never thought to shore them against a man.
+ *
+ * The opening band's carrier: the axis at its entry size — **`physicalResist` 0.14 on 230 health** —
+ * which is the lightest of the four and the only one at the top of the Human shipped register rather
+ * than past it. ⚠️ **A plain block at the bottom of a new axis is the lesson**, exactly as the
+ * Hewstroke Prentice is one hundred below: one carrier beside this hundred's control is worth 0.80 of
+ * five, and the opening band has to teach what the wall is before the hundred can charge for three.
+ */
+export const DEADFALL_TIMBERER = {
+  id: 'deadfall-timberer',
+  name: 'Deadfall Timberer',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 230,
+    atk: 42,
+    def: 38,
+    haste: 96,
+    critChance: 0.09,
+    critDamageAmp: 0.7,
+    critBlock: 0.06,
+    physicalResist: 0.14,
+  },
+  skills: [SET_THE_TIMBER],
+} as const;
+
+/**
+ * Dry stone, no mortar. It will still be standing when the hold that taught it is not.
+ *
+ * The middle bands' carrier: **`physicalResist` 0.20 on 265 health**, the first of the four to step
+ * past the Human ceiling of 0.16 and still inside the game's own 0.40. It carries the hundred's
+ * `SUNDER` rider, which is the one place these boards take armour *off* — a board made entirely of
+ * refusal is a board this crew cannot make progress against, and that is the ninety-second clock.
+ */
+export const STOPEWARD_MASON = {
+  id: 'stopeward-mason',
+  name: 'Stopeward Mason',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 265,
+    atk: 44,
+    def: 42,
+    haste: 94,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.08,
+    physicalResist: 0.2,
+  },
+  skills: [COURSE_THE_STONE, SET_THE_TIMBER],
+} as const;
+
+/**
+ * It is not looking for anything down here. It is making somewhere the hold cannot follow it.
+ *
+ * The hundred's lieutenant, standing on the tenth floors of its upper half at **`physicalResist` 0.26
+ * on 310 health** — the heaviest of the three legendaries, and still under half the weight of the
+ * lieutenant one hundred below. ⚠️ **That is the Leaden Hour's arithmetic taken further than it has
+ * ever had to go**: the party is frozen at band 6 while the boards climb forty-seven levels and
+ * fifty-nine gear positions, so the weight that reads 4.00 of five falls from **23,445
+ * common-equivalent at floor 501 to 2,377 at floor 600** — a factor of **9.86** across one hundred
+ * floors. Its line was settled against all of its appearances rather than its first.
+ */
+export const UNDERSET_PIONEER = {
+  id: 'underset-pioneer',
+  name: 'Underset Pioneer',
+  faction: 'human',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 310,
+    atk: 46,
+    def: 46,
+    haste: 92,
+    critChance: 0.11,
+    critDamageAmp: 0.78,
+    critBlock: 0.08,
+    tenacity: 0.3,
+    physicalResist: 0.26,
+  },
+  skills: [DRIVE_THE_HEADING, COURSE_THE_STONE],
+} as const;
+
+/**
+ * The hold dug down for an age looking for the bottom of the mountain. This is what it found.
+ *
+ * The roof, and the last floor of the tower. ⚠️ **The axis at its authored ceiling — `physicalResist`
+ * 0.30 on 580 health — and it carries the floor rather than riding along**: the same board with the
+ * roof's resist stripped to zero reads 100% / 3.50, where the shipped line reads 98% / **1.60**. The
+ * ward is worth **1.90 of five** on the top floor of the tower.
+ *
+ * ⚠️ **Settled on its attack, the fifth tower roof running.** With weight held at 580 the board reads
+ * **18% at `atk` 40**, 65% at 38, **98% at 36** and 100% / 2.70 at 34. **Shortlist on weight, settle
+ * on attack.** ⚠️ **And 0.30 is a ceiling the board set rather than the register**: at
+ * `physicalResist` 0.34 the same board reads **88%**, under the 90% bar `towers.balance.ts` holds a
+ * roof to. The Dwarf faction's own shipped ceiling is 0.34 and the game's is 0.40; this steps past
+ * neither.
+ *
+ * ⚠️ **At 580/36 this is the lightest roof anchor in the game on health**, by a clear margin. The
+ * seven towers' last-floor anchors, as a list rather than a superlative, because this claim has gone
+ * stale twice already: **The Undermost 580/36**, The Unquenched 900/38, The Unlacing 950/48,
+ * `THE_HEADLONG` 1050/25, The Great Helve 1180/**24** (the lightest on attack), The Blackthorn
+ * 1180/34, The Unstruck 1250/44. The reason this one is so light is the ×9.86 squeeze above rather
+ * than a soft roof — and five of those six are still their tower's floor-500 block, so **re-read the
+ * list rather than the sentence once the round closes.**
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. Nothing on it
+ * restores anything, it carries no taunt, and the board it stands on carries no heal, drain,
+ * regeneration or point of `lifeLeech`.
+ */
+export const THE_UNDERMOST = {
+  id: 'the-undermost',
+  name: 'The Undermost',
+  faction: 'human',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 580,
+    atk: 36,
+    def: 50,
+    haste: 94,
+    critChance: 0.13,
+    critDamageAmp: 0.82,
+    critDamageResist: 0.18,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalResist: 0.3,
+    magicResist: 0.12,
+  },
+  skills: [THE_ROOF_COMES_DOWN, DRIVE_THE_HEADING, COURSE_THE_STONE],
+} as const;
+
 export const ENEMIES = [
   SLIME,
   WISP,
@@ -15686,4 +15924,8 @@ export const ENEMIES = [
   QUICKSTEP_SERJEANT,
   THE_BREAKNECK,
   THE_HEADLONG,
+  DEADFALL_TIMBERER,
+  STOPEWARD_MASON,
+  UNDERSET_PIONEER,
+  THE_UNDERMOST,
 ] as const;

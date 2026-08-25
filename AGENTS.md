@@ -394,7 +394,7 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](docs/towers.md)** — seven faction towers, **six hundred floors each at levels 1
-  to 283 — the Human Tower complete and the other six at five hundred while a fifth round is in
+  to 283 — the Human and Dwarf Towers complete and the other five at five hundred while a fifth round is in
   flight**. What a tower is for, the three fields a clear may never touch, the six crews, and
   twenty-nine hundreds' worth of measured escalation findings.
 - **[docs/descent.md](docs/descent.md)** — the daily roguelite run: three floors of three fights,
@@ -938,6 +938,37 @@ Asserted in `core/battle/simulate.spec.ts`.
   351,500"; chapters 26–29 shipped, the campaign now pays **420,500**, and the same seven
   five-hundred-floor towers were really at **2.585**. It reads **2.655** now and a completed round is
   **3.101**. [towers](docs/towers.md)
+- ⚠️ **A hundred can be built on _refusing_ the axis of the hundreds below it, and the damage formula
+  is what licenses it.** The Dwarf Tower spent its fourth hundred on `physicalPierce` and its fifth on
+  that pierce carried with the attack behind it; `effectiveDefence` returns `def × (1 − pierce)` and
+  `resistedShare` multiplies by `1 − resist` **afterwards, untouched by any pierce**, so the sixth
+  hundred's `physicalResist` is the one wall those two hundred floors taught the player to open and
+  cannot. It is the tower's **first exclusive licence** — dwarf-ref 1.35 and dwarf-alt 1.28, first and
+  second of fourteen, 25% clear of third. ⚠️ **Not the Monster Tower's third-hundred lock wearing a new
+  name**: that argument is about the _Monsters'_ pierce being the wrong stat, and a Dwarf five carries
+  `physicalPierce` Σ0.15 against Σ0.70. **Two towers with one stat is a question about the argument.**
+  [towers](docs/towers.md)
+- ⚠️ **A single well-chosen counter-example disproves a confound where a regression only discounts it.**
+  A Dwarf five is the **slowest mortal arrangement in the game** and calibrates to a 27.9s control
+  against most crews' 8–16s, which is exactly the shape the Demon fifth hundred says demands a
+  residual. It needed none: **angel-alt is the slowest of all fourteen at 35.7s and reads 0.15,
+  twelfth**, with a correlation of 0.177 across the table. **Look for the row that should be first and
+  is not, before fitting a trend.** [towers](docs/towers.md)
+- ⚠️ **The rank a carrier stands in is priced by its _output_, not by the axis it carries — and two
+  carriers on one hundred can disagree.** At the Dwarf sixth hundred, carried on one body, the
+  lieutenant (the heaviest carrier, and the only one with a second turn) reads **2.25 of five in front
+  against 3.02 behind** while the middle carrier reads **4.00 either way**. That is a **third distinct
+  answer in four hundreds**: a dodge bills what is _aimed at_ (0.75 / 0.28), an `attackSpeed` bills
+  what is _left alive_ (0.00 / 0.77), and a resist bills every blow that reaches the body whenever it
+  arrives. **Carry the measurement, never the precedent.** [towers](docs/towers.md)
+- ⚠️ **On a refusal axis the `tank` gear archetype switches the axis off.** Held at an identical stat
+  line on one board, all-`tank` reads **5.00 of five** where all-`brawler` reads 4.00 — a tank set pays
+  its grade into health, which buys the party seconds rather than costing it members. The Dwarf fourth
+  hundred's allocation finding with the opposite sign, because the axis is the opposite kind.
+  ⚠️ **And `attackSpeed` is refused on a tower whose tempo is spent even when it grades**: `effectiveSpeed`
+  adds it to `haste`, and its cost correlates **0.726** with how long each crew's fights already are —
+  the highest of anything measured there. **A speed tax belongs to whichever crew is slowest.**
+  [towers](docs/towers.md)
 - ⚠️ **A cross-crew ranking must be read as a _residual_ when one confound dominates the stat.** The
   Demon fifth hundred's `dodge` ranks the binding arrangement **sixth of fourteen**, which by the usual
   test is a refusal — but `dodge`'s cost correlates **0.772** with how long a crew's fights already

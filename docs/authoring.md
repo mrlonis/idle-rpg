@@ -1989,6 +1989,41 @@ costliest rows on pierce (angel-alt Σ195 → 2.42, angel-ref Σ174 → 1.96, dw
 dwarf-ref Σ163 → 0.74), where crit's ordering breaks at the bottom (undead-alt reads 1.17 on Σ45 of
 `def`). **Correlate the cost against the register the axis is pointed at.** [towers](towers.md)
 
+⚠️ **A hundred can be built on _refusing_ the axis of the hundreds below it, and reading the damage
+formula is what licenses it.** The Dwarf Tower spent two hundred floors on `physicalPierce` — the Proof
+House on the pick and the Masterworks on the pick with the attack behind it — and its sixth hundred is
+`physicalResist`, because `effectiveDefence` returns `def × (1 − pierce)` and `resistedShare`
+multiplies by `1 − resist` **afterwards, untouched**. It is that tower's first **exclusive** licence in
+six hundred floors (dwarf-ref 1.35, dwarf-alt 1.28, first and second of fourteen). **A spent axis can
+be spent again from the other side of the formula.** [towers](towers.md)
+
+⚠️ **A single well-chosen counter-example disproves a confound where a residual only discounts it.**
+The Dwarf fives are the **slowest mortal arrangement in the game** and calibrate to a 27.9s control
+against most crews' 8–16s — exactly the shape the Demon fifth hundred says must be read as a residual.
+It needed none: **angel-alt, the slowest arrangement of all fourteen at a 35.7s control, reads 0.15 and
+ranks twelfth**, and the correlation across the table is 0.177. **Before fitting a trend, look for the
+row the confound predicts should be at the top and check whether it is.** [towers](towers.md)
+
+⚠️ **The rank a carrier stands in is priced by its _output_ rather than by the axis, and two carriers
+on one hundred can disagree.** Carried on one body at the Dwarf sixth hundred, the lieutenant — the
+heaviest carrier and the only one with a second turn — reads **2.25 of five in front against 3.02
+behind**, where the middle carrier reads **4.00 either way**. That is the tower's own "escalate in
+front; the back rank is a cliff" landing on the body carrying the turn and missing the body carrying
+the stat, and a **third distinct answer in four hundreds**. [towers](towers.md)
+
+⚠️ **On a refusal axis the `tank` gear archetype switches the axis off, which is the opposite sign to
+the finding that established the dial.** Held at an identical stat line on one board, all-`tank` reads
+**5.00 of five** where all-`brawler` reads 4.00: a tank set pays its grade into health, and on a
+refusal axis health buys the party seconds rather than costing it members. The Dwarf fourth hundred
+read the same lever the other way on a pierce axis. **Check which kind of axis you have before
+allocating archetypes.** [towers](towers.md)
+
+⚠️ **A retirement check can come back with the _whole_ ascended roster retiring, and the seconds say
+what killed each one.** All four of the Dwarf Tower's ascended blocks read 0% at floor 600 behind four
+light escorts — but the Breachlord dies at **22.3s** and the Masterstroke at **58.1s**. **The heavy
+ones lose to damage and the light ones lose to the clock**, and only the second kind is a sign the
+board is too slow rather than too big. All four still anchor the opening bands. [towers](towers.md)
+
 ⚠️ **A cross-crew ranking must be read as a _residual_ when one confound dominates the stat, and the
 Demon fifth hundred is where that arrived.** Ranked on raw mean cost its `dodge` axis puts the binding
 Demon arrangement **sixth of fourteen** — which by the usual test is a refusal. But `dodge`'s cost

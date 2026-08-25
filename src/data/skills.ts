@@ -10233,6 +10233,100 @@ export const IT_CANNOT_STOP = {
   priority: 1,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's sixth hundred — the Deepworks, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **The turns stay plain, for the third Dwarf hundred running, because the axis is the stat
+// line.** `physicalResist` is a refusal, and a refusal is only legible if the thing being refused is
+// the ordinary swing — a scope or a rider on top of it would be a second question the boards would
+// then have to be tuned around. `enemy-front` for the fourth hundred running on this tower, on the
+// tower family's own settled finding: aim past the front rank measures inert or negative on all seven.
+//
+// ⚠️ **The cooldowns are short where the Headlong's are long, and that is the axis rather than
+// taste.** That hundred is built on `attackSpeed`, which banks only after a basic attack, so its
+// bodies had to be authored at 62–78 to bank any of it. Nothing here accrues, so these sit at 40–52 —
+// the same register the Masterworks used one hundred below, which is what keeps the *stat line* the
+// only thing that changed between the two.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold shored its galleries against the mountain. It never thought to shore them against a man.
+ *
+ * The opening band's turn, and plain on purpose. The Timberer is the lightest of the four and its
+ * whole claim is the stone it is standing behind — one carrier beside this hundred's control is worth
+ * 0.80 of five, which is the same argument the Hewstroke Prentice makes a hundred floors below: the
+ * opening band has to teach what the wall is before the hundred can charge for three of them.
+ */
+export const SET_THE_TIMBER = {
+  id: 'set-the-timber',
+  name: 'Set the Timber',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * Packed dry, no mortar, every stone bearing on the one under it. The way the hold does it.
+ *
+ * The middle bands' turn, with a `SUNDER` rider priced as texture rather than as the axis — its
+ * duration (45 ticks) stays under this cooldown, so the shred never becomes permanent. ⚠️ **The rider
+ * is the one place this hundred takes armour off rather than putting it on**, and it is deliberate:
+ * a board made entirely of refusal is a board the party cannot make progress against, which is the
+ * ninety-second clock this crew loses to.
+ */
+export const COURSE_THE_STONE = {
+  id: 'course-the-stone',
+  name: 'Course the Stone',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * A pioneer does not take ground. A pioneer makes ground, and then it is nobody else's.
+ *
+ * The lieutenant's turn. A single-target selection rather than a scope, for the reason the Master's
+ * Measure is: a wide turn is the one shape on this tower big enough to carry a band on its own, and
+ * spending one here would make the stat underneath it unmeasurable.
+ */
+export const DRIVE_THE_HEADING = {
+  id: 'drive-the-heading',
+  name: 'Drive the Heading',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Every gallery above this one was dug by somebody who meant to come back up.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this** — at 580 health the board
+ * reads 18% at attack 40, 65% at 38, 98% at 36 and 100% at 34 — so the power stays inside the shipped
+ * single-target register and the stat line is what was tuned. **Shortlist on weight, settle on
+ * attack**, the fifth tower roof running.
+ */
+export const THE_ROOF_COMES_DOWN = {
+  id: 'the-roof-comes-down',
+  name: 'The Roof Comes Down',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.1 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -10763,4 +10857,8 @@ export const SKILLS = [
   THE_STEP_RUNS_AWAY,
   NO_ORDER_TO_HALT,
   IT_CANNOT_STOP,
+  SET_THE_TIMBER,
+  COURSE_THE_STONE,
+  DRIVE_THE_HEADING,
+  THE_ROOF_COMES_DOWN,
 ] as const;

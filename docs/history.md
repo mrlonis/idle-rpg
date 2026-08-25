@@ -275,6 +275,51 @@ faction budget the four Undead axis blocks had spent (91.4% Undead on the first 
 tower ceiling; 68.0% shipped, tower at 64.39%). **When the axis blocks all belong to the lean, the
 anchor is where the budget is.** Full findings in [towers](towers.md).
 
+⚠️ **The Deepworks — the Dwarf Tower's sixth hundred — is the second of the fifth round, and its axis
+is the two hundreds below it read backwards.** The Proof House is built on `physicalPierce` and the
+Masterworks on that pierce carried with the attack behind it; `core/battle/damage.ts` computes
+`effectiveDefence` as `def × (1 − pierce)` and applies `resistedShare` **afterwards, untouched by any
+pierce**, so `physicalResist` is the one wall those two hundred floors taught the player to open and
+cannot. **A hundred can be built on refusing the axis of the hundreds below it.**
+
+⚠️ **It is the first exclusive licence this tower has had — first _and_ second of fourteen.** At
+`physicalResist` 0.20, each arrangement calibrated to the heaviest control it still reads ≥3.60 on:
+dwarf-ref **1.35** and dwarf-alt **1.28**, then elf-alt 1.02 and eleven rows from 0.90 to 0.00. What
+makes it theirs is the damage type — the two Dwarf fives field **5 and 7 physical damage effects and
+zero magical**, on the lowest `atk` in the game, carrying `physicalPierce` Σ0.15 against the Monsters'
+Σ0.70. ⚠️ **And it is not the Monster Tower's third-hundred lock wearing a new name**: that argument is
+about the _Monsters'_ pierce being the wrong stat by the formula, and this crew has almost no pierce to
+be wrong with.
+
+⚠️ **The fight-length confound was disproved by a counter-example rather than fitted away, which is a
+stronger form of the Demon fifth hundred's test.** A Dwarf five is the slowest mortal arrangement in
+the game (`haste` Σ378 / Σ354) and calibrates to a 27.9s control where most crews sit at 8–16s —
+exactly the shape that demands a residual. It needed none: **angel-alt is the slowest arrangement of
+all fourteen at 35.7s and reads 0.15, twelfth**, and the correlation across the table is **0.177**.
+**A single well-chosen counter-example beats a regression; look for the row that should be first and
+is not.**
+
+⚠️ **All four `ascended` blocks retire from the closing bands — the harshest retirement check any
+hundred in this tower has had — and the seconds say they fail two different ways.** Behind four light
+escorts at floor 600 the Breachlord, the Crown Wheel, the Workmaster and the Masterstroke all read 0%;
+the Breachlord dies at **22.3s** and the Masterstroke at **58.1s**. The heavy ones lose to damage and
+the light ones to the clock. All four still anchor the opening bands, which is what "retires" has meant
+since the Human fifth hundred.
+
+⚠️ **The rank a carrier stands in is priced by its _output_ and not by its axis, and two carriers on
+one hundred disagree.** Carried on one body, the Pioneer — the heaviest carrier and the only one with a
+second turn — reads **2.25 of five in front against 3.02 behind**, and the Mason reads **4.00 either
+way**. That is a third distinct answer in four hundreds: a dodge bills what is _aimed at_, an
+`attackSpeed` bills what is _left alive_, and a resist bills every blow that reaches the body whenever
+it arrives. **Carry the measurement, never the precedent.**
+
+⚠️ **`attackSpeed` graded well here and was refused twice over, one session after the Human Tower took
+it.** `effectiveSpeed` adds it to `haste` — this tower's own second- and third-hundred axis, measured
+identical there — and its cost correlates **0.726** with how long each crew's fights already are. **A
+speed tax belongs to whichever crew is slowest.** The tower:campaign crystal ratio, recomputed by hand
+rather than carried, is **2.729** with two towers extended (1,147,600 against 420,500); a completed
+round is 3.101. Full findings in [towers](towers.md).
+
 ⚠️ **The Processional — the Demon Tower's fifth hundred — closes the round, and its axis is the first
 taken on _affordability_ rather than on exclusivity or margin.** `dodge` grades eight monotone steps on
 **both** Demon arrangements with zero timeouts (3.98 → 1.71 and 3.64 → 0.14 across 0.08 → 0.50), and it

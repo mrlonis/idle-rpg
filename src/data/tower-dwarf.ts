@@ -3,6 +3,7 @@ import {
   ANTIPHON_ARCHON,
   ASHPIT_SCUTTLER,
   BANDIT,
+  BAREMARK_GNAWER,
   BARROWMIST_KEENER,
   BOAR,
   BRAMBLEWALK_SCOUT,
@@ -10,6 +11,7 @@ import {
   CAIRNWARD_HUSK,
   CARRION_SWARM,
   CHALKHIDE_BROWSER,
+  CHANNELBED_STALKER,
   CHARNEL_DRUDGE,
   CINDERLING,
   CINDER_CULLER,
@@ -19,6 +21,7 @@ import {
   COUNTERSIGN_CAPTAIN,
   COUNTERWEIGHT_BEARER,
   CROWNWORKS_STRIKER,
+  DEADFALL_TIMBERER,
   DEEPGALLERY_RUNNER,
   DUSKFERN_SKIRMISHER,
   EMBERSEED_WARLOCK,
@@ -34,7 +37,9 @@ import {
   GRAVETIDE_HERALD,
   GRAVEWAKE_THRALL,
   HAG,
+  HARNESS_CUTTER,
   HEADSMAN,
+  HEAPFOOT_RUMMAGER,
   HEARTROOT_TENDER,
   HEWSTROKE_PRENTICE,
   HEXBOUND_TORMENTOR,
@@ -83,16 +88,21 @@ import {
   SKYSHRIKE,
   SLAGBOUND_DRUDGE,
   SLIME,
+  SPOILCART_HAND,
+  SPOIL_PICKER,
   STANDFAST_LANCER,
+  STOPEWARD_MASON,
   STORMCALLER,
   THE_BREACHLORD,
   THE_CROWN_WHEEL,
   THE_MASTERSTROKE,
   THE_PROOF_HOUSE,
+  THE_UNDERMOST,
   THE_WORKMASTER,
   THORNBACK_GRAZER,
   THORNLING,
   THORNWEALD_WARDEN,
+  UNDERSET_PIONEER,
   UNDERVAULT_SAPPER,
   VANWARD_SPEAR,
   VAULTBOUND_GAOLER,
@@ -106,7 +116,7 @@ import {
 } from './enemies';
 
 /**
- * The Dwarf Tower — five hundred floors, enemy levels 1 to 236.
+ * The Dwarf Tower — six hundred floors, enemy levels 1 to 283.
  *
  * ## Why the enemies are mostly Human
  *
@@ -441,6 +451,115 @@ import {
  * exactly as the Human fifth hundred re-fielded the Gravewright. The Proof House itself is not
  * re-fielded — the fourth hundred ended on it and the fiction did too.
  *
+ * ## ⚠️ The sixth hundred — the Deepworks — is the two hundreds below it read backwards
+ *
+ * The Deepworks, floors 501–600, levels 236–283, Relic 41 to Relic 100: the host has finished with
+ * the hold and gone down past it, into the galleries the hold was digging when it fell. The whole
+ * measurement lives in [`enemies.ts`](./enemies.ts) beside the four blocks that carry it; what
+ * belongs here is what the floors do with it and what the hundred is allowed to claim.
+ *
+ * 1. ⚠️ **The axis is `physicalResist`, and it is the one wall the Proof House and the Masterworks
+ *    taught the player to open and cannot.** `core/battle/damage.ts` computes `effectiveDefence` as
+ *    `def × (1 − pierce)` and applies `resistedShare` — `1 − resist` — **afterwards, untouched by any
+ *    pierce**. Two hundred floors of this tower are built on picks; this is the stone.
+ * 2. ⚠️ **"Is it ours" comes back first _and second_ of fourteen, which is exclusivity rather than
+ *    margin — the stronger licence, and the first time this tower has had it.** At `physicalResist`
+ *    0.20, each arrangement calibrated to the heaviest control it still reads ≥3.60 on: **dwarf-ref
+ *    1.35, dwarf-alt 1.28**, elf-alt 1.02, human-ref 0.90, then nine rows from 0.67 down to 0.00.
+ * 3. ⚠️ **The fight-length confound is disproved outright rather than fitted away, and that is worth
+ *    more than a correlation.** A Dwarf five is the **slowest mortal arrangement in the game**
+ *    (`haste` Σ378 / Σ354) and calibrates to a 27.9s control where most crews sit at 8–16s, so the
+ *    Demon fifth hundred's warning applies directly. **angel-alt is the slowest of all fourteen at a
+ *    35.7s control and reads 0.15, twelfth**; the correlation across the table is 0.177, and ranking
+ *    the residual moves nothing.
+ * 4. ⚠️ **What makes it theirs is the damage type, and it is total.** The two arrangements field **5
+ *    and 7 physical damage effects and zero magical**, so a physical ward taxes every point of the
+ *    lowest `atk` in the game, while carrying `physicalPierce` Σ0.15 / Σ0.15 against the Monsters'
+ *    Σ0.56 / Σ0.70. They neither dodge it, out-run it nor open it.
+ * 5. ⚠️ **Every pairing measured is flat, so the axis ships alone** — with `dodge` ×1.02 of its
+ *    halves, with `tenacity` ×0.98, and `dodge` with `tenacity` ×0.91. Only `physicalResist` with
+ *    `def` is super-additive at ×1.23, and it costs **+25.7 seconds**, which on this tower is the
+ *    ninety-second clock rather than a licence.
+ * 6. ⚠️ **`tenacity` is declined for the third hundred running** (0.70 / 0.83 / 0.95 across
+ *    0.30 / 0.60 / 0.85, saturating), `magicResist` and `accuracy` are disqualified by the formula
+ *    rather than by size (0.27 and 0.23 — the party deals no magical damage and carries `dodge`
+ *    Σ0.00), and `attackSpeed` is refused twice over: `effectiveSpeed` adds it to `haste`, which is
+ *    this tower's own second- and third-hundred axis, and its cost correlates **0.726** with how long
+ *    each crew's fights already are. **A speed tax belongs to whichever crew is slowest.**
+ *
+ * The bands walk the carrier count first and the value second, counted as bodies at
+ * `physicalResist` ≥ 0.14 per board — a **count**, because `physicalResist` sits on 193 of 422
+ * shipped blocks and an absolute claim would be false the day it was written:
+ *
+ * | Band | Floors  | Levels  | Grade        | Carriers | Raw health  |
+ * | ---- | ------- | ------- | ------------ | -------- | ----------- |
+ * | 1    | 501–520 | 236–245 | Relic 41–52  | 0–1      | 2,950–3,480 |
+ * | 2    | 521–545 | 246–257 | Relic 53–67  | 1–2      | 2,575–3,070 |
+ * | 3    | 546–565 | 258–267 | Relic 68–79  | 2        | 2,575–2,745 |
+ * | 4    | 566–580 | 267–274 | Relic 80–88  | 2–3      | 1,675–2,675 |
+ * | 5    | 581–595 | 274–281 | Relic 89–97  | 3        | 1,230–1,570 |
+ * | 6    | 596–600 | 281–283 | Relic 98–100 | 1–3      | 1,180–1,335 |
+ *
+ * ⚠️ **There is no grade boundary anywhere inside this hundred** — Relic is the last grade — so the
+ * "a band after a boundary opens heavier" rule does not apply to it at all, and its gear is monotone
+ * from floor 501 to the roof. It is the second hundred in the project with that property.
+ *
+ * ### ⚠️ What the boards found that the control did not
+ *
+ * - ⚠️ **The Crownworks collapse, a fifth time, and this is the harshest retirement check any hundred
+ *   in this tower has had: _all four_ `ascended` blocks retire from the closing bands.** Behind four
+ *   light escorts at floor 600, `THE_BREACHLORD`, `THE_CROWN_WHEEL`, `THE_WORKMASTER` and
+ *   `THE_MASTERSTROKE` all read **0%**. ⚠️ **They fail in two different ways and the seconds say
+ *   which**: the Breachlord dies at **22.3s** and the Masterstroke at **58.1s** — the heavy ones lose
+ *   to damage and the light ones to the clock.
+ * - ⚠️ **"Retires" means from the closing bands, not from the hundred.** Behind the same escorts, the
+ *   Masterstroke and the Workmaster hold to floor **565** (4.00 of five at 37.0s and 35.0s) and the
+ *   Crown Wheel and the Breachlord to floor **545**. All four anchor the opening bands, exactly as
+ *   the Breachlord and the Crown Wheel were re-fielded one hundred below.
+ * - ⚠️ **The squeeze is a factor of 9.86 and it is the whole reason the new blocks are so light.**
+ *   The board weight that reads 4.00 of five falls from **23,445 common-equivalent at floor 501 to
+ *   2,377 at floor 600**, because the party is frozen at band 6 while the boards climb forty-seven
+ *   levels and fifty-nine gear positions. The authored weight opens at **3,440 raw health and closes
+ *   at 1,335** — a fall of ×2.58 — to meet part of it, and the level line does the rest.
+ * - ⚠️ **The rank a carrier stands in is priced by its _output_ and not by its resist, and the two new
+ *   readings disagree with each other.** Carried on one body at floor 593: the **Pioneer** — the
+ *   heaviest carrier, and the only one with a second turn — reads **2.25 of five in front against
+ *   3.02 behind**, worth 0.77; the **Mason** reads **4.00 in front and 4.00 behind**, worth nothing
+ *   at all. That is this tower's own second-hundred rule ("escalate in front; the back rank is a
+ *   cliff") landing on the body carrying the turn and missing the body carrying the stat.
+ * - ⚠️ **A third answer to the rank question in four hundreds, so carry the measurement rather than
+ *   the precedent.** A dodge bills what is *aimed at* (Demon fifth hundred, 0.75 against 0.28), an
+ *   `attackSpeed` bills what is *left alive* (chapter 28, 0.00 against 0.77), and a resist bills every
+ *   blow that reaches the body whenever it arrives.
+ * - ⚠️ **The Pioneer stands in the front rank only where no returning anchor does, and that is a
+ *   tuning rule rather than a habit.** Beside `WARPICK_LIEUTENANT` in one front rank it reads **0%**,
+ *   and behind `PROOFMARK_SERJEANT` with a hot escort it read 1.25 of five at 46.8s. Every board in
+ *   bands 4 through 6 was settled by moving it.
+ * - ⚠️ **The roof was settled on its attack, the fifth tower roof running.** With weight held at 580,
+ *   `THE_UNDERMOST` reads **18% at `atk` 40**, 65% at 38, **98% at 36** and 100% / 2.70 at 34.
+ *   ⚠️ **And its resist is capped by the board rather than by the register**: at `physicalResist` 0.34
+ *   the same board reads **88%**, under the 90% bar, so it ships at 0.30 with the Dwarf faction's own
+ *   shipped 0.34 and the game's 0.40 both left standing.
+ * - ⚠️ **The axis carries the last floor rather than riding along**: the roof's board with its resist
+ *   stripped to zero reads 100% / **3.50** against the shipped 98% / **1.60** — worth **1.90 of five**
+ *   on the top floor of the tower, and twenty-two seconds of clock.
+ * - ⚠️ **The carriers wear `brawler` and `tank` would switch the axis off.** Held at an identical stat
+ *   line, all-`tank` reads **5.00 of five** where all-`brawler` reads 4.00: a tank set pays its grade
+ *   into health, which on a refusal axis buys the party seconds rather than costing it members. The
+ *   Proof House's allocation finding, arriving with the opposite sign.
+ * - ⚠️ **The lean overshoot was 88.2% and it is structural rather than sloppy.** Authored from the
+ *   Human bench the hundred came out at 88.2% and would have taken the tower to **67.15%**, over the
+ *   ceiling — the axis carriers alone stand on 175 slots. It ships at **74.2%** and the tower at
+ *   **64.79%**, corrected by converting every second occurrence of four matched-weight texture blocks
+ *   to Monster bodies that also counter Dwarves (`BANDIT` → `MIREWHELP`, `FREE_BLADE` →
+ *   `ASHPIT_SCUTTLER`, `VANWARD_SPEAR` → `RENDFANG_JACKAL`, `FORLORN_LEVY` → `MIREWHELP`), **spread
+ *   across every band** rather than emptying whichever band leans hardest on filler.
+ * - ⚠️ **Nothing above floor 500 restores anything, stated as counts rather than as an absolute.** Of
+ *   the **28 blocks** this hundred fields, **zero** carry a point of `lifeLeech`, `recovery` or
+ *   `healthRegen`; **zero** carry a heal, drain or shield effect; **zero** carry a `regen`, ward or
+ *   guard status; and **zero** carry a taunt. Checked with a script over the shipped floors rather
+ *   than read.
+ *
  * ## What the bands measure at
  *
  * Band 1: floor 1 in one second, floor 50 in seven, floor 100 in forty-four with three of five
@@ -504,7 +623,7 @@ import {
  * taunt — the Scarbound Bellower, the Order Serjeant, the Gorehide Matriarch and the Signal Runner
  * were each considered as texture and excluded for exactly one line of their kits.
  *
- * Re-run `npm run test:balance` after touching any band above floor 68, 180, 270, 385 or 490.
+ * Re-run `npm run test:balance` after touching any band above floor 68, 180, 270, 385, 490 or 596.
  */
 export const TOWER_DWARF = {
   id: 'tower-dwarf',
@@ -4306,6 +4425,824 @@ export const TOWER_DWARF = {
       enemies: {
         front: [THE_MASTERSTROKE, FREE_BLADE],
         back: [BANDIT, FREE_BLADE, BANDIT],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Sinking Stair — Floors 501–520, levels 236–245, Relic 41–Relic 52 — the host goes down past everything it has taken. The hold's own ascended dead still anchor the boards, and the first stone that will not open is behind them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f501',
+      name: 'Floor 501',
+      enemies: {
+        front: [THE_BREACHLORD, FREE_BLADE],
+        back: [BANDIT, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f502',
+      name: 'Floor 502',
+      enemies: {
+        front: [THE_BREACHLORD, ASHPIT_SCUTTLER],
+        back: [MIREWHELP, BANDIT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f503',
+      name: 'Floor 503',
+      enemies: {
+        front: [THE_CROWN_WHEEL, RENDFANG_JACKAL],
+        back: [MIREWHELP, FREE_BLADE, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f504',
+      name: 'Floor 504',
+      enemies: {
+        front: [THE_BREACHLORD, FORLORN_LEVY],
+        back: [MIREWHELP, ASHPIT_SCUTTLER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f505',
+      name: 'Floor 505',
+      enemies: {
+        front: [THE_CROWN_WHEEL, FREE_BLADE],
+        back: [DEADFALL_TIMBERER, BANDIT, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f506',
+      name: 'Floor 506',
+      enemies: {
+        front: [THE_BREACHLORD, VANWARD_SPEAR],
+        back: [MIREWHELP, ASHPIT_SCUTTLER, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-dwarf-f507',
+      name: 'Floor 507',
+      enemies: {
+        front: [THE_CROWN_WHEEL, FREE_BLADE],
+        back: [DEADFALL_TIMBERER, BANDIT, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f508',
+      name: 'Floor 508',
+      enemies: {
+        front: [THE_BREACHLORD, ASHPIT_SCUTTLER],
+        back: [ASHPIT_SCUTTLER, BANDIT, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f509',
+      name: 'Floor 509',
+      enemies: {
+        front: [THE_CROWN_WHEEL, RENDFANG_JACKAL],
+        back: [DEADFALL_TIMBERER, MIREWHELP, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f510',
+      name: 'Floor 510 — The Sinking Stair',
+      enemies: {
+        front: [THE_BREACHLORD, FREE_BLADE],
+        back: [DEADFALL_TIMBERER, VANWARD_SPEAR, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f511',
+      name: 'Floor 511',
+      enemies: {
+        front: [THE_MASTERSTROKE, ASHPIT_SCUTTLER],
+        back: [MIREWHELP, ASHPIT_SCUTTLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f512',
+      name: 'Floor 512',
+      enemies: {
+        front: [THE_CROWN_WHEEL, FREE_BLADE],
+        back: [DEADFALL_TIMBERER, MIREWHELP, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-dwarf-f513',
+      name: 'Floor 513',
+      enemies: {
+        front: [THE_MASTERSTROKE, RENDFANG_JACKAL],
+        back: [BANDIT, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f514',
+      name: 'Floor 514',
+      enemies: {
+        front: [THE_BREACHLORD, FREE_BLADE],
+        back: [DEADFALL_TIMBERER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f515',
+      name: 'Floor 515',
+      enemies: {
+        front: [THE_CROWN_WHEEL, FORLORN_LEVY],
+        back: [ASHPIT_SCUTTLER, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f516',
+      name: 'Floor 516',
+      enemies: {
+        front: [THE_MASTERSTROKE, FREE_BLADE],
+        back: [DEADFALL_TIMBERER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f517',
+      name: 'Floor 517',
+      enemies: {
+        front: [THE_BREACHLORD, VANWARD_SPEAR],
+        back: [MIREWHELP, BANDIT, SCREEBACK_DARTER],
+      },
+    },
+    {
+      id: 't-dwarf-f518',
+      name: 'Floor 518',
+      enemies: {
+        front: [THE_CROWN_WHEEL, ASHPIT_SCUTTLER],
+        back: [DEADFALL_TIMBERER, MIREWHELP, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f519',
+      name: 'Floor 519',
+      enemies: {
+        front: [THE_MASTERSTROKE, ASHPIT_SCUTTLER],
+        back: [BANDIT, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f520',
+      name: 'Floor 520 — The Winze',
+      enemies: {
+        front: [THE_MASTERSTROKE, RENDFANG_JACKAL],
+        back: [DEADFALL_TIMBERER, BANDIT, MIREWHELP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Adit — Floors 521–545, levels 246–257, Relic 53–Relic 67 — two courses of it now, and the Masterworks' own anchors are the last thing on these boards the party can open.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f521',
+      name: 'Floor 521',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [MIREWHELP, FREE_BLADE, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f522',
+      name: 'Floor 522',
+      enemies: {
+        front: [THE_MASTERSTROKE, ASHPIT_SCUTTLER],
+        back: [DEADFALL_TIMBERER, BANDIT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f523',
+      name: 'Floor 523',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [MIREWHELP, MIREWHELP, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f524',
+      name: 'Floor 524',
+      enemies: {
+        front: [THE_CROWN_WHEEL, DEADFALL_TIMBERER],
+        back: [BANDIT, RENDFANG_JACKAL, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f525',
+      name: 'Floor 525',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, BANDIT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f526',
+      name: 'Floor 526',
+      enemies: {
+        front: [THE_WORKMASTER, FREE_BLADE],
+        back: [DEADFALL_TIMBERER, MIREWHELP, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f527',
+      name: 'Floor 527',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [BANDIT, ASHPIT_SCUTTLER, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f528',
+      name: 'Floor 528',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, BANDIT, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f529',
+      name: 'Floor 529',
+      enemies: {
+        front: [THE_CROWN_WHEEL, ASHPIT_SCUTTLER],
+        back: [DEADFALL_TIMBERER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f530',
+      name: 'Floor 530 — The Adit',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f531',
+      name: 'Floor 531',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [BANDIT, FREE_BLADE, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f532',
+      name: 'Floor 532',
+      enemies: {
+        front: [THE_MASTERSTROKE, STOPEWARD_MASON],
+        back: [BANDIT, MIREWHELP, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f533',
+      name: 'Floor 533',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, BANDIT, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-dwarf-f534',
+      name: 'Floor 534',
+      enemies: {
+        front: [THE_MASTERSTROKE, ASHPIT_SCUTTLER],
+        back: [DEADFALL_TIMBERER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f535',
+      name: 'Floor 535',
+      enemies: {
+        front: [THE_WORKMASTER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f536',
+      name: 'Floor 536',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f537',
+      name: 'Floor 537',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [MIREWHELP, SCREEBACK_DARTER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f538',
+      name: 'Floor 538',
+      enemies: {
+        front: [THE_MASTERSTROKE, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f539',
+      name: 'Floor 539',
+      enemies: {
+        front: [THE_WORKMASTER, FREE_BLADE],
+        back: [STOPEWARD_MASON, MIREWHELP, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f540',
+      name: 'Floor 540 — The Sump',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, BANDIT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f541',
+      name: 'Floor 541',
+      enemies: {
+        front: [THE_WORKMASTER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, MIREWHELP, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f542',
+      name: 'Floor 542',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [MIREWHELP, RENDFANG_JACKAL, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f543',
+      name: 'Floor 543',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, MIREWHELP, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f544',
+      name: 'Floor 544',
+      enemies: {
+        front: [THE_MASTERSTROKE, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, BANDIT, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f545',
+      name: 'Floor 545',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, BANDIT, ASHPIT_SCUTTLER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Deep Galleries — Floors 546–565, levels 258–267, Relic 68–Relic 79 — the ascended anchors thin out and hand over to the hold's own legendaries, because at this depth an ascended block grows faster than a crew frozen at its rung does.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f546',
+      name: 'Floor 546',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, MIREWHELP, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f547',
+      name: 'Floor 547',
+      enemies: {
+        front: [THE_MASTERSTROKE, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, BANDIT, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f548',
+      name: 'Floor 548',
+      enemies: {
+        front: [THE_WORKMASTER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, MIREWHELP, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-dwarf-f549',
+      name: 'Floor 549',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, BANDIT, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f550',
+      name: 'Floor 550 — The Deep Galleries',
+      enemies: {
+        front: [THE_WORKMASTER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f551',
+      name: 'Floor 551',
+      enemies: {
+        front: [THE_MASTERSTROKE, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, BANDIT, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f552',
+      name: 'Floor 552',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, FORLORN_LEVY, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f553',
+      name: 'Floor 553',
+      enemies: {
+        front: [THE_MASTERSTROKE, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, ASHPIT_SCUTTLER, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f554',
+      name: 'Floor 554',
+      enemies: {
+        front: [THE_WORKMASTER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, RENDFANG_JACKAL, RENDFANG_JACKAL],
+      },
+    },
+    {
+      id: 't-dwarf-f555',
+      name: 'Floor 555',
+      enemies: {
+        front: [THE_MASTERSTROKE, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f556',
+      name: 'Floor 556',
+      enemies: {
+        front: [THE_WORKMASTER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, MIREWHELP, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f557',
+      name: 'Floor 557',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, RENDFANG_JACKAL, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f558',
+      name: 'Floor 558',
+      enemies: {
+        front: [THE_WORKMASTER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, ASHPIT_SCUTTLER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f559',
+      name: 'Floor 559',
+      enemies: {
+        front: [GANTRY_WARDEN, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, RENDFANG_JACKAL, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f560',
+      name: 'Floor 560 — The Stull Line',
+      enemies: {
+        front: [THE_WORKMASTER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f561',
+      name: 'Floor 561',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, MIREWHELP, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-dwarf-f562',
+      name: 'Floor 562',
+      enemies: {
+        front: [GANTRY_WARDEN, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, RENDFANG_JACKAL, FREE_BLADE],
+      },
+    },
+    {
+      id: 't-dwarf-f563',
+      name: 'Floor 563',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, DEADFALL_TIMBERER],
+        back: [STOPEWARD_MASON, VANWARD_SPEAR, MIREWHELP],
+      },
+    },
+    {
+      id: 't-dwarf-f564',
+      name: 'Floor 564',
+      enemies: {
+        front: [GANTRY_WARDEN, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, ASHPIT_SCUTTLER, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f565',
+      name: 'Floor 565',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, RENDFANG_JACKAL, SCREEBACK_DARTER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Pioneer's Heading — Floors 566–580, levels 267–274, Relic 80–Relic 88 — the lieutenant arrives. It stands in the front rank only where no returning anchor does; behind one it is worth 0.77 of five less, and beside one it is a wipe.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f566',
+      name: 'Floor 566',
+      enemies: {
+        front: [GANTRY_WARDEN, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, VANWARD_SPEAR, BANDIT],
+      },
+    },
+    {
+      id: 't-dwarf-f567',
+      name: 'Floor 567',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, MIREWHELP, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f568',
+      name: 'Floor 568',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, STOPEWARD_MASON],
+        back: [UNDERSET_PIONEER, RENDFANG_JACKAL, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f569',
+      name: 'Floor 569',
+      enemies: {
+        front: [GANTRY_WARDEN, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, CINDER_CULLER, FORLORN_LEVY],
+      },
+    },
+    {
+      id: 't-dwarf-f570',
+      name: "Floor 570 — The Pioneer's Heading",
+      enemies: {
+        front: [UNDERSET_PIONEER, GANTRY_WARDEN],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, VANWARD_SPEAR],
+      },
+    },
+    {
+      id: 't-dwarf-f571',
+      name: 'Floor 571',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, HARNESS_CUTTER, SIGNAL_RUNNER],
+      },
+    },
+    {
+      id: 't-dwarf-f572',
+      name: 'Floor 572',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, STOPEWARD_MASON],
+        back: [UNDERSET_PIONEER, RENDFANG_JACKAL, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f573',
+      name: 'Floor 573',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, MIREWHELP, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f574',
+      name: 'Floor 574',
+      enemies: {
+        front: [GANTRY_WARDEN, STOPEWARD_MASON],
+        back: [UNDERSET_PIONEER, CINDER_CULLER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f575',
+      name: 'Floor 575',
+      enemies: {
+        front: [WARPICK_LIEUTENANT, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, CINDER_CULLER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f576',
+      name: 'Floor 576',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, STOPEWARD_MASON],
+        back: [UNDERSET_PIONEER, HARNESS_CUTTER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f577',
+      name: 'Floor 577',
+      enemies: {
+        front: [GANTRY_WARDEN, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, CINDER_CULLER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f578',
+      name: 'Floor 578',
+      enemies: {
+        front: [PROOFMARK_SERJEANT, STOPEWARD_MASON],
+        back: [UNDERSET_PIONEER, HARNESS_CUTTER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f579',
+      name: 'Floor 579',
+      enemies: {
+        front: [COUNTERWEIGHT_BEARER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, CINDER_CULLER, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f580',
+      name: 'Floor 580 — The Winding Hole',
+      enemies: {
+        front: [UNDERSET_PIONEER, STOPEWARD_MASON],
+        back: [DEADFALL_TIMBERER, CINDER_CULLER, SIGNAL_RUNNER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Sunken Course — Floors 581–595, levels 274–281, Relic 89–Relic 97 — the returning anchors are gone entirely. Three carriers on every board, and the escort walks down from 560 raw health to 175 as the level line climbs under it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f581',
+      name: 'Floor 581',
+      enemies: {
+        front: [UNDERSET_PIONEER, VANWARD_SPEAR],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f582',
+      name: 'Floor 582',
+      enemies: {
+        front: [UNDERSET_PIONEER, FORLORN_LEVY],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f583',
+      name: 'Floor 583',
+      enemies: {
+        front: [UNDERSET_PIONEER, RENDFANG_JACKAL],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f584',
+      name: 'Floor 584',
+      enemies: {
+        front: [UNDERSET_PIONEER, MIREWHELP],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f585',
+      name: 'Floor 585',
+      enemies: {
+        front: [UNDERSET_PIONEER, CINDER_CULLER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f586',
+      name: 'Floor 586',
+      enemies: {
+        front: [UNDERSET_PIONEER, SIGNAL_RUNNER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f587',
+      name: 'Floor 587',
+      enemies: {
+        front: [UNDERSET_PIONEER, CINDER_CULLER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f588',
+      name: 'Floor 588',
+      enemies: {
+        front: [UNDERSET_PIONEER, SIGNAL_RUNNER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f589',
+      name: 'Floor 589',
+      enemies: {
+        front: [UNDERSET_PIONEER, BAREMARK_GNAWER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f590',
+      name: 'Floor 590 — The Sunken Course',
+      enemies: {
+        front: [UNDERSET_PIONEER, CINDER_CULLER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f591',
+      name: 'Floor 591',
+      enemies: {
+        front: [UNDERSET_PIONEER, CHANNELBED_STALKER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f592',
+      name: 'Floor 592',
+      enemies: {
+        front: [UNDERSET_PIONEER, BAREMARK_GNAWER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f593',
+      name: 'Floor 593',
+      enemies: {
+        front: [UNDERSET_PIONEER, CHANNELBED_STALKER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f594',
+      name: 'Floor 594',
+      enemies: {
+        front: [UNDERSET_PIONEER, SPOILCART_HAND],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f595',
+      name: 'Floor 595',
+      enemies: {
+        front: [UNDERSET_PIONEER, BAREMARK_GNAWER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HARNESS_CUTTER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Undermost — Floors 596–600, levels 281–283, Relic 98–Relic 100 — the roof band, and the last five floors of the tower. The boards go lightest and hottest of the hundred, and the bottom of the dig is at the end of them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-dwarf-f596',
+      name: 'Floor 596',
+      enemies: {
+        front: [UNDERSET_PIONEER, CHANNELBED_STALKER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f597',
+      name: 'Floor 597',
+      enemies: {
+        front: [UNDERSET_PIONEER, SPOILCART_HAND],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HEAPFOOT_RUMMAGER],
+      },
+    },
+    {
+      id: 't-dwarf-f598',
+      name: 'Floor 598',
+      enemies: {
+        front: [UNDERSET_PIONEER, HEAPFOOT_RUMMAGER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, HARNESS_CUTTER],
+      },
+    },
+    {
+      id: 't-dwarf-f599',
+      name: 'Floor 599',
+      enemies: {
+        front: [UNDERSET_PIONEER, HARNESS_CUTTER],
+        back: [STOPEWARD_MASON, DEADFALL_TIMBERER, SPOIL_PICKER],
+      },
+    },
+    {
+      id: 't-dwarf-f600',
+      name: 'Floor 600 — The Undermost',
+      enemies: {
+        front: [THE_UNDERMOST, HEAPFOOT_RUMMAGER],
+        back: [SPOIL_PICKER, HARNESS_CUTTER, SPOIL_PICKER],
       },
     },
   ],

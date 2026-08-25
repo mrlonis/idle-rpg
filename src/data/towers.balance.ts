@@ -223,6 +223,8 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * last one deletes this list and the branch below it.** Fifth round: 21e–21k, then the third hundred,
  * then the fourth, then the fifth, then this.
  *
+ * ⚠️ **The Dwarf Tower came off this list with its Deepworks**; five names remain.
+ *
  * ⚠️ **Two shapes here already read the authored height and need no exemption**, and they were left
  * that way by the fifth hundred precisely so this bump could not miss them: {@link topFloors} takes
  * each tower's **last authored floor** rather than `rules.floors`, and the roof-versus-band-opener
@@ -235,7 +237,6 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * tuned with. Only its level line moves, and only on 21 of 500 floors by a single level.
  */
 const PENDING: readonly string[] = [
-  'tower-dwarf',
   'tower-elf',
   'tower-undead',
   'tower-monster',

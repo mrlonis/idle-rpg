@@ -1,7 +1,7 @@
 # Faction towers
 
-Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — the Human Tower
-complete and the other six at five hundred while a fifth round is in flight.** The system shipped in
+Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — the Human and
+Dwarf Towers complete and the other five at five hundred while a fifth round is in flight.** The system shipped in
 milestone 15b with a single tower, the other six in 15c, the second hundred floors across 21e–21k, the
 third across 21l–21r, the fourth across 21s–21y and the fifth across 21z and after — the Demon Tower
 last in both of the last two rounds, which is what closed them. Read
@@ -544,6 +544,13 @@ choosing; do not copy the last session's shape.**
   every comparable axis adds twelve to twenty-one. No lock is exclusively the Humans' for the second
   hundred running, so the licence is margin. Its register is **entirely Elf**, so the Undead lean
   creates it from nothing. **The first extension the gear ladder could not absorb.** See below.
+- **Dwarf, sixth hundred** — the Deepworks. `physicalResist`, and it is **the two hundreds below it
+  read backwards**: the Proof House and the Masterworks are built on `physicalPierce`, and the damage
+  formula applies a resist _after_ the pierce has done its work, so this is the one wall those two
+  hundred floors taught the player to open and cannot. The **first exclusive licence this tower has
+  had** — dwarf-ref 1.35 and dwarf-alt 1.28, first and second of fourteen, 25% clear of third — and
+  the first hundred to disprove the fight-length confound with a counter-example rather than a
+  residual. See below.
 - **Demon, fourth hundred** — the axis is a
   mechanic two towers had already measured and declined: `magicResist`, re-priced at band 4 against the
   only crew in the game whose damage is entirely magical and whose sole armour answer — the game's
@@ -1931,6 +1938,93 @@ These are findings a later session should not have to re-derive.
   shipped at 67.0% — and it is a property of the axis rather than of discipline**: hot, light
   carriers want the Monster tank-and-texture pool from the first draft. The tower closes at
   **62.87% Human over 2,459 slots**. Budget for the overshoot anyway.
+
+### The sixth hundred — the Dwarf Tower's Deepworks
+
+Floors 501–600, levels 236–283, Relic 41 → Relic 100. The host has finished with the hold and gone
+down past it, into the galleries the hold was digging when it fell.
+
+- ⚠️ **The axis is `physicalResist`, and the argument is the damage formula rather than the stat
+  name.** `effectiveDefence` returns `def × (1 − pierce)` and `resistedShare` multiplies by
+  `1 − resist` **afterwards, untouched by any pierce**. This tower spent its fourth hundred on
+  `physicalPierce` and its fifth on that pierce carried with the attack behind it — two hundred floors
+  teaching the player that armour comes off — and the sixth is the wall that does not. **A hundred can
+  be built on refusing the axis of the two hundreds below it.**
+- ⚠️ **First _and second_ of fourteen, which is exclusivity rather than margin — the stronger licence,
+  and the first time this tower has had it.** Each arrangement calibrated to the heaviest control it
+  still reads ≥3.60 on, then given `physicalResist` 0.20: **dwarf-ref 1.35, dwarf-alt 1.28**, elf-alt
+  1.02, human-ref 0.90, undead-alt 0.67, monster-ref 0.63, monster-alt 0.58, human-alt 0.45, elf-ref
+  0.33, demon-ref 0.22, demon-alt 0.20, angel-alt 0.15, angel-ref 0.02, undead-ref 0.00.
+- ⚠️ **The fight-length confound is disproved by a counter-example rather than fitted away, and that
+  is a stronger form of the Demon fifth hundred's test.** A Dwarf five is the **slowest mortal
+  arrangement in the game** (`haste` Σ378 / Σ354 against elf-alt's Σ620) and calibrates to a 27.9s
+  control where most crews sit at 8–16s — exactly the shape that ranking demands a residual. It does
+  not need one: **angel-alt is the slowest arrangement of all fourteen at a 35.7s control and reads
+  0.15, twelfth**, and the correlation across the table is **0.177**. **A single well-chosen
+  counter-example beats a regression; look for the row that should be first and is not.**
+- ⚠️ **What makes it theirs is the damage type on the party's side, and it is total.** The two Dwarf
+  arrangements field **5 and 7 physical damage effects and zero magical**, so a physical ward taxes
+  every point of the lowest `atk` in the game, while carrying `physicalPierce` Σ0.15 / Σ0.15 against
+  the Monsters' Σ0.56 / Σ0.70. ⚠️ **It is not the Monster Tower's third-hundred lock wearing a new
+  name**: that argument is about the _Monsters'_ pierce being the wrong stat, and this crew has almost
+  no pierce to be wrong with. **Two towers with one stat is a question about the argument.**
+- ⚠️ **Every pairing measured is flat, so the axis ships alone** — with `dodge` ×1.02 of its halves,
+  with `tenacity` ×0.98, and `dodge` with `tenacity` ×0.91. Only `physicalResist` with `def` is
+  super-additive at ×1.23, and it costs **+25.7 seconds** — the ninety-second clock rather than a
+  licence, on the tower whose third-hundred roof is the tightest cleared fight in the project.
+- ⚠️ **`attackSpeed` grades well and is refused twice over**, which is worth recording because the
+  Human Tower took it one session earlier. `effectiveSpeed` adds it to `haste` — this tower's own
+  second- and third-hundred axis, measured identical there — and its cost correlates **0.726** with
+  how long each crew's fights already are, the highest of anything measured. **A speed tax belongs to
+  whichever crew is slowest, and that is what a Dwarf five is.**
+- ⚠️ **The register is shallow on the lean's own side and the hundred had to step past it.**
+  `physicalResist` sat on **193 of 422** blocks at a median of 0.10 and a game-wide ceiling of 0.40;
+  across the 64 Human blocks, **32** carriers at a median of 0.08 and a ceiling of **0.16**. Board-wide
+  0.12 — three quarters of the way to that ceiling — is worth **0.38 of five**, which is texture, so
+  the three legendaries run 0.14 / 0.20 / 0.26 and the roof holds 0.30. **State which side of the
+  register a band landed on**: this is the Monster third hundred's shape rather than the Elf Tower's.
+- ⚠️ **All four `ascended` blocks retire from the closing bands — the harshest retirement check any
+  hundred in this tower has had — and the seconds say they fail two different ways.** Behind four
+  light escorts at floor 600 the Breachlord, the Crown Wheel, the Workmaster and the Masterstroke all
+  read **0%**; the Breachlord dies at **22.3s** and the Masterstroke at **58.1s**. The heavy ones lose
+  to damage and the light ones to the clock. **"Retires" means from the closing bands**: the
+  Masterstroke and the Workmaster hold to floor 565 and the other two to 545, and all four anchor the
+  opening bands.
+- ⚠️ **The squeeze is a factor of 9.86 over one hundred floors, which is what makes the new blocks so
+  light.** The board weight that reads 4.00 of five falls from **23,445 common-equivalent at floor 501
+  to 2,377 at floor 600**, because the party is frozen at band 6 while the boards climb forty-seven
+  levels and fifty-nine gear positions. `THE_UNDERMOST` ships at **580/36** — the lightest roof anchor
+  in the game on health by a clear margin. The seven last-floor anchors, as a list: **The Undermost
+  580/36**, The Unquenched 900/38, The Unlacing 950/48, The Headlong 1050/25, The Great Helve
+  1180/**24** (lightest on attack), The Blackthorn 1180/34, The Unstruck 1250/44 — five of which are
+  still their tower's floor-500 block while the round is in flight.
+- ⚠️ **The rank a carrier stands in is priced by its _output_, not by its resist, and two carriers on
+  the same hundred disagree.** Carried on one body at floor 593, the **Pioneer** — the heaviest
+  carrier and the only one with a second turn — reads **2.25 of five in front against 3.02 behind**,
+  worth 0.77; the **Mason** reads **4.00 in front and 4.00 behind**, worth nothing. That is this
+  tower's own second-hundred rule landing on the body carrying the turn and missing the body carrying
+  the stat. ⚠️ **A third distinct answer in four hundreds** — a dodge bills what is _aimed at_, an
+  `attackSpeed` bills what is _left alive_, a resist bills every blow that reaches the body whenever
+  it arrives. **Carry the measurement, never the precedent.**
+- ⚠️ **The carriers wear `brawler`, and `tank` would switch the axis off.** Held at an identical stat
+  line on the same board, all-`tank` reads **5.00 of five** where all-`brawler` reads 4.00: a tank set
+  pays its grade into health, which on a refusal axis buys the party seconds rather than costing it
+  members. The Proof House's allocation finding with the opposite sign, because the axis is the
+  opposite kind.
+- ⚠️ **The roof was settled on its attack, the fifth tower roof running, and its resist was capped by
+  the board rather than by the register.** At 580 health it reads 18% at `atk` 40, 65% at 38, **98% at
+  36** and 100% at 34; and at `physicalResist` **0.34** the same board reads **88%**, under the 90%
+  bar, so it ships at 0.30 with the Dwarf faction's own 0.34 and the game's 0.40 both left standing.
+  The axis carries the floor rather than riding along: stripped to zero the board reads 100% / 3.50
+  against the shipped 98% / **1.60** — worth **1.90 of five** and twenty-two seconds.
+- ⚠️ **The lean overshoot was 88.2%, the second-worst any tower has had, and it is structural.** The
+  axis carriers alone stand on 175 of 500 slots. It ships at 74.2% and the tower at **64.79%**,
+  corrected by converting every second occurrence of four matched-weight texture blocks to Monster
+  bodies that also counter Dwarves, **spread across every band** rather than emptying the one that
+  leans hardest on filler.
+- ⚠️ **No grade boundary anywhere inside the hundred** — Relic is the last grade — so the "a band after
+  a boundary opens heavier" rule does not apply to it at all. The second hundred in the project with
+  that property, after the Headlong.
 
 ### The fifth hundred — the Elf Tower's Trip-Hammers
 
