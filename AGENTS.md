@@ -394,9 +394,9 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](docs/towers.md)** — seven faction towers, **six hundred floors each at levels 1
-  to 283 — the Human, Dwarf and Elf Towers complete and the other four at five hundred while a fifth round
-  is in flight**. What a tower is for, the three fields a clear may never touch, the six crews, and
-  thirty-one hundreds' worth of measured escalation findings.
+  to 283 — the Human, Dwarf, Elf and Undead Towers complete and the other three at five hundred while a
+  fifth round is in flight**. What a tower is for, the three fields a clear may never touch, the six crews,
+  and thirty-two hundreds' worth of measured escalation findings.
 - **[docs/descent.md](docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -895,7 +895,7 @@ Asserted in `core/battle/simulate.spec.ts`.
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
   notices a tower nobody went back for. ⚠️ **Both lists are back and a fifth round is in flight: the
-  height is 600, the Human, Dwarf and Elf Towers are there and the other four are at 500**, and they went
+  height is 600, the Human, Dwarf, Elf and Undead Towers are there and the other three are at 500**, and they went
   back **in the same session as the bump** for the second round running — between a bump and the first
   authored tower there is nothing at all holding the short ones. **Put the lists back with every bump, not with
   the first authored tower**, and keep the shapes they force — `topFloors` reading the **authored**
@@ -936,8 +936,38 @@ Asserted in `core/battle/simulate.spec.ts`.
 - ⚠️ **The tower:campaign crystal ratio decays without anybody touching it, so recompute _both_ totals
   rather than carrying either.** The fifth hundred recorded 3.093 against "the 25-chapter campaign's
   351,500"; chapters 26–29 shipped, the campaign now pays **420,500**, and the same seven
-  five-hundred-floor towers were really at **2.585**. It reads **2.804** now — three towers at six hundred
-  floors and four pending — and a completed round is **3.101**. [towers](docs/towers.md)
+  five-hundred-floor towers were really at **2.585**. It reads **2.878** now — four towers at six hundred
+  floors and three pending — and a completed round is **3.101**. [towers](docs/towers.md)
+- ⚠️ **A stat can split into the half a crew answers and the half it does not, and a _subtraction_ is
+  what makes the two halves two different axes.** `critDamage` is `1 + max(critDamageAmp −
+critDamageResist, 0)`, so the Angel fourth hundred took `critChance` — the frequency its crew cannot
+  answer — and the Undead sixth took `critDamageAmp` **above** its shipped ceiling of 1.15. The Angel
+  arrangements carry Σ0.76 / Σ0.96 of the resist, which is 0.19 a body, and they rank **thirteenth and
+  eleventh of fourteen at amp 1.70 and first at 2.80**. **A subtraction defends against a small
+  amplifier and evaporates against a large one; check where a register stops working before reading
+  "two towers, one stat".** [towers](docs/towers.md)
+- ⚠️ **On an _amplification_ axis the gear archetype multiplies the axis, which is the refusal-axis
+  finding with the sign reversed and the second hundred running to find the archetype worth more than a
+  step of its own axis.** Held at an identical stat line on one board at the Undead sixth hundred, four
+  carriers at `critChance` 0.22 / `critDamageAmp` 1.70 leave the binding arrangement all-`mage` **1.45
+  of five** and all-`ranger` 1.52, against all-`brawler` 1.98 and all-`tank` **2.65** — _above_ the 2.33
+  the same board reads with no amplifier on it at all. An amplifier bills the attack it multiplies, and
+  `GEAR_PROFILES` pays a tank +46% and a ranger +112% at Relic 100. [towers](docs/towers.md)
+- ⚠️ **One tower can give opposite answers to the rank question on two of its own hundreds.** The Undead
+  Tower's second hundred is `dodge`, which bills what is _aimed at_; its sixth is `critDamageAmp`, which
+  bills what is _left alive_ — carried on one body with the escort held, a carrier is worth 0.15–0.30 of
+  five in front against **1.00 behind** at floor 570 and 0.02–0.08 against **1.80–1.85** at floor 590,
+  reproduced on all three carriers at both levels. **Carry the measurement, never the precedent — not
+  even the same tower's.** [towers](docs/towers.md)
+- ⚠️ **A licence expires in both directions, and "is it ours" can come back _no_ for a crew that had
+  every axis one band earlier.** At band 5 the Undead Tower's whole vocabulary collapsed to one curve and
+  **every** throughput candidate ranked undead-alt first of the twelve non-Angel arrangements; one rung
+  and twenty-four levels later the same crew is mid-table on nearly everything, and its sixth hundred is
+  taken on **margin** — third of fourteen, first of the twelve non-Angel, third on the residual in a
+  three-way tie inside 0.18. ⚠️ **And the candidate that looks decisive can lose on a dead heat**:
+  `magicResist` against a crew dealing twelve magical damage effects and zero physical, six of them
+  drains, ranks **second behind demon-alt at every size on both tables**, which makes it the Demon
+  Tower's fourth hundred rather than this one's. [towers](docs/towers.md)
 - ⚠️ **A refusal recorded on the _clock_ expires when the clock gets cheaper, which is a different
   expiry from the one recorded on size.** The Elf Tower's fourth hundred measured `def` inert and its
   fifth measured it at 0.38 / 2.85 and **declined it on seconds**; its sixth takes it, and nothing

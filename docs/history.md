@@ -363,6 +363,53 @@ boundary is only a reprieve on a hundred whose gear is flat.** The tower:campaig
 recomputed by hand rather than carried, is **2.804** with three towers extended (1,178,900 against
 420,500); a completed round is 3.101. Full findings in [towers](towers.md).
 
+⚠️ **The Riving — the Undead Tower's sixth hundred — is the fourth of the fifth round, and its axis
+is the half of crit a neighbouring tower separated out and declined.** Enemy `critDamageAmp` — the
+**size** of a blow rather than how often one lands — authored **above** its shipped ceiling of 1.15 on
+all four new blocks (1.35 / 1.70 / 2.00 / 2.30) while `critChance` is held **inside** its own ceiling
+of 0.30. It is this tower's founding sentence taken from the one direction five hundred floors did
+not: what breaks an Undead five is anything that stops the trade paying, and the four hundreds below
+stop it by taking the **trade** away, where this one lets the trade happen and removes the **trader** —
+a crew sustaining on `lifeLeech` off damage dealt (Σ0.36 / Σ0.40, the highest in the game) and
+`recovery` on its own turn (Σ55 / Σ61, the highest by a quarter) cannot out-heal a blow that takes a
+body between two of them.
+
+⚠️ **It is not the Angel fourth hundred's lock, and the reason is that a subtraction evaporates.**
+`critDamage` is `1 + max(critDamageAmp − critDamageResist, 0)`, and the two Angel arrangements are the
+only two of fourteen carrying a point of the resist (Σ0.76 / Σ0.96 — 0.19 a body), which is why that
+hundred took `critChance`, the frequency. Measured, that register works exactly where it says it does
+and nowhere above: **angel-ref ranks thirteenth of fourteen at `critDamageAmp` 1.70 and angel-alt
+first at 2.80**. **A subtraction defends against a small amplifier and not against a large one.**
+
+⚠️ **The licence is margin, and what expired is the crew's own.** At band 5 every throughput candidate
+ranked undead-alt first of the twelve non-Angel arrangements because that crew was the most fragile
+mortal five in the game; one rung and twenty-four levels later it is mid-table on nearly everything,
+and this axis is taken at **third of fourteen, first of the twelve non-Angel, third on the residual in
+a three-way tie inside 0.18**. `magicResist` — twelve magical damage effects and zero physical, six of
+them drains, so a magic ward should tax the hit _and_ the healing — ranks **second behind demon-alt at
+every size on both the raw table and the residual**, which makes it the Demon Tower's fourth hundred
+rather than this one's. **A four-percent gap is not an argument.**
+
+⚠️ **It was chosen on the clock, the constraint that binds this tower and no other**: its own shipped
+floor 100 is still the longest cleared fight in the project's towers at 51.2s against a 67.5s bar, and
+`critDamageAmp` 2.20 buys 0.82 of the alternate for **+1.9 seconds** where `def` 70 buys 1.15 for +8.1
+and both walls at 0.50 buy 2.45 for **+24.7**. ⚠️ **And on an amplification axis the gear archetype
+multiplies the axis rather than switching it off** — four `mage` carriers leave the binding
+arrangement 1.45 of five where four `tank` carriers leave 2.65, _above_ the 2.33 the same board reads
+with no amplifier at all, the Deepworks' finding with the sign reversed.
+
+⚠️ **An amplifier bills what is _left alive_, so the carriers stand behind — and this tower's own
+second hundred says the opposite about a dodge, which bills what is _aimed at_.** One carrier is worth
+0.15–0.30 of five in front against **1.00 behind** at floor 570 and 0.02–0.08 against **1.80–1.85** at
+floor 590. **One tower, two axes, opposite answers to the same question; carry the measurement, never
+the precedent.** ⚠️ **The retirement check took all six of the previous hundred's `ascended` blocks**,
+every one of them to damage rather than to the clock (9.1s to 24.1s), because floors 501–600 climb
+Relic 41 → 100 for ×1.47 in effective tank health. The squeeze is a factor of **4.60**, the largest
+this tower has had, and `THE_HEARTSHAKE` ships at **560/16** — the lightest anchor in the game on both
+stats across all thirty-nine hundred-roofs. The tower:campaign crystal ratio, recomputed by hand
+rather than carried, is **2.878** with four towers extended (1,210,200 against 420,500); a completed
+round is 3.101. Full findings in [towers](towers.md).
+
 ⚠️ **The Processional — the Demon Tower's fifth hundred — closes the round, and its axis is the first
 taken on _affordability_ rather than on exclusivity or margin.** `dodge` grades eight monotone steps on
 **both** Demon arrangements with zero timeouts (3.98 → 1.71 and 3.64 → 0.14 across 0.08 → 0.50), and it

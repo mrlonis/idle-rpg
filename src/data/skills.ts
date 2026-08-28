@@ -10412,6 +10412,91 @@ export const NOTHING_MARKS_IT = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's sixth hundred — the Riving, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **The turns are plain single-target damage, and on this axis that is load-bearing rather than a
+// habit.** `critDamageAmp` bills whatever the carrier hits *with*, so a rider would be measuring the
+// rider — and a **wide** turn would be measuring the scope: this tower's third hundred priced a
+// board-wide voice as the most expensive shape it has and its fifth held the hundred to a mean of
+// 0.58 voices a board. All four are `enemy-front`, the tower family's settled finding that aim past
+// the front rank is inert or negative on all seven towers.
+//
+// ⚠️ **The cooldowns run 44 to 56, shorter than the Thicket's 64–84, and that is the axis changing
+// rather than drift.** `attackSpeed` accrues *only* after a basic attack, so the hundred below had to
+// buy its carriers long gaps between casts; an amplifier bills the basic attack and the cast alike,
+// so nothing about the cadence has to be paid for. **Same tower, opposite requirement.**
+// ---------------------------------------------------------------------------------------
+
+/**
+ * You do not cut it. You find where it already wants to come apart, and you disagree politely.
+ *
+ * The opening band's turn. Plain on purpose: the Driver is the lightest of the four and everything it
+ * charges for is in what a crit is worth when it lands, so a rider here would be the thing being
+ * measured. One carrier beside this hundred's control is worth **0.15 of five**, which is the Casebox
+ * Packer's argument on a different tower — the opening band has to teach what the amplifier is before
+ * the closing bands can charge for three of them.
+ */
+export const DRIVE_THE_WEDGE = {
+  id: 'drive-the-wedge',
+  name: 'Drive the Wedge',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 44,
+  priority: 2,
+} as const;
+
+/**
+ * Along it, the log is a door. Across it, the log is a log.
+ *
+ * The middle bands' turn, and the one this hundred fields most. Deliberately the same shape as the
+ * Wedge one band below it, because what changes between the two carriers is the amplifier and not the
+ * turn — which is the only way the boards can say the axis out loud.
+ */
+export const ALONG_THE_GRAIN = {
+  id: 'along-the-grain',
+  name: 'Along the Grain',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * The froe does not swing. The mallet swings, once, and the froe is only there to be believed.
+ *
+ * The hundred's lieutenant turn, standing on the tenth floors of its upper half. Single-target rather
+ * than a scope for the reason every turn on this tower is: a wide voice is the one shape big enough to
+ * carry a band by itself here, and spending one would make the stat underneath it unmeasurable.
+ */
+export const THE_FROE_AND_THE_MALLET = {
+  id: 'the-froe-and-the-mallet',
+  name: 'The Froe and the Mallet',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * It was always going to open here. Six hundred floors of weather only had to wait.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this** — with weight held at 740
+ * the board reads 100% / 2.10 for the binding arrangement at attack 24, 100% / 1.75 at 26, 98% / 1.45
+ * at 28 and 90% / 1.05 at 30 — so the power stays inside the shipped single-target register and the
+ * stat line is what was tuned. **Shortlist on weight, settle on attack**, the seventh tower roof
+ * running.
+ */
+export const IT_OPENS_TO_THE_HEART = {
+  id: 'it-opens-to-the-heart',
+  name: 'It Opens to the Heart',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 56,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -10873,6 +10958,10 @@ export const SKILLS = [
   DRAW_THE_TEMPER,
   THE_LONG_SOAK,
   NOTHING_MARKS_IT,
+  DRIVE_THE_WEDGE,
+  ALONG_THE_GRAIN,
+  THE_FROE_AND_THE_MALLET,
+  IT_OPENS_TO_THE_HEART,
   TAP_THE_RACE,
   THE_HELVE_FALLS,
   THE_CAM_COMES_ROUND,

@@ -1967,8 +1967,8 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Thirty-one hundreds gave thirty-one answers — every second, third, fourth and fifth hundred of
-all seven towers, and the sixth of the Human, Dwarf and Elf — and no two escalate the same way. Read the crew's failure mode before choosing;
+⚠️ **Thirty-two hundreds gave thirty-two answers — every second, third, fourth and fifth hundred of
+all seven towers, and the sixth of the Human, Dwarf, Elf and Undead — and no two escalate the same way. Read the crew's failure mode before choosing;
 do not copy the last session's shape.** [towers](towers.md)
 
 ⚠️ **The cross-crew table has now failed to choose the axis four fifth hundreds running, for four
@@ -1988,6 +1988,40 @@ where `critChance`'s correlates **0.645**: the four heaviest-armoured arrangemen
 costliest rows on pierce (angel-alt Σ195 → 2.42, angel-ref Σ174 → 1.96, dwarf-alt Σ186 → 1.17,
 dwarf-ref Σ163 → 0.74), where crit's ordering breaks at the bottom (undead-alt reads 1.17 on Σ45 of
 `def`). **Correlate the cost against the register the axis is pointed at.** [towers](towers.md)
+
+⚠️ **A stat can split into a half one crew answers and a half it does not, and the two halves are
+two different axes on two different towers.** `critDamageResist` is _subtracted_ from the attacker's
+`critDamageAmp` and says nothing about how often a crit lands, so the Angel fourth hundred built on
+`critChance` — the frequency its crew cannot answer — and the Undead sixth built on `critDamageAmp`
+above its register. ⚠️ **What licenses the second is that a subtraction evaporates**: the Angel
+arrangements carry Σ0.76 / Σ0.96 of `critDamageResist`, which is 0.19 a body, and measured they rank
+**thirteenth and eleventh of fourteen at `critDamageAmp` 1.70 and first at 2.80**. **A subtraction
+defends against a small amplifier and not against a large one — check where a register stops working
+before reading "two towers, one stat".** [towers](towers.md)
+
+⚠️ **On an _amplification_ axis the gear archetype multiplies the axis, which is the refusal-axis
+finding with the sign reversed.** Held at an identical stat line on one board at the Undead sixth
+hundred, four carriers at `critChance` 0.22 / `critDamageAmp` 1.70 leave the binding arrangement
+all-`mage` **1.45 of five** and all-`ranger` 1.52, against all-`brawler` 1.98 and all-`tank`
+**2.65** — _above_ the 2.33 the same board reads with no amplifier on it at all. `GEAR_PROFILES` pays
+a tank +46% attack and a ranger +112% at Relic 100, and an amplifier bills the attack it multiplies.
+**Two hundreds running have now found the archetype worth more than a step of their own axis; check
+which kind of axis you have before allocating them.** [towers](towers.md)
+
+⚠️ **One tower can give opposite answers to the rank question on two of its own hundreds.** The
+Undead Tower's second hundred is `dodge`, which bills what is _aimed at_; its sixth is
+`critDamageAmp`, which bills what is _left alive_ — carried on one body with the escort held, a
+carrier is worth 0.15–0.30 of five in front and **1.00 behind** at floor 570 and 0.02–0.08 in front
+against **1.80–1.85 behind** at floor 590, reproduced on all three carriers at both levels. **Carry
+the measurement, never the precedent — not even the same tower's.** [towers](towers.md)
+
+⚠️ **"Is it ours" can come back _no_ for a crew that had every axis one band earlier.** At band 5 the
+Undead Tower's whole vocabulary collapsed to one curve and **every** throughput candidate ranked
+undead-alt first of the twelve non-Angel arrangements, so the table could not choose between the
+spellings. One rung and twenty-four levels later the same crew is mid-table on nearly everything and
+its sixth hundred had to be taken on **margin** — third of fourteen, first of the twelve non-Angel,
+third on the residual in a three-way tie inside 0.18. **A licence expires in both directions.**
+[towers](towers.md)
 
 ⚠️ **A refusal recorded on the _clock_ expires when the clock gets cheaper, which is a different
 expiry from the one recorded on size.** The Elf Tower's fourth hundred measured `def` inert and its

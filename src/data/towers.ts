@@ -168,10 +168,10 @@ import { TOWER_UNDEAD } from './tower-undead';
  * 1,450 stages, and the *same* seven five-hundred-floor towers were really at **2.585** by the time
  * this session opened. **A ratio between two moving ladders decays without anybody touching it.**
  *
- * Measured now: seven towers with **three** at six hundred floors and four pending pay **1,178,900**
- * against 420,500, a ratio of **2.804** — recomputed rather than carried, which is what every session
- * owes. (It read 2.655 with one tower extended and 2.729 with two; the campaign has not moved since,
- * so the whole difference is the hundreds landing one at a time.) A completed round is **1,304,100** and **3.101** — which is the
+ * Measured now: seven towers with **four** at six hundred floors and three pending pay **1,210,200**
+ * against 420,500, a ratio of **2.878** — recomputed rather than carried, which is what every session
+ * owes. (It read 2.655 with one tower extended, 2.729 with two and 2.804 with three; the campaign has
+ * not moved since, so the whole difference is the hundreds landing one at a time.) A completed round is **1,304,100** and **3.101** — which is the
  * figure to weigh before a seventh hundred, and which lands almost exactly where the fifth hundred's
  * (stale) reading did, for entirely different reasons on both sides. ⚠️ **Recompute both totals
  * rather than carrying either.**
@@ -179,7 +179,7 @@ import { TOWER_UNDEAD } from './tower-undead';
  * ⚠️ **While the round is in flight a tower still waiting for its floors pays 155,000 rather than the
  * 155,300 a five-hundred-floor tower would pay on its own rules**, because `floorKindAt` reads the
  * *rules'* height and its floor 500 resolves as a mini-boss — the payout regression this file
- * describes, in the arithmetic. **Four** towers are on that footing today. ⚠️ **The direction is the finding.** The retired
+ * describes, in the arithmetic. **Three** towers are on that footing today. ⚠️ **The direction is the finding.** The retired
  * guard's *floor* was expected to fall as chapters shipped and its *ceiling* of 4 is the half that
  * would now be under pressure: the campaign tripled in stage count between the third hundred and this
  * one and its crystal total rose only 12%, because `firstClearSummons` is nearly flat per stage while
@@ -390,8 +390,8 @@ export const TOWER_RULES = {
  * {@link TOWER_RULES} is one rule for all seven, so a height bump lands in **one** session while the
  * floors themselves land in seven. It happened that way for the second hundred (21e bumped, 21e–21k
  * authored), for the third (21l–21r), for the fourth (21s–21y), and for the fifth. ⚠️ **A fifth round
- * is in flight: the Human, Dwarf and Elf Towers stand at six hundred floors and the other four are at
- * five hundred**,
+ * is in flight: the Human, Dwarf, Elf and Undead Towers stand at six hundred floors and the other three
+ * are at five hundred**,
  * carried by the `PENDING` lists in `towers.spec.ts` and `towers.balance.ts`, which went back in the
  * same session as the bump. While a round is in flight a tower that has not been extended simply ends
  * at its last authored floor — `clearedFloors` clamps to what the tower authors, so `nextFloor`

@@ -379,6 +379,10 @@ import {
   DRAW_THE_TEMPER,
   THE_LONG_SOAK,
   NOTHING_MARKS_IT,
+  DRIVE_THE_WEDGE,
+  ALONG_THE_GRAIN,
+  THE_FROE_AND_THE_MALLET,
+  IT_OPENS_TO_THE_HEART,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -13546,11 +13550,11 @@ export const THE_CAMWRIGHT = {
  * with its carriers' `haste` dropped to 90 reads 4.00 and 4.03, so the beat is worth **0.20 of five to
  * the reference and 2.03 to the alternate** on the top floor of the tower.
  *
- * ⚠️ **At 1180/24 this is _tied_ for the lightest roof anchor on attack any tower hundred has
- * shipped**, and the list rather than the superlative, because the superlative has gone stale three
- * times now: {@link THE_CASEHARDENED} matched the 24 at 780 health one hundred floors above it, and
- * the tower roofs read 1180/24 (this), 780/24, 1050/25, 1180/34, 580/36, 900/38, 1140/40, 1160/44,
- * 1200/52, 820/58, 1240/68, 1240/74, 1300/84, 1320/82, 1440/86, 1540/92 and 1560/91. **The weight a roof is allowed is what is left after the
+ * ⚠️ **At 1180/24 this was tied for the lightest roof anchor on attack any tower hundred had shipped,
+ * and {@link THE_HEARTSHAKE} has since taken the record outright at 16**, which is the fourth time the
+ * superlative has gone stale — so the list rather than the sentence: the roofs read 560/**16**, 780/24,
+ * 1180/24 (this), 1050/25, 1180/34, 580/36, 900/38, 1140/40, 1000/42, 1160/44, 1250/44, 950/48, 1200/52
+ * and on up to 1800/100. **The weight a roof is allowed is what is left after the
  * grade**, and this one is wearing Relic 40 at enemy level 236 — but what it is really left with is
  * what is affordable beside two carriers keeping its time.
  *
@@ -15473,13 +15477,13 @@ export const UNDERSET_PIONEER = {
  * roof to. The Dwarf faction's own shipped ceiling is 0.34 and the game's is 0.40; this steps past
  * neither.
  *
- * ⚠️ **At 580/36 this is the lightest roof anchor in the game on health**, by a clear margin. The
- * seven towers' last-floor anchors, as a list rather than a superlative, because this claim has gone
- * stale twice already: **The Undermost 580/36**, {@link THE_CASEHARDENED} 780/**24** (the lightest on
- * attack), The Unquenched 900/38, The Unlacing 950/48, `THE_HEADLONG` 1050/25, The Blackthorn
- * 1180/34, The Unstruck 1250/44. The reason this one is so light is the ×9.86 squeeze above rather
- * than a soft roof — and four of those six are still their tower's floor-500 block, so **re-read the
- * list rather than the sentence once the round closes.**
+ * ⚠️ **At 580/36 this was the lightest roof anchor in the game on health, and {@link THE_HEARTSHAKE}
+ * took it one session later at 560.** The seven towers' last-floor anchors, as a list rather than a
+ * superlative, because this claim has now gone stale three times: The Heartshake 560/**16** (the
+ * lightest on both), **The Undermost 580/36**, {@link THE_CASEHARDENED} 780/24, The Unquenched 900/38,
+ * The Unlacing 950/48, `THE_HEADLONG` 1050/25, The Unstruck 1250/44. The reason this one is so light is
+ * the ×9.86 squeeze above rather than a soft roof — and three of those seven are still their tower's
+ * floor-500 block, so **re-read the list rather than the sentence once the round closes.**
  *
  * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. Nothing on it
  * restores anything, it carries no taunt, and the board it stands on carries no heal, drain,
@@ -15754,6 +15758,259 @@ export const THE_CASEHARDENED = {
     magicResist: 0.12,
   },
   skills: [NOTHING_MARKS_IT, THE_LONG_SOAK, DRAW_THE_TEMPER],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's sixth hundred — the Riving, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **Four blocks, which is 10.5% of the 38 distinct archetypes this hundred fields rather than a
+// quarter of them.** The quota is a count with eight hundreds of precedent behind it, not a fraction
+// to solve for. ⚠️ **And they are split two Elf, one Demon, one Monster, which is a departure from
+// "four for the lean" taken deliberately**: this tower's fifth hundred authored three new carriers and
+// a roof all Elven, they stood on nearly every board, and the first pass came out at **94.8% Elf** —
+// 244 of 500 slots spoken for before a texture body was chosen. Both counter-factions borrowed from
+// here also counter Undead (Demons at ×1.1, Monsters at ×1.05), so the swap costs the lean nothing.
+//
+// ## ⚠️ The axis is enemy `critDamageAmp`, and it is the half of crit the Angel Tower declined
+//
+// Six hundred floors ago this tower's premise was written down as *what breaks an Undead five is not a
+// wall but anything that stops the trade paying*. Its second hundred stopped the trade with `dodge`, its
+// third with a pool that would not die, its fourth with `atk` and `haste` as a product and its fifth with
+// `attackSpeed`. This one stops it with the **size of one blow**: `critDamage` in
+// [`core/battle/damage.ts`](../core/battle/damage.ts) is `1 + max(critDamageAmp − critDamageResist, 0)`,
+// and a crew that sustains on `lifeLeech` off damage dealt and `recovery` on its own turn cannot
+// out-trade a blow that removes a body between two of them.
+//
+// Priced against a control of an `ascended` anchor at 900/40 behind four `legendary` bodies at 500/30,
+// every stat line scaled by the factor that puts each arrangement on the heaviest control it still reads
+// ≥3.60 on — undead-ref at **×0.600**, joint-lowest of the fourteen with monster-alt, and undead-alt at
+// **×0.725** — at
+// level 283 in Relic 100, reading 3.92 and 3.83 of five at 20.1s and 20.4s. `critChance` held at 0.22,
+// inside its own shipped ceiling of 0.30. Forty seeds, **zero timeouts on every row**:
+//
+// | four carriers at        | undead-ref | undead-alt | mean fight (alt) |
+// | ----------------------- | ---------- | ---------- | ---------------- |
+// | `critDamageAmp` 0.75 — control | 3.60 | 3.52   | 20.9s            |
+// | 1.00                    | 3.27       | 3.20       | 21.7s            |
+// | 1.30                    | 3.15       | 2.98       | 22.5s            |
+// | 1.60                    | 3.02       | 2.73       | 23.1s            |
+// | 1.90                    | 3.00       | 2.40       | 24.3s            |
+// | 2.20                    | 2.85       | 1.90       | 26.3s            |
+// | 2.50                    | 2.65       | 1.60       | 26.8s            |
+// | 2.80                    | 2.52       | 1.43       | 28.3s            |
+// | 3.20                    | 2.42       | 1.02       | 28.6s            |
+//
+// 1. ⚠️ **It grades in _both_ value and carrier count**, which is what a six-band hundred needs and what
+//    chapter 29's rule predicts of an *offensive* axis. At `critDamageAmp` 2.20 the walk across zero to
+//    four carriers reads **3.95 / 3.83 / 3.48 / 3.02 / 3.00** for the reference five and
+//    **3.92 / 3.85 / 3.13 / 2.58 / 2.05** for the alternate, zero timeouts. So the bands walk both, and
+//    the band table below is a count of bodies at a threshold.
+// 2. ⚠️ **The licence is _margin_ rather than exclusivity, and saying which is half the finding.** Each
+//    arrangement calibrated to its own control and given `critChance` 0.22 / `critDamageAmp` 2.80 on four
+//    bodies: angel-alt 3.40, angel-ref 3.17, **undead-alt 2.75**, elf-alt 2.65, demon-alt 2.35, dwarf-ref
+//    2.13, dwarf-alt 1.55, human-alt 1.48, undead-ref 1.43, human-ref 1.40, elf-ref 1.35, demon-ref 1.23,
+//    monster-alt 1.00, monster-ref 0.85. **Third of fourteen, and first of the twelve non-Angel
+//    arrangements** — the framing this tower's own fifth hundred used, because a first place is not a
+//    licence when the crew holding it is the one furthest up its own ladder. The fight-length confound is
+//    real (corr **0.612**) and fitting it puts undead-alt **third on the residual** in a three-way tie
+//    inside 0.18 (elf-alt +1.05, demon-alt +0.87, undead-alt +0.87). **It is a margin, not a lock.**
+// 3. ⚠️ **It is the half of crit the Angel Tower declined, and the reason is that a subtraction
+//    evaporates.** `critDamageResist` is *subtracted* from the attacker's amplifier, and the two Angel
+//    arrangements are the only two of fourteen carrying a point of it (Σ0.76 / Σ0.96 — 0.19 a body).
+//    Measured, that register works exactly where the Angel fourth hundred says it does and nowhere above
+//    it: at `critDamageAmp` **1.70** angel-ref ranks **thirteenth of fourteen at 0.02** and angel-alt
+//    eleventh at 0.20; at **2.80** angel-alt ranks first. **A subtraction defends against a small
+//    amplifier and evaporates against a large one**, which is why this axis exists only above its
+//    register — and why "two towers with one stat" does not apply: that hundred is `critChance`, the
+//    frequency, chosen *because* its crew answers the size.
+// 4. ⚠️ **Chosen on the clock, which is this tower's binding constraint and no other's.** Its own shipped
+//    floor 100 is still the longest cleared fight in the project's towers at **51.2 seconds against a
+//    67.5-second bar**, so every hundred here has to buy difficulty as far from the timer as it can. At
+//    matched cost this is the cheapest thing measured: `critDamageAmp` 2.20 buys 0.82 of the alternate for
+//    **+1.9 seconds** where `magicResist` 0.48 buys 0.98 for +5.6, `def` 70 buys 1.15 for +8.1, `dodge`
+//    0.32 buys 1.15 for +8.5, and both walls at 0.50 buy 2.45 for **+24.7**.
+// 5. ⚠️ **An amplifier bills what is _left alive_, so the carriers stand behind.** Carried on **one** body
+//    with the escort held, a carrier is worth 0.15–0.30 of five in front and **1.00 behind** at floor
+//    570's level, and 0.02–0.08 in front and **1.80–1.85 behind** at floor 590's — reproduced on all three
+//    carriers at both levels. That is chapter 28's `attackSpeed` sign and the exact opposite of a dodge,
+//    which bills what is *aimed at*. It is also why the axis sits on the escorts: the same amplifier on
+//    the anchor alone is worth **0.18 and 0.02** where it is worth 0.33 and 1.30 on the four escorts.
+// 6. ⚠️ **On an amplification axis the gear archetype multiplies the axis, which is the Deepworks'
+//    finding with the sign reversed.** Held at an identical stat line on one board, four carriers at
+//    `critChance` 0.22 / `critDamageAmp` 1.70 read all-`ranger` **1.52 / 1.77** and all-`mage` 1.45 / 2.00
+//    against all-`brawler` 1.98 / 2.75, all-`support` 2.02 / 3.48 and all-`tank` **2.65 / 3.90**.
+//    `GEAR_PROFILES` pays a tank +46% attack and a ranger +112% at Relic 100, and an amplifier bills the
+//    attack it is multiplying — so where the Dwarf sixth hundred's *refusal* axis is switched **off** by a
+//    tank set, this one is switched **on** by a hot one. All four carriers wear `ranger` or `mage`.
+// 7. ⚠️ **Disqualified rather than merely weak, and each for a stated reason.** `magicResist` is the
+//    sharpest-sounding candidate on this tower — undead-alt deals **twelve magical damage effects and zero
+//    physical**, six of them drains, so a magic ward ought to tax the hit *and* the healing — and it ranks
+//    **second**, behind demon-alt on the raw table (1.23 against 1.25 at 0.60, 1.50 against 1.53 at 0.74)
+//    **and** on the residual, which makes it the Demon Tower's own fourth hundred rather than this one's.
+//    `physicalResist` 0.48 ranks ninth and tenth and is the Dwarf Tower's sixth. `def` 70 ranks fifth and
+//    third behind elf-alt and is the Elf Tower's sixth, one session old. Both walls together rank behind
+//    elf-alt and dwarf-ref at every size and cost **+24.7s and +36.8s**. `physicalPierce` 0.36 is worth
+//    0.45 / 0.48 and ranks thirteenth and eleventh, because this crew carries `def` **Σ50 / Σ45, the
+//    lowest two of fourteen** — there is nothing to open. `magicPierce` 0.40 is worth **0.03**, because a
+//    pierce never touches a resist. `tenacity` 0.85 is worth 0.10 / 0.30 against a crew carrying Σ0.00.
+//    Complete crit **denial** (`critBlock` 0.34 with `critDamageResist` 0.52) reads **4.00 against a 3.95
+//    control** — worth less than nothing. `insight` 0.80 is worth 0.05, and `accuracy` nothing at all
+//    against a crew carrying Σ0.00 of `dodge`.
+//
+// ⚠️ **The register, measured before these four joined the pool.** `critDamageAmp` sits on **all 430**
+// shipped blocks — so, exactly as chapter 23 requires of a common stat, the band table is a **count of
+// bodies at a threshold** rather than a claim about presence. The pool reads a median of **0.70**, a p90
+// of **0.85** and a ceiling of **1.15** ({@link THE_EDGEWRIGHT}), and this hundred authors **1.35 → 2.30**,
+// every one of the four above the ceiling — the Monster Tower's "a stat that works only above its
+// register", as a whole hundred. ⚠️ **The other half of the pair is held _inside_ its register**:
+// `critChance` reads a median of 0.10, a p90 of 0.15 and a ceiling of **0.30** ({@link THE_HAIRLINE}), and
+// the four run 0.20 → 0.28. **State which side of the register each half landed on.**
+//
+// ⚠️ **The squeeze is what makes the hundred, and it is the largest any of this tower's has been.** On a
+// fixed control the board weight reading ≥3.90 of five for the binding arrangement falls from **6,670 raw
+// / 10,105 common-equivalent at floor 501 to 1,450 / 2,197 at floor 600** — a factor of **4.60** over one
+// hundred floors, against the Elf sixth hundred's 3.69. The party is frozen at band 6 while the boards
+// climb forty-seven levels and fifty-nine gear positions, so all four of these are light: the roof is
+// **560 health**, under {@link THE_UNDERMOST}'s 580.
+//
+// ⚠️ **Nothing here restores anything.** No block below carries `lifeLeech`, `recovery`, `healthRegen`, a
+// heal, a drain, a shield, a taunt, a link or a reflect, and the claim about the *boards* is stated as
+// counts in [`tower-undead.ts`](./tower-undead.ts).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It does not cut. It finds the crack that was already there and disagrees with it, once, hard.
+ *
+ * The opening band's carrier: the axis at its entry size — **`critDamageAmp` 1.35 on 380 health**, which
+ * is the smallest step above the pool's ceiling of 1.15 that reads at all. ⚠️ **A plain block at the
+ * bottom of a new axis is the lesson**, exactly as the Casebox Packer is one tower over: one carrier
+ * beside this hundred's control is worth **0.12 of five** even at `critDamageAmp` 2.20, because the axis
+ * grades in carrier count as well as in value and the opening band has to teach what an amplifier is
+ * before the closing bands can charge for three of them.
+ *
+ * ⚠️ **Demon rather than Elf, and that is the departure this hundred takes deliberately.** Demons counter
+ * Undead at ×1.1, above the Elves' own ×1.05, so a carrier drawn from here costs the lean nothing and
+ * spends none of the allowance the tower's fifth hundred blew through — that one authored three carriers
+ * and a roof all Elven and came out at 94.8% before a texture body was chosen.
+ */
+export const EMBERWEDGE_DRIVER = {
+  id: 'emberwedge-driver',
+  name: 'Emberwedge Driver',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 380,
+    atk: 44,
+    def: 16,
+    haste: 104,
+    critChance: 0.2,
+    critDamageAmp: 1.35,
+  },
+  skills: [DRIVE_THE_WEDGE],
+} as const;
+
+/**
+ * Along the grain the log is a door. Across it, it is a log. The Render has never once gone across.
+ *
+ * The middle bands' carrier and the block this hundred fields most — **`critDamageAmp` 1.70 on 340
+ * health**, half again the pool's ceiling. ⚠️ **`mage` gear deliberately**: `GEAR_PROFILES` pays a mage
+ * **+120%** attack at Relic 100 against a tank's +46%, and an amplifier bills the attack it is
+ * multiplying, so the grade this body wears compounds with the axis instead of sitting beside it. Held at
+ * an identical stat line on one board, four `mage` carriers leave the binding arrangement **1.45 of
+ * five** and four `ranger` carriers 1.52, where four `tank` carriers leave **2.65** — above the 2.33 that
+ * board reads with no amplifier on it at all. **A tank set does not merely dampen this axis; it pays the
+ * grade somewhere the axis cannot reach.**
+ */
+export const SPLITMAW_RENDER = {
+  id: 'splitmaw-render',
+  name: 'Splitmaw Render',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 340,
+    atk: 42,
+    def: 14,
+    haste: 100,
+    critChance: 0.24,
+    critDamageAmp: 1.7,
+  },
+  skills: [ALONG_THE_GRAIN, DRIVE_THE_WEDGE],
+} as const;
+
+/**
+ * The froe does not swing. The mallet swings, once, and the froe is only there to be believed.
+ *
+ * The hundred's lieutenant, standing on the tenth floors of its upper half at **`critDamageAmp` 2.00 on
+ * 420 health** — the deepest amplifier any `legendary` body in the game carries, and the first of the four
+ * to stand in the **front** rank. ⚠️ **That is a priced discount rather than an oversight**: carried on
+ * one body with the escort held, an amplifier is worth 0.15–0.30 of five in front and **1.00 behind** at
+ * floor 570's level and 0.02–0.08 in front against **1.80–1.85 behind** at floor 590's, so a board that
+ * wants three amplifiers and can only afford two and a half puts the third in front. Its attack is 38, and
+ * that is the squeeze rather than a soft lieutenant: the weight a board may carry falls by a factor of
+ * **4.60** across this hundred, and its line was settled against all of its appearances rather than its
+ * first.
+ */
+export const RIVENBOUGH_FROE = {
+  id: 'rivenbough-froe',
+  name: 'Rivenbough Froe',
+  faction: 'elf',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 420,
+    atk: 38,
+    def: 18,
+    haste: 98,
+    critChance: 0.26,
+    critDamageAmp: 2,
+  },
+  skills: [THE_FROE_AND_THE_MALLET, ALONG_THE_GRAIN],
+} as const;
+
+/**
+ * It was always going to open here. Six hundred floors of weather only had to wait for the frost.
+ *
+ * The roof, and the last floor of the tower. **The axis at its authored ceiling — `critDamageAmp` 2.30 on
+ * 560 health, which is exactly twice the shipped pool's 1.15.** ⚠️ **And the axis carries the floor rather
+ * than riding along**: with the whole board's amplifiers dropped to the pool median of 0.70 the same board
+ * reads 100% / 2.00 for the reference five and 100% / 3.13 for the alternate against the shipped 98% /
+ * 1.27 and 93% / 1.82 — worth **0.73 of five and 1.31** on the top floor of the tower.
+ *
+ * ⚠️ **Settled on its attack, the seventh tower roof running.** With the weight held at 560 behind the
+ * shipped escort the board reads 100% / 1.82 for the binding arrangement at `atk` 12, 98% / 1.57 at 14,
+ * **98% / 1.40 at the shipped 16**, 90% / 1.13 at 18 and 85% / 0.97 at 20. ⚠️ **And the escort binds
+ * harder than the boss does** — the identical roof behind *four* amplifiers rather than three reads
+ * **0%**, at every stat line. **Shortlist on weight, settle on attack, then check the escort.**
+ *
+ * ⚠️ **At 560/16 this is the lightest anchor in the game on _both_ stats, over all thirty-nine
+ * hundred-roofs and not merely the seven last floors.** The list rather than the superlative, because it
+ * has gone stale four times now: the seven towers' last-floor anchors are **The Heartshake 560/16**, The
+ * Undermost 580/36, The Case-Hardened 780/24, The Unquenched 900/38, The Unlacing 950/48, The Headlong
+ * 1050/25 and The Unstruck 1250/44, and nothing on any hundred-roof sits under either figure. The reason
+ * this one is so light is the ×4.60 squeeze above it rather than a soft roof.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. Nothing on it
+ * restores anything, it carries no taunt, and the board it stands on carries no heal, drain, shield or
+ * regeneration.
+ */
+export const THE_HEARTSHAKE = {
+  id: 'the-heartshake',
+  name: 'The Heartshake',
+  faction: 'elf',
+  tier: 'ascended',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 560,
+    atk: 16,
+    def: 24,
+    haste: 96,
+    critChance: 0.28,
+    critDamageAmp: 2.3,
+  },
+  skills: [IT_OPENS_TO_THE_HEART, THE_FROE_AND_THE_MALLET, ALONG_THE_GRAIN],
 } as const;
 
 export const ENEMIES = [
@@ -16187,4 +16444,8 @@ export const ENEMIES = [
   SLACKTUB_TENDER,
   SOAKPIT_MASTER,
   THE_CASEHARDENED,
+  EMBERWEDGE_DRIVER,
+  SPLITMAW_RENDER,
+  RIVENBOUGH_FROE,
+  THE_HEARTSHAKE,
 ] as const;

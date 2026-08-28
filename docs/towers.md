@@ -1,7 +1,7 @@
 # Faction towers
 
-Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — the Human, Dwarf
-and Elf Towers complete and the other four at five hundred while a fifth round is in flight.** The system shipped in
+Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — the Human, Dwarf,
+Elf and Undead Towers complete and the other three at five hundred while a fifth round is in flight.** The system shipped in
 milestone 15b with a single tower, the other six in 15c, the second hundred floors across 21e–21k, the
 third across 21l–21r, the fourth across 21s–21y and the fifth across 21z and after — the Demon Tower
 last in both of the last two rounds, which is what closed them. Read
@@ -244,8 +244,8 @@ is the argument for the discipline rather than against it.** The fifth recorded 
 sixth hundred opened. **A ratio between two moving ladders decays without anybody touching it — do not
 carry either total forward.**
 
-Measured now: seven towers with the Human, Dwarf and Elf at six hundred and four pending pay
-**1,178,900** against 420,500, a ratio of **2.804**. A completed round is **1,304,100** and **3.101** — the figure to weigh
+Measured now: seven towers with the Human, Dwarf, Elf and Undead at six hundred and three pending pay
+**1,210,200** against 420,500, a ratio of **2.878**. A completed round is **1,304,100** and **3.101** — the figure to weigh
 before a seventh hundred. A six-hundred floor tower pays 66,300 from floors and 186,300 with both
 tracks, against a five-hundred floor tower's 55,300 and 155,300; a pending tower pays 155,000, because
 its floor 500 resolves as a mini-boss.
@@ -558,6 +558,12 @@ choosing; do not copy the last session's shape.**
   **inert** and the fifth measured it and **declined it on the clock**; what changed is the squeeze.
   The tower's **first exclusive licence**: first of fourteen raw and first on the residual by 156%.
   It grades in **value** and not in carrier count, and armour on the anchor is worth **0.00**. See
+  below.
+- **Undead, sixth hundred** — the Riving. Enemy `critDamageAmp` — the **size** of a crit rather than
+  how often one lands — authored **above** its shipped ceiling of 1.15, which is the half of crit the
+  Angel Tower's fourth hundred separated out and declined. Chosen on the **clock**, the constraint
+  that binds this tower and no other, and taken on **margin**: undead-alt is third of fourteen and
+  first of the twelve non-Angel arrangements. It grades in **both** value and carrier count. See
   below.
 - **Demon, fourth hundred** — the axis is a
   mechanic two towers had already measured and declined: `magicResist`, re-priced at band 4 against the
@@ -2002,10 +2008,11 @@ down past it, into the galleries the hold was digging when it fell.
   light.** The board weight that reads 4.00 of five falls from **23,445 common-equivalent at floor 501
   to 2,377 at floor 600**, because the party is frozen at band 6 while the boards climb forty-seven
   levels and fifty-nine gear positions. `THE_UNDERMOST` ships at **580/36** — the lightest roof anchor
-  in the game on health by a clear margin. The seven last-floor anchors, as a list: **The Undermost
-  580/36**, **The Case-Hardened 780/24** (lightest on attack), The Unquenched 900/38, The Unlacing
-  950/48, The Headlong 1050/25, The Blackthorn 1180/34, The Unstruck 1250/44 — four of which are
-  still their tower's floor-500 block while the round is in flight.
+  in the game on health when it shipped, and **The Heartshake took the record at 560 one session
+  later**. The seven last-floor anchors, as a list: **The Heartshake 560/16** (lightest on both),
+  **The Undermost 580/36**, The Case-Hardened 780/24, The Unquenched 900/38, The Unlacing 950/48, The
+  Headlong 1050/25, The Unstruck 1250/44 — three of which are still their tower's floor-500 block
+  while the round is in flight.
 - ⚠️ **The rank a carrier stands in is priced by its _output_, not by its resist, and two carriers on
   the same hundred disagree.** Carried on one body at floor 593, the **Pioneer** — the heaviest
   carrier and the only one with a second turn — reads **2.25 of five in front against 3.02 behind**,
@@ -2116,8 +2123,8 @@ and the works are still turning out plate for nobody.
   `atk` 21, 95% / 2.98 at 22, 85% / 2.50 at 23 and **80% / 2.40 at the shipped 24**; walking its own
   `def` from 24 to 68 with the escort's armour held is worth **0.35 of five**, where stripping the
   whole board's armour to the pool median is worth **1.21 and fifteen seconds**. The seven last-floor
-  anchors, as a list: The Undermost 580/36, **The Case-Hardened 780/24**, The Unquenched 900/38, The
-  Unlacing 950/48, The Headlong 1050/25, The Blackthorn 1180/34, The Unstruck 1250/44.
+  anchors, as a list: The Heartshake 560/16, The Undermost 580/36, **The Case-Hardened 780/24**, The
+  Unquenched 900/38, The Unlacing 950/48, The Headlong 1050/25, The Unstruck 1250/44.
 - ⚠️ **The closing fifteen floors are pinned rather than composed**, because the alternate's readings
   sit inside a 0.6-wide band up there and the returning pool saws through it. Measured one at a time,
   floors 586–600 read 3.23 → 3.00 → 3.13 → 3.23 → 3.02 → 2.92 → 2.83 → 2.80 → 2.77 → 2.60 → 2.70 →
@@ -2231,6 +2238,132 @@ tower has done.
   1060/80 next to 720/70 and at these levels that reads as a saw. Measured one at a time so the
   alternate falls into the boss: 4.40 → 4.03 → 3.85 → 2.55 → 2.00. The tower closes at **63.60% Dwarf
   over 2,459 slots**, and the hundred's longest single attempt is **45.2s** against the 67.5s bar.
+
+### The sixth hundred — the Undead Tower's Riving
+
+Floors 501–600, levels 236–283, Relic 41 → Relic 100. Past the thicket the wood stops being a wall and
+becomes timber: the standing boles, the first wedge, the grain found, the froe and the mallet, and at
+the top a log that opens from the inside because it was always going to.
+
+- ⚠️ **The axis is enemy `critDamageAmp` — the size of one blow rather than how often one lands.** It
+  is this tower's founding sentence taken from the one direction five hundred floors did not. What
+  breaks an Undead five is anything that stops the trade paying, and the four hundreds below stop it by
+  taking the **trade** away — `dodge` makes the swing miss, a pool that will not die leaves nothing to
+  take it from, `atk` × `haste` and `attackSpeed` end the fight before attrition can pay. This one lets
+  the trade happen and removes the **trader**: `critDamage` is `1 + max(critDamageAmp −
+critDamageResist, 0)`, and a crew sustaining on `lifeLeech` off damage dealt (Σ0.36 / Σ0.40, the
+  highest in the game) and `recovery` on its own turn (Σ55 / Σ61, the highest by a quarter) cannot
+  out-heal a blow that takes a body between two of them.
+- ⚠️ **It is the half of crit the Angel Tower declined, and a subtraction is why the two are not one
+  lock.** `critDamageResist` is _subtracted_ from the attacker's amplifier, and the two Angel
+  arrangements are the only two of fourteen carrying a point of it (Σ0.76 / Σ0.96 — 0.19 a body). That
+  is exactly why the Angel fourth hundred took `critChance`, the **frequency** its crew cannot answer.
+  Measured here, the register works where that hundred says it does and nowhere above it: at
+  `critDamageAmp` **1.70** angel-ref ranks **thirteenth of fourteen at 0.02** and angel-alt eleventh at
+  0.20; at **2.80** angel-alt ranks first. **A subtraction defends against a small amplifier and
+  evaporates against a large one** — which is both why this axis only exists above its register and why
+  it is a different argument from the Angels'.
+- ⚠️ **The licence is margin rather than exclusivity, and the crew's own previous licence is what
+  expired.** Each arrangement calibrated to the heaviest control it still reads ≥3.60 on and given
+  `critChance` 0.22 / `critDamageAmp` 2.80 on four bodies: angel-alt 3.40, angel-ref 3.17,
+  **undead-alt 2.75**, elf-alt 2.65, demon-alt 2.35, dwarf-ref 2.13, dwarf-alt 1.55, human-alt 1.48,
+  undead-ref 1.43, human-ref 1.40, elf-ref 1.35, demon-ref 1.23, monster-alt 1.00, monster-ref 0.85 —
+  **third of fourteen and first of the twelve non-Angel arrangements**, the framing this tower's own
+  fifth hundred used. The confound is real (corr **0.612**) and the residual puts undead-alt third in a
+  three-way tie inside 0.18 (elf-alt +1.05, demon-alt +0.87, undead-alt +0.87). ⚠️ **At band 5 _every_
+  throughput candidate ranked undead-alt first of the twelve, so the table could not choose between the
+  spellings; one rung and twenty-four levels later that has stopped being true.** Re-run "is it ours"
+  on the band being authored — four for four on this tower.
+- ⚠️ **`magicResist` is the candidate that looks decisive and loses on a dead heat.** undead-alt deals
+  **twelve magical damage effects and zero physical**, six of them drains, so a magic ward ought to tax
+  the hit _and_ the healing. Measured it ranks **second**, behind demon-alt on the raw table at every
+  size (1.23 against 1.25 at 0.60; 1.50 against 1.53 at 0.74) and behind it on the residual — which
+  makes it the Demon Tower's own fourth hundred. **Two towers with one stat is a question about the
+  argument, and a four-percent gap does not answer it.**
+- ⚠️ **Chosen on the clock, which binds this tower and no other.** Its own shipped floor 100 is still
+  the longest cleared fight in the project's towers at **51.2s against a 67.5s bar**. At matched cost
+  this is the cheapest thing measured: `critDamageAmp` 2.20 buys 0.82 of the alternate for **+1.9
+  seconds** where `magicResist` 0.48 buys 0.98 for +5.6, `def` 70 buys 1.15 for +8.1, `dodge` 0.32 buys
+  1.15 for +8.5, and both walls at 0.50 buy 2.45 for **+24.7**.
+- ⚠️ **It grades in _both_ value and carrier count**, which is what a six-band hundred needs and what
+  chapter 29's rule predicts of an _offensive_ axis. Value, four carriers at `critChance` 0.22: 3.60 →
+  3.27 → 3.15 → 3.02 → 3.00 → 2.85 → 2.65 → 2.52 → **2.42** across 0.75 → 3.20 for the reference five,
+  and 3.52 → **1.02** for the alternate. Count, at 2.20: **3.95 / 3.83 / 3.48 / 3.02 / 3.00** across
+  zero to four. Zero timeouts on every row of both.
+- ⚠️ **An amplifier bills what is _left alive_, so the carriers stand behind.** Carried on **one** body
+  with the escort held, a carrier is worth 0.15–0.30 of five in front and **1.00 behind** at floor
+  570's level, and 0.02–0.08 in front against **1.80–1.85 behind** at floor 590's, reproduced on all
+  three carriers at both levels. That is chapter 28's `attackSpeed` sign and the exact opposite of the
+  `dodge` this tower's **own second hundred** is built on, which bills what is _aimed at_. **One tower,
+  two axes, opposite answers to the same question.** The same amplifier on the anchor alone is worth
+  0.18 and 0.02 where it is worth 0.33 and 1.30 on the four escorts.
+- ⚠️ **On an amplification axis the gear archetype multiplies the axis — the Deepworks' finding with
+  the sign reversed.** Held at an identical stat line on one board, four carriers at `critChance` 0.22
+  / `critDamageAmp` 1.70 leave the binding arrangement all-`mage` **1.45 of five**, all-`ranger` 1.52,
+  all-`brawler` 1.98, all-`support` 2.02 and all-`tank` **2.65** — above the 2.33 that board reads with
+  no amplifier at all. `GEAR_PROFILES` pays a tank +46% attack and a ranger +112% at Relic 100, and an
+  amplifier bills the attack it multiplies. Where a **refusal** axis is switched off by a tank set,
+  this one is switched on by a hot one; all four carriers wear `ranger` or `mage`. **Check which kind
+  of axis you have before allocating archetypes** — and note that this is now the second hundred to
+  find the archetype worth more than a step of its own axis.
+- ⚠️ **The register is stepped on one half of the pair and held inside the other.** `critDamageAmp`
+  sits on **all 430** shipped blocks at a median of 0.70, a p90 of 0.85 and a ceiling of **1.15**
+  (`THE_EDGEWRIGHT`), and the four carriers run **1.35 / 1.70 / 2.00 / 2.30** — every one above it, the
+  Monster Tower's "works only above its register" as a whole hundred. `critChance` sits on all 430 at a
+  median of 0.10 and a ceiling of **0.30** (`THE_HAIRLINE`), and the four run 0.20 / 0.24 / 0.26 /
+  0.28, every one **inside** it. **Say which side of the register each half landed on.**
+- ⚠️ **The band table is a count of bodies at a threshold**, because the stat is on every block —
+  chapter 23's counts-not-absolutes rule. Bodies at `critDamageAmp` ≥ 1.20 run **0–1, 1–2, 2, 2–3, 3,
+  3** across the six bands.
+- ⚠️ **The squeeze is a factor of 4.60, the largest this tower has had.** On a fixed control the board
+  weight reading ≥3.90 of five for the binding arrangement falls from **6,670 raw / 10,105
+  common-equivalent at floor 501 to 1,450 / 2,197 at floor 600**, against the Case-Hardening's 3.69 —
+  the party frozen at band 6 while the boards climb forty-seven levels and **fifty-nine gear
+  positions**. The shipped boards run 4,337 common-equivalent at 244 board attack at floor 501 to 2,292
+  at 170 by floor 595. **Convert the attack as well as the weight.**
+- ⚠️ **The whole of the previous hundred's `ascended` roster retires, and every one of them to damage
+  rather than to the clock.** Fielded alone behind four light escorts at floor 600 in Relic 100, all
+  **six** of the `ascended` blocks the Thicket fields read 0%: `THE_SPRINGWOOD` at 9.1s, `THE_HAIRLINE`
+  at 12.6s, `THE_SEEDFATHER` at 14.6s, `THE_BLACKTHORN` at 15.8s, `THE_LAST_RING` at 18.6s and
+  `THE_UNHURRIED` at 24.1s. The shipped floor-500 board carried up its own level line reads 100% with
+  all five alive at 236, 100% / 4.75 at floor 530, 100% / 2.02 at 565 and **0% / 0% at 600** — the
+  Crownworks collapse a sixth time on this tower. ⚠️ **A rung boundary is only a reprieve when the
+  hundred's gear is flat**: floors 401–500 climb Masterwork 1 → Relic 40 for ×1.09 in effective tank
+  health where 501–600 climb Relic 41 → Relic 100 for **×1.47**, and the Thicket's own check came back
+  almost entirely clean on exactly the argument that fails here.
+- ⚠️ **What stands is the cold, and it is a list rather than a threshold.** Of the twenty-one blocks
+  the Thicket fields at 800 health or more, seven read 0%, six more read under one bar or both
+  (`OVERBURDEN_HULK` 100% / 68%, `DUSTPLATE_GRINDER` 88% / 78%, `CLOSEWARD_SERAPH` 23% / 70%,
+  `DROWNED_MAST` 15% / 85%, `REDWATER_STALKER` 8% / 78%, `EVENSONG_WARDEN` 83% / 88%), and eight
+  stand. **Five of those eight are at `atk` 48 or under and three are not** — `STILLWATER_ROOT`
+  1180/54 at 98% / 90%, `GOREHIDE_MATRIARCH` 1020/58 at 93% / 100% and `SILTCROWN_CANOPY` 860/70 at
+  100% / 100% — which is exactly why this is a list.
+- ⚠️ **The roof was settled on its attack, the seventh tower roof running, and its escort binds harder
+  than it does.** With the weight held at 560 behind the shipped escort the board reads 100% / 1.82 at
+  `atk` 12, 98% / 1.57 at 14, **98% / 1.40 at the shipped 16**, 90% / 1.13 at 18 and 85% / 0.97 at 20 —
+  while the identical roof behind **four** amplifiers rather than three reads **0% at every stat line**.
+  `THE_HEARTSHAKE` ships at **560/16**, the lightest anchor in the game on both stats across all
+  thirty-nine hundred-roofs. The seven last-floor anchors, as a list: **The Heartshake 560/16**, The
+  Undermost 580/36, The Case-Hardened 780/24, The Unquenched 900/38, The Unlacing 950/48, The Headlong
+  1050/25, The Unstruck 1250/44.
+- ⚠️ **The axis carries the last floor.** Floor 600 with the whole board's amplifiers dropped to the
+  pool median of 0.70 reads 100% / 2.00 and 100% / 3.13 against the shipped 98% / 1.27 and 93% / 1.82 —
+  worth **0.73 of the reference five and 1.31 of the alternate** on the top floor of the tower, and
+  0.37 / 0.71 at floor 590.
+- ⚠️ **The lean overshoot was budgeted rather than discovered, and the fix was the carriers' factions.**
+  The Thicket's first pass came out at **94.8% Elf** because its three new carriers and its roof were
+  all Elven and stood on nearly every board. This hundred splits the four **two Elf, one Demon, one
+  Monster** — both of which also counter Undead, Demons at ×1.1 and Monsters at ×1.05 — so the two
+  carriers standing on almost every board cost the lean nothing. It ships at **53.2% Elf** and takes
+  the tower to **59.03%**, _down_ from 60.2%. **Decide the carrier density and the carriers' factions
+  together.**
+- The hundred fields **38** distinct archetypes, four of them new (10.5%), carries **no** sustain,
+  taunt, link or reflect anywhere, and runs a **mean of 0.08 board-wide voices per board with a maximum
+  of one** against the Thicket's 0.58 and this tower's third and fourth hundreds at 1.08 and 0.86. Band
+  6 opens at floor 501 in 8.6s with all five alive, costs the reference five its first member at floor
+  523 and the alternate at 543, and closes at **1.27 / 1.82** — 98% and 93% against bars of 90% and
+  75%. The worst reading anywhere in the hundred is 95% and 93%, there are **no timeouts**, and the
+  longest single attempt is **22.8 seconds**.
 
 ### The fifth hundred — the Undead Tower's Thicket
 

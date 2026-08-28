@@ -9,9 +9,12 @@ import {
   BRAKETHORN_FLAIL,
   BRAMBLEHIDE_RAVENER,
   BRAMBLEWALK_SCOUT,
+  BREAKSTONE_WARDEN,
   BULWARK_ENEMY,
   CARRION_SWARM,
+  CENTURYBOUGH_WARDEN,
   CHALKHIDE_BROWSER,
+  CHANNELBED_STALKER,
   CINDERLING,
   CINDERSEED_COURSER,
   CINDER_CULLER,
@@ -22,25 +25,34 @@ import {
   COVENANT_BREAKER,
   COVERT_REAVER,
   CROWNBARK_BASTION,
+  CROWNFALL_DARTER,
   DEEPMAST_HEARTWOOD,
   DROWNED_MAST,
+  DULLEDGE_BRIAR,
   DUSKFERN_SKIRMISHER,
   DUSTPLATE_GRINDER,
   EMBERSEED_WARLOCK,
   EMBERSHELL_WHELP,
+  EMBERWEDGE_DRIVER,
+  EVENLIGHT_TENDER,
   EVENSONG_WARDEN,
+  FLATSHADE_STALKER,
   GALLERY_SLIPFANG,
   GILDED_SENTRY,
   GLADE_STALKER,
+  GLASSBARK_SENTRY,
   GLASSCHOIR_ARBITER,
   GLOAMVINE_CREEPER,
   GOLEM,
   GOREHIDE_MATRIARCH,
+  GREYLEAF_WARDEN,
   HEADSMAN,
   HEARTROOT_TENDER,
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
   HOLLOWBARK_SENTRY,
+  ILLFALL_SKULKER,
+  IRONBARK_WARDEN,
   KILNSWORN_ADEPT,
   KNELL_CHANTER,
   LITANY_BEARER,
@@ -50,6 +62,7 @@ import {
   MIREWHELP,
   MOONSONG_WEAVER,
   NIGHTCANOPY_SINGER,
+  NOONLESS_ARCHER,
   OVERBURDEN_HULK,
   PYRE,
   QUENCHPIT_IRONHIDE,
@@ -61,18 +74,30 @@ import {
   RIFTEDGE_CANTOR,
   RIFTSTEP_REAVER,
   RIMEPLATE,
+  RINGBARK_ELDER,
+  RIVENBOUGH_FROE,
+  ROOTPLATE_CLIMBER,
+  ROUGHCAST_GNAWER,
+  RUSTLEAF_GLEANER,
   SCALEPLATE_BRAMBLE,
   SCARBOUND_BELLOWER,
+  SCATTERSTONE_HOWLER,
   SCREEBACK_DARTER,
   SEEDLIGHT_KEEPER,
   SENTINEL,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHADOWLESS_DANCER,
+  SHAKEWOOD_LANCER,
+  SHALEBED_CRAWLER,
   SHARDLIGHT_ACOLYTE,
   SILTCROWN_CANOPY,
   SKYSHRIKE,
   SLAGSEAM_FLENSER,
   SLIME,
+  SLOWGROWTH_BOLE,
+  SNAPWOOD_HARRIER,
+  SPLITMAW_RENDER,
   STILLNESS_CANTOR,
   STILLWATER_ROOT,
   STORMCALLER,
@@ -81,6 +106,7 @@ import {
   SUNMOTE_DANCER,
   THE_BLACKTHORN,
   THE_HAIRLINE,
+  THE_HEARTSHAKE,
   THE_LAST_RING,
   THE_LONGSHADOW,
   THE_SEEDFATHER,
@@ -105,7 +131,7 @@ import {
 } from './enemies';
 
 /**
- * The Undead Tower — four hundred floors, enemy levels 1 to 189.
+ * The Undead Tower — six hundred floors, enemy levels 1 to 283.
  *
  * ## Why the enemies are mostly Elven
  *
@@ -407,7 +433,130 @@ import {
  * **Budget for it: when the axis blocks are the lean's, the carriers alone can spend the whole
  * allowance.**
  *
+ * ## ⚠️ The sixth hundred — the Riving — is the size of one blow, and it is the half of crit a
+ * neighbouring tower declined
+ *
+ * The Riving, floors 501–600, levels 236–283, and the gear ramp **finishes** rather than continues —
+ * Relic 41 at floor 501 to **Relic 100** at the roof, one rule for all seven towers, and the first
+ * hundred in any tower with no grade boundary inside it because Relic is the last grade. So this
+ * hundred owed an axis on top of a ramp that is monotone from its first floor to its last. The full
+ * measurement, the negative list, the cross-crew table and the register check live beside
+ * {@link EMBERWEDGE_DRIVER} in [`enemies.ts`](./enemies.ts); what belongs here is what it means for
+ * this tower.
+ *
+ * ⚠️ **It is the tower's founding sentence taken from the one direction five hundred floors did not.**
+ * What breaks an Undead five is anything that stops the trade paying, and the four hundreds below stop
+ * it by taking the trade away: `dodge` makes the swing miss, a pool that will not die leaves nothing to
+ * take it from, and `atk` × `haste` and `attackSpeed` end the fight before attrition can pay. This one
+ * lets the trade happen and **removes the trader**: `critDamage` is `1 + max(critDamageAmp −
+ * critDamageResist, 0)`, and a crew whose sustain is `lifeLeech` off damage dealt (Σ0.36 / Σ0.40, the
+ * highest in the game) and `recovery` on its own turn (Σ55 / Σ61, the highest by a quarter) cannot
+ * out-heal a blow that takes a body between two of them.
+ *
+ * ⚠️ **The licence is margin rather than exclusivity, and this is the second consecutive hundred that
+ * has had to say so.** At band 6 undead-alt ranks **third of fourteen and first of the twelve non-Angel
+ * arrangements**, with the fight-length confound at 0.612 and the residual putting it third in a
+ * three-way tie inside 0.18. The fifth hundred had the opposite problem — *every* throughput candidate
+ * ranked undead-alt first, so the table could not choose between the spellings — and one rung and
+ * twenty-four levels later that has simply stopped being true. **Re-run "is it ours" on the band being
+ * authored, never on the band that recorded it**, which is now four for four on this tower.
+ *
+ * ⚠️ **`magicResist` is the candidate that looks decisive and is not, and the reason is another
+ * tower.** undead-alt deals **twelve magical damage effects and zero physical**, six of them drains, so
+ * a magic ward ought to tax the hit *and* the healing — and measured it ranks **second**, behind
+ * demon-alt on the raw table at every size (1.23 against 1.25 at 0.60; 1.50 against 1.53 at 0.74) and
+ * behind it on the residual too. That is the Demon Tower's own fourth hundred, and a dead heat is not a
+ * licence. **Two towers with one stat is a question about the argument, and this one loses it.**
+ *
+ * ⚠️ **The register is stepped on one half of the pair and held inside the other.** `critDamageAmp`
+ * sits on **all 430** shipped blocks at a median of 0.70 and a ceiling of **1.15**, and the four
+ * carriers run **1.35 / 1.70 / 2.00 / 2.30** — every one above the ceiling, the Monster Tower's "works
+ * only above its register" as a whole hundred. `critChance` sits on all 430 at a median of 0.10 and a
+ * ceiling of **0.30**, and the four run 0.20 / 0.24 / 0.26 / 0.28, every one **inside** it. **Say which
+ * side of the register each half landed on.**
+ *
+ * ⚠️ **The band table is a count of bodies at a threshold, because the stat is on every block.** Bodies
+ * at `critDamageAmp` ≥ 1.20 run **0–1, 1–2, 2, 2–3, 3, 3** across the six bands. And the axis grades in
+ * that count as well as in value — 3.95 / 3.83 / 3.48 / 3.02 / 3.00 for the reference five across zero
+ * to four carriers at 2.20 — which is what lets six bands be built on it.
+ *
+ * ⚠️ **The carriers stand behind, and that is priced rather than habitual.** Carried on **one** body
+ * with the escort held, an amplifier is worth 0.15–0.30 of five in front and **1.00 behind** at floor
+ * 570's level, and 0.02–0.08 in front against **1.80–1.85 behind** at floor 590's, reproduced on all
+ * three carriers. An amplifier bills what is **left alive** — chapter 28's `attackSpeed` sign, and the
+ * exact opposite of the `dodge` this tower's second hundred is built on, which bills what is *aimed
+ * at*. The one exception is {@link RIVENBOUGH_FROE}, which takes the front rank on the boards that want
+ * a third amplifier and cannot afford a third back-rank one.
+ *
+ * ⚠️ **The weight falls by a factor of 4.60 and the attack by a third, which is the largest squeeze
+ * this tower has had.** On a fixed control the board weight reading ≥3.90 of five for the binding
+ * arrangement falls from **6,670 raw / 10,105 common-equivalent at floor 501 to 1,450 / 2,197 at floor
+ * 600**, against the Elf sixth hundred's 3.69 — because the party is frozen at band 6 while the boards
+ * climb forty-seven levels and **fifty-nine gear positions**. The shipped boards run 4,337
+ * common-equivalent at 244 board attack at floor 501 to 2,292 at 170 by floor 595. **Convert the attack
+ * as well as the weight**, which is chapter 23's rule and this tower's fifth hundred's, again.
+ *
+ * ## ⚠️ The whole of the Thicket's ascended roster retires, and the seconds say what killed it
+ *
+ * The shipped floor-500 board, fielded up its own level line against the band-6 crew, reads 100% with
+ * all five alive at its own level 236, 100% / 4.75 at floor 530, 100% / 2.02 at floor 565 and **0% / 0%
+ * at floor 600 in Relic 100** — the Crownworks collapse a sixth time on this tower. So
+ * {@link THE_HEARTSHAKE} is lighter than {@link THE_BLACKTHORN} it succeeds on both stats, 560/16
+ * against 1180/34.
+ *
+ * ⚠️ **Fielded alone behind four light escorts at floor 600, _all six_ of the `ascended` blocks the
+ * Thicket fields read 0%** — {@link THE_SPRINGWOOD} at 9.1s, {@link THE_HAIRLINE} at 12.6s,
+ * {@link THE_SEEDFATHER} at 14.6s, {@link THE_BLACKTHORN} at 15.8s, {@link THE_LAST_RING} at 18.6s and
+ * {@link THE_UNHURRIED} at 24.1s — every one of them a death rather than a timeout, which is the Dwarf
+ * sixth hundred's distinction and the half that says the boards are too *big* rather than too slow.
+ * ⚠️ **A rung boundary is only a reprieve when the hundred's gear is flat**, and this one's is not:
+ * floors 401–500 climb Masterwork 1 → Relic 40 for ×1.09 in effective tank health where 501–600 climb
+ * Relic 41 → Relic 100 for **×1.47**. The Thicket's own check came back almost entirely clean on
+ * exactly that argument and this one does not.
+ *
+ * ⚠️ **What stands is the cold**, and it is not a clean rule so the list is stated: of the twenty-one
+ * blocks the Thicket fields at 800 health or more, seven read 0%, six more read under one bar or both
+ * ({@link OVERBURDEN_HULK} 100% / 68%, {@link DUSTPLATE_GRINDER} 88% / 78%, {@link CLOSEWARD_SERAPH}
+ * 23% / 70%, {@link DROWNED_MAST} 15% / 85%, {@link REDWATER_STALKER} 8% / 78%,
+ * {@link EVENSONG_WARDEN} 83% / 88%), and eight stand. **Five of those eight are at `atk` 48 or under
+ * and three are not** — {@link STILLWATER_ROOT} 1180/54 at 98% / 90%, {@link GOREHIDE_MATRIARCH}
+ * 1020/58 at 93% / 100% and {@link SILTCROWN_CANOPY} 860/70 at 100% / 100% — which is why this is a
+ * list rather than a threshold.
+ *
+ * ⚠️ **The hundred fields no sustain, no taunt, no link and no reflect** — the same discipline as the
+ * Thicket's, and stated in counts because the absolute form of this claim has shipped wrong five times
+ * across the towers: of the **38** blocks the hundred fields, **zero** carry `lifeLeech`, `recovery` or
+ * `healthRegen`, **zero** carry a heal, a drain or a shield effect, **zero** carry a `regen` status, and
+ * **zero** carry a taunt, a link or a reflect.
+ *
+ * ⚠️ **One board-wide turn per board, held mechanically and counted the way the Thicket counted it** —
+ * bodies carrying a turn aimed at `enemy-all`, `enemy-row-front` or `enemy-row-back`. The hundred runs a
+ * **mean of 0.08 and a maximum of one**, against the Thicket's 0.58 and this tower's third and fourth
+ * hundreds at 1.08 with a peak of three and 0.86 with a peak of four. The draft had one board carrying
+ * two, both from returning texture. **Count the voices per board with a script; nobody reads a hundred
+ * boards and notices.**
+ *
+ * ⚠️ **The lean overshoot was budgeted rather than discovered, and the fix was who carries the axis.**
+ * The Thicket's first pass came out at **94.8% Elf** because its three new carriers and its roof were
+ * all Elven and stood on nearly every board — 244 of 500 slots spoken for before a texture body was
+ * chosen. This hundred split the four **two Elf, one Demon, one Monster**, both of which also counter
+ * Undead (Demons at ×1.1, Monsters at ×1.05), so the two carriers standing on almost every board cost
+ * the lean nothing at all. It ships at **53.2% Elf** and takes the tower to **59.03%**, down from
+ * 60.2%. **Decide the carrier density and the carriers' factions together.**
+ *
  * ## What the bands measure at
+ *
+ * Band 6 opens at floor 501 in 8.6 seconds with all five alive and **costs the reference five its first
+ * member at floor 523 and the alternate at 543**. From there: 4.80 / 5.00 at 530, 4.70 / 4.80 at 550,
+ * 4.00 / 4.08 at 560, 2.73 / 3.95 at 570, 1.90 / 2.92 at 580, 2.08 / 3.27 at 590, 1.70 / 2.23 at 595
+ * and **1.27 / 1.82 at the roof** — 98% for the reference five and 93% for the alternate, against bars
+ * of 90% and 75%. Every one of the hundred floors clears both bars, the worst reading anywhere is 95%
+ * and 93%, there are **no timeouts**, and the longest single attempt is **22.8 seconds**.
+ *
+ * ⚠️ **The axis carries the last floor.** Floor 600 with the whole board's amplifiers dropped to the
+ * pool median of 0.70 reads 100% / 2.00 and 100% / 3.13 against the shipped 98% / 1.27 and 93% / 1.82 —
+ * worth **0.73 of the reference five and 1.31 of the alternate** on the top floor of the tower, and
+ * 0.37 / 0.71 at floor 590.
  *
  * Band 5 opens at floor 401 in 5.6 seconds with all five alive and **costs the reference five its
  * first member at floor 430 and the alternate at 439**. From there: 4.67 / 5.00 at 440, 4.00 / 4.00
@@ -446,18 +595,22 @@ import {
  * alternate, against bars of 90% and 75%. Neither arrangement loses a member below floor 160.
  *
  * ⚠️ **The tower's longest fight is in none of the hundreds above its first — it is the shipped
- * floor 100, at 51.2 seconds.** The five hundreds' longest fights run **51.2, 39.6, 41.4, 24.3 and
- * 25.0**. Against the balance sweep's bound on a *cleared* fight (0.75 × the ninety-second timer, so
- * 67.5s) that shipped board is still the binding case for this tower, and it is the reason the Green
- * Vigil's heal is the last one on the climb rather than the shape any roof is built from.
+ * floor 100, at 51.2 seconds.** The six hundreds' longest fights run **51.2, 39.6, 41.4, 24.3, 25.0 and
+ * 22.8**. Against the balance sweep's bound on a *cleared* fight (0.75 × the ninety-second timer, so
+ * 67.5s) that shipped board is still the binding case for this tower — six hundred floors on, and by
+ * more than twenty seconds — and it is the reason the Green Vigil's heal is the last one on the climb
+ * rather than the shape any roof is built from.
  *
  * ⚠️ **A superlative goes stale the moment the next hundred lands, so the list is stated rather than
  * the claim — and the fifth hundred is where the direction it recorded stopped holding.** Four
  * hundreds running had each closed *faster* than the one below; the fifth closes 0.7 seconds slower
- * than the fourth. **A run of four is a run, not a law**: the fourth hundred spent its whole budget on
- * rate and let the weight fall away, and there was nothing left to take out. The claim to keep is the
- * one underneath it — every hundred on this tower has to buy its difficulty as far from the clock as
- * it can — and 25.0s against a 67.5s bar is what that looks like once the weight has already gone.
+ * than the fourth and the sixth closes 2.2 seconds faster than the fifth. **A run of four is a run, not
+ * a law, and so is a reversal of one**: the fourth hundred spent its whole budget on rate and let the
+ * weight fall away and had nothing left to take out, where the sixth bought its difficulty on an
+ * amplifier costing +1.9 seconds and could afford to take more weight out again. The claim to keep is
+ * the one underneath both — every hundred on this tower has to buy its difficulty as far from the clock
+ * as it can — and **22.8s against a 67.5s bar** is what that looks like on the axis that costs the
+ * fewest seconds of anything measured here.
  */
 export const TOWER_UNDEAD = {
   id: 'tower-undead',
@@ -4427,6 +4580,824 @@ export const TOWER_UNDEAD = {
       enemies: {
         front: [THE_BLACKTHORN, LUMEN_ACOLYTE],
         back: [COVERT_REAVER, LUMEN_ACOLYTE, LUMEN_ACOLYTE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Standing Wood — Floors 501–520, levels 236–245, Relic 41–52 — the old boles are still here and still heavy, and the first wedge goes in behind them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f501',
+      name: 'Floor 501',
+      enemies: {
+        front: [RINGBARK_ELDER, MIREMAST_TRUNK],
+        back: [SUCKERWOOD_WHIP, RUSTLEAF_GLEANER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f502',
+      name: 'Floor 502',
+      enemies: {
+        front: [RINGBARK_ELDER, SCALEPLATE_BRAMBLE],
+        back: [SUCKERWOOD_WHIP, RUSTLEAF_GLEANER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f503',
+      name: 'Floor 503',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, MIREMAST_TRUNK],
+        back: [BRAKETHORN_FLAIL, RUSTLEAF_GLEANER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f504',
+      name: 'Floor 504',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, SCALEPLATE_BRAMBLE],
+        back: [BRAKETHORN_FLAIL, SHARDLIGHT_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f505',
+      name: 'Floor 505',
+      enemies: {
+        front: [IRONBARK_WARDEN, HOLLOWBARK_SENTRY],
+        back: [SUCKERWOOD_WHIP, SHARDLIGHT_ACOLYTE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f506',
+      name: 'Floor 506',
+      enemies: {
+        front: [IRONBARK_WARDEN, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, RUSTLEAF_GLEANER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f507',
+      name: 'Floor 507',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, SHARDLIGHT_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f508',
+      name: 'Floor 508',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, BRAKETHORN_FLAIL, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f509',
+      name: 'Floor 509',
+      enemies: {
+        front: [STILLWATER_ROOT, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, SUCKERWOOD_WHIP, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f510',
+      name: 'Floor 510 — The Standing Bole',
+      enemies: {
+        front: [STILLWATER_ROOT, RINGBARK_ELDER],
+        back: [EMBERWEDGE_DRIVER, RUSTLEAF_GLEANER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f511',
+      name: 'Floor 511',
+      enemies: {
+        front: [SLOWGROWTH_BOLE, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, BRAKETHORN_FLAIL, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f512',
+      name: 'Floor 512',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, SLOWGROWTH_BOLE],
+        back: [EMBERWEDGE_DRIVER, RUSTLEAF_GLEANER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f513',
+      name: 'Floor 513',
+      enemies: {
+        front: [IRONBARK_WARDEN, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, SHARDLIGHT_ACOLYTE, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f514',
+      name: 'Floor 514',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SUCKERWOOD_WHIP, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f515',
+      name: 'Floor 515',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, BRAKETHORN_FLAIL, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f516',
+      name: 'Floor 516',
+      enemies: {
+        front: [RINGBARK_ELDER, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, RUSTLEAF_GLEANER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f517',
+      name: 'Floor 517',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SUCKERWOOD_WHIP, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f518',
+      name: 'Floor 518',
+      enemies: {
+        front: [IRONBARK_WARDEN, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, BRAKETHORN_FLAIL, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f519',
+      name: 'Floor 519',
+      enemies: {
+        front: [STILLWATER_ROOT, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, RUSTLEAF_GLEANER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f520',
+      name: 'Floor 520 — The First Wedge',
+      enemies: {
+        front: [STILLWATER_ROOT, DEEPMAST_HEARTWOOD],
+        back: [EMBERWEDGE_DRIVER, SUCKERWOOD_WHIP, GLADE_STALKER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Wedge Goes In — Floors 521–545, levels 246–257, Relic 53–67 — two amplifiers a board and the weight beginning to leave. The Elf boles thin out and the cold Monster bulk takes over from them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f521',
+      name: 'Floor 521',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, RUSTLEAF_GLEANER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f522',
+      name: 'Floor 522',
+      enemies: {
+        front: [SLOWGROWTH_BOLE, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, BRAKETHORN_FLAIL, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f523',
+      name: 'Floor 523',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SHARDLIGHT_ACOLYTE, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f524',
+      name: 'Floor 524',
+      enemies: {
+        front: [IRONBARK_WARDEN, ILLFALL_SKULKER],
+        back: [EMBERWEDGE_DRIVER, RUSTLEAF_GLEANER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f525',
+      name: 'Floor 525',
+      enemies: {
+        front: [SHALEBED_CRAWLER, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f526',
+      name: 'Floor 526',
+      enemies: {
+        front: [DEEPMAST_HEARTWOOD, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f527',
+      name: 'Floor 527',
+      enemies: {
+        front: [SLOWGROWTH_BOLE, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SUCKERWOOD_WHIP, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f528',
+      name: 'Floor 528',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f529',
+      name: 'Floor 529',
+      enemies: {
+        front: [SCATTERSTONE_HOWLER, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f530',
+      name: 'Floor 530 — The Second Wedge',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, SHALEBED_CRAWLER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, RUSTLEAF_GLEANER],
+      },
+    },
+    {
+      id: 't-undead-f531',
+      name: 'Floor 531',
+      enemies: {
+        front: [SLOWGROWTH_BOLE, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f532',
+      name: 'Floor 532',
+      enemies: {
+        front: [SCATTERSTONE_HOWLER, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f533',
+      name: 'Floor 533',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f534',
+      name: 'Floor 534',
+      enemies: {
+        front: [ROUGHCAST_GNAWER, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f535',
+      name: 'Floor 535',
+      enemies: {
+        front: [SHALEBED_CRAWLER, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f536',
+      name: 'Floor 536',
+      enemies: {
+        front: [SLOWGROWTH_BOLE, ILLFALL_SKULKER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, RUSTLEAF_GLEANER],
+      },
+    },
+    {
+      id: 't-undead-f537',
+      name: 'Floor 537',
+      enemies: {
+        front: [SCATTERSTONE_HOWLER, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f538',
+      name: 'Floor 538',
+      enemies: {
+        front: [ROUGHCAST_GNAWER, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f539',
+      name: 'Floor 539',
+      enemies: {
+        front: [CHALKHIDE_BROWSER, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-undead-f540',
+      name: 'Floor 540 — The Grain Found',
+      enemies: {
+        front: [SHALEBED_CRAWLER, SCATTERSTONE_HOWLER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f541',
+      name: 'Floor 541',
+      enemies: {
+        front: [ROUGHCAST_GNAWER, MIREMAST_TRUNK],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f542',
+      name: 'Floor 542',
+      enemies: {
+        front: [SCATTERSTONE_HOWLER, GLASSBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, RUSTLEAF_GLEANER],
+      },
+    },
+    {
+      id: 't-undead-f543',
+      name: 'Floor 543',
+      enemies: {
+        front: [ILLFALL_SKULKER, SCALEPLATE_BRAMBLE],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f544',
+      name: 'Floor 544',
+      enemies: {
+        front: [ROUGHCAST_GNAWER, HOLLOWBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f545',
+      name: 'Floor 545',
+      enemies: {
+        front: [SHALEBED_CRAWLER, GLASSBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // Along the Grain — Floors 546–567, levels 258–267, Relic 68–80 — no Elf bole is left standing and nothing on a board is both heavy and hot; what is left of them is what a crit is worth.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f546',
+      name: 'Floor 546',
+      enemies: {
+        front: [ROUGHCAST_GNAWER, GREYLEAF_WARDEN],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f547',
+      name: 'Floor 547',
+      enemies: {
+        front: [ILLFALL_SKULKER, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f548',
+      name: 'Floor 548',
+      enemies: {
+        front: [SCATTERSTONE_HOWLER, GREYLEAF_WARDEN],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f549',
+      name: 'Floor 549',
+      enemies: {
+        front: [ROUGHCAST_GNAWER, BREAKSTONE_WARDEN],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f550',
+      name: 'Floor 550 — The Long Split',
+      enemies: {
+        front: [ILLFALL_SKULKER, GLASSBARK_SENTRY],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, RUSTLEAF_GLEANER],
+      },
+    },
+    {
+      id: 't-undead-f551',
+      name: 'Floor 551',
+      enemies: {
+        front: [GREYLEAF_WARDEN, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f552',
+      name: 'Floor 552',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f553',
+      name: 'Floor 553',
+      enemies: {
+        front: [ILLFALL_SKULKER, GREYLEAF_WARDEN],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f554',
+      name: 'Floor 554',
+      enemies: {
+        front: [ROUGHCAST_GNAWER, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f555',
+      name: 'Floor 555',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f556',
+      name: 'Floor 556',
+      enemies: {
+        front: [GREYLEAF_WARDEN, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f557',
+      name: 'Floor 557',
+      enemies: {
+        front: [ILLFALL_SKULKER, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f558',
+      name: 'Floor 558',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f559',
+      name: 'Floor 559',
+      enemies: {
+        front: [GREYLEAF_WARDEN, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f560',
+      name: 'Floor 560 — The Opened Log',
+      enemies: {
+        front: [ILLFALL_SKULKER, BREAKSTONE_WARDEN],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f561',
+      name: 'Floor 561',
+      enemies: {
+        front: [GREYLEAF_WARDEN, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f562',
+      name: 'Floor 562',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f563',
+      name: 'Floor 563',
+      enemies: {
+        front: [DULLEDGE_BRIAR, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f564',
+      name: 'Floor 564',
+      enemies: {
+        front: [GREYLEAF_WARDEN, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f565',
+      name: 'Floor 565',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f566',
+      name: 'Floor 566',
+      enemies: {
+        front: [GREYLEAF_WARDEN, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f567',
+      name: 'Floor 567',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Froe and the Mallet — Floors 568–585, levels 268–276, Relic 81–91 — the lieutenant arrives and the third amplifier with it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f568',
+      name: 'Floor 568',
+      enemies: {
+        front: [GREYLEAF_WARDEN, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f569',
+      name: 'Floor 569',
+      enemies: {
+        front: [DULLEDGE_BRIAR, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f570',
+      name: 'Floor 570 — The Froe Set',
+      enemies: {
+        front: [RIVENBOUGH_FROE, GREYLEAF_WARDEN],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f571',
+      name: 'Floor 571',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f572',
+      name: 'Floor 572',
+      enemies: {
+        front: [RIVENBOUGH_FROE, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f573',
+      name: 'Floor 573',
+      enemies: {
+        front: [DULLEDGE_BRIAR, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f574',
+      name: 'Floor 574',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f575',
+      name: 'Floor 575',
+      enemies: {
+        front: [GREYLEAF_WARDEN, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f576',
+      name: 'Floor 576',
+      enemies: {
+        front: [RIVENBOUGH_FROE, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f577',
+      name: 'Floor 577',
+      enemies: {
+        front: [BREAKSTONE_WARDEN, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f578',
+      name: 'Floor 578',
+      enemies: {
+        front: [RIVENBOUGH_FROE, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, SNAPWOOD_HARRIER],
+      },
+    },
+    {
+      id: 't-undead-f579',
+      name: 'Floor 579',
+      enemies: {
+        front: [GREYLEAF_WARDEN, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f580',
+      name: 'Floor 580 — The Mallet Falls',
+      enemies: {
+        front: [RIVENBOUGH_FROE, BREAKSTONE_WARDEN],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, GLADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f581',
+      name: 'Floor 581',
+      enemies: {
+        front: [DULLEDGE_BRIAR, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    {
+      id: 't-undead-f582',
+      name: 'Floor 582',
+      enemies: {
+        front: [RIVENBOUGH_FROE, EVENLIGHT_TENDER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, SNAPWOOD_HARRIER],
+      },
+    },
+    {
+      id: 't-undead-f583',
+      name: 'Floor 583',
+      enemies: {
+        front: [GREYLEAF_WARDEN, SHADOWLESS_DANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f584',
+      name: 'Floor 584',
+      enemies: {
+        front: [RIVENBOUGH_FROE, ROOTPLATE_CLIMBER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f585',
+      name: 'Floor 585',
+      enemies: {
+        front: [RIVENBOUGH_FROE, DULLEDGE_BRIAR],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, NOONLESS_ARCHER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Shakes — Floors 586–595, levels 276–281, Relic 92–97 — three amplifiers on every board and nothing anywhere in the band heavier than four hundred.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f586',
+      name: 'Floor 586',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SNAPWOOD_HARRIER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f587',
+      name: 'Floor 587',
+      enemies: {
+        front: [RIVENBOUGH_FROE, CROWNFALL_DARTER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, FLATSHADE_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f588',
+      name: 'Floor 588',
+      enemies: {
+        front: [RIVENBOUGH_FROE, THORNLING],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CROWNFALL_DARTER],
+      },
+    },
+    {
+      id: 't-undead-f589',
+      name: 'Floor 589',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SNAPWOOD_HARRIER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-undead-f590',
+      name: 'Floor 590 — The Shakes',
+      enemies: {
+        front: [RIVENBOUGH_FROE, GLADE_STALKER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CROWNFALL_DARTER],
+      },
+    },
+    {
+      id: 't-undead-f591',
+      name: 'Floor 591',
+      enemies: {
+        front: [RIVENBOUGH_FROE, CROWNFALL_DARTER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f592',
+      name: 'Floor 592',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SNAPWOOD_HARRIER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, THORNLING],
+      },
+    },
+    {
+      id: 't-undead-f593',
+      name: 'Floor 593',
+      enemies: {
+        front: [RIVENBOUGH_FROE, BAREMARK_GNAWER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CROWNFALL_DARTER],
+      },
+    },
+    {
+      id: 't-undead-f594',
+      name: 'Floor 594',
+      enemies: {
+        front: [RIVENBOUGH_FROE, THORNLING],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f595',
+      name: 'Floor 595',
+      enemies: {
+        front: [RIVENBOUGH_FROE, CROWNFALL_DARTER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, BAREMARK_GNAWER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Heartshake — Floors 596–600, levels 281–283, Relic 98–100 — five floors, each measured on its own, and the split the wood was always going to take at the top of them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-undead-f596',
+      name: 'Floor 596',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SNAPWOOD_HARRIER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f597',
+      name: 'Floor 597',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SHAKEWOOD_LANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, BAREMARK_GNAWER],
+      },
+    },
+    {
+      id: 't-undead-f598',
+      name: 'Floor 598',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SHAKEWOOD_LANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f599',
+      name: 'Floor 599',
+      enemies: {
+        front: [RIVENBOUGH_FROE, SHAKEWOOD_LANCER],
+        back: [EMBERWEDGE_DRIVER, SPLITMAW_RENDER, CHANNELBED_STALKER],
+      },
+    },
+    {
+      id: 't-undead-f600',
+      name: 'Floor 600 — The Heartshake',
+      enemies: {
+        front: [THE_HEARTSHAKE, RIVENBOUGH_FROE],
+        back: [EMBERWEDGE_DRIVER, CHANNELBED_STALKER, CROWNFALL_DARTER],
       },
     },
   ],
