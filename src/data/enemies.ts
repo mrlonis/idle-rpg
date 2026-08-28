@@ -375,6 +375,10 @@ import {
   COURSE_THE_STONE,
   DRIVE_THE_HEADING,
   THE_ROOF_COMES_DOWN,
+  PACK_THE_BOX,
+  DRAW_THE_TEMPER,
+  THE_LONG_SOAK,
+  NOTHING_MARKS_IT,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -13542,10 +13546,11 @@ export const THE_CAMWRIGHT = {
  * with its carriers' `haste` dropped to 90 reads 4.00 and 4.03, so the beat is worth **0.20 of five to
  * the reference and 2.03 to the alternate** on the top floor of the tower.
  *
- * ⚠️ **At 1180/24 this is the lightest roof anchor on attack any tower hundred has shipped**, and the
- * list rather than the superlative, because the superlative has gone stale twice already: the tower
- * roofs now read 1180/24 (this), 1140/40, 1160/44, 1200/52, 820/58, 1240/68, 1240/74, 1300/84,
- * 1320/82, 1440/86, 1540/92 and 1560/91. **The weight a roof is allowed is what is left after the
+ * ⚠️ **At 1180/24 this is _tied_ for the lightest roof anchor on attack any tower hundred has
+ * shipped**, and the list rather than the superlative, because the superlative has gone stale three
+ * times now: {@link THE_CASEHARDENED} matched the 24 at 780 health one hundred floors above it, and
+ * the tower roofs read 1180/24 (this), 780/24, 1050/25, 1180/34, 580/36, 900/38, 1140/40, 1160/44,
+ * 1200/52, 820/58, 1240/68, 1240/74, 1300/84, 1320/82, 1440/86, 1540/92 and 1560/91. **The weight a roof is allowed is what is left after the
  * grade**, and this one is wearing Relic 40 at enemy level 236 — but what it is really left with is
  * what is affordable beside two carriers keeping its time.
  *
@@ -13758,10 +13763,11 @@ export const COVERT_REAVER = {
  * reads 100% with all five alive at floor 401 and **0% / 8% at floor 500 in Relic 40** — the
  * Crownworks collapse a fifth time on this tower.
  *
- * ⚠️ **On attack it is the lightest roof any tower hundred has shipped bar one.** The roofs now read
- * 1180/24, **1180/34**, 1140/40, 1160/44, 1200/52, 820/58, 1240/68, 1240/74, 1300/84, 1320/82,
- * 1440/86, 1540/92 and 1560/91 — a list rather than a superlative, because the superlative has gone
- * stale twice.
+ * ⚠️ **On attack it was the lightest roof any tower hundred had shipped bar one, and the sixth round
+ * has since put three under it.** The roofs read 1180/24, 780/24, 1050/25, **1180/34**, 580/36,
+ * 900/38, 1140/40, 1160/44, 1200/52, 820/58, 1240/68, 1240/74, 1300/84, 1320/82, 1440/86, 1540/92 and
+ * 1560/91 — a list rather than a superlative, because the superlative has now gone stale three
+ * times.
  *
  * ⚠️ **The axis carries the last floor rather than riding along.** With its own and its escort's
  * `attackSpeed` stripped to zero the same board reads 100% / 2.25 against the shipped 95% / 1.20 —
@@ -13971,11 +13977,11 @@ export const EMBERVAULT_KEEPER = {
  * gave the jaws nothing square to close on. This one lets them close, and burns anyway.
  *
  * The roof, at **900/38** — and both halves of that are the lightest this tower has authored bar its
- * own. ⚠️ **It is the second-lightest roof on health in the game and the third-lightest on attack, and
- * the block above it on health is {@link THE_TURNAWAY} at 820**: derived across all thirty-three
- * shipped hundred-roofs the list runs 1180/24, 1180/34, **900/38**, 1140/40, 1160/44, 1200/52,
- * 1050/56, 820/58, 1240/64 and on up to 1800/100 — a list rather than a superlative, because the
- * superlative has gone stale twice. The five fifth-hundred roofs are the first five of it.
+ * own. ⚠️ **It was the second-lightest roof on health in the game and the third-lightest on attack
+ * when it shipped, and the sixth round has since put two under it on each**: derived across all
+ * thirty-eight shipped hundred-roofs the list by attack runs 1180/24, 780/24, 1050/25, 1180/34,
+ * 580/36, **900/38**, 1140/40, 1160/44, 1250/44, 950/48, 1200/52 and on up to 1800/100 — a list
+ * rather than a superlative, because the superlative has now gone stale three times.
  *
  * ⚠️ **The attack settled it — the sixth tower roof running — and the tell is the fight getting
  * shorter as it came down.** With the weight held at 900 behind the shipped escort, `atk` 44 reads
@@ -15469,10 +15475,10 @@ export const UNDERSET_PIONEER = {
  *
  * ⚠️ **At 580/36 this is the lightest roof anchor in the game on health**, by a clear margin. The
  * seven towers' last-floor anchors, as a list rather than a superlative, because this claim has gone
- * stale twice already: **The Undermost 580/36**, The Unquenched 900/38, The Unlacing 950/48,
- * `THE_HEADLONG` 1050/25, The Great Helve 1180/**24** (the lightest on attack), The Blackthorn
+ * stale twice already: **The Undermost 580/36**, {@link THE_CASEHARDENED} 780/**24** (the lightest on
+ * attack), The Unquenched 900/38, The Unlacing 950/48, `THE_HEADLONG` 1050/25, The Blackthorn
  * 1180/34, The Unstruck 1250/44. The reason this one is so light is the ×9.86 squeeze above rather
- * than a soft roof — and five of those six are still their tower's floor-500 block, so **re-read the
+ * than a soft roof — and four of those six are still their tower's floor-500 block, so **re-read the
  * list rather than the sentence once the round closes.**
  *
  * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. Nothing on it
@@ -15499,6 +15505,255 @@ export const THE_UNDERMOST = {
     magicResist: 0.12,
   },
   skills: [THE_ROOF_COMES_DOWN, DRIVE_THE_HEADING, COURSE_THE_STONE],
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's sixth hundred — the Case-Hardening, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **Four blocks, which is 7.1% of the 56 distinct archetypes this hundred fields rather than a
+// quarter of them.** The quota is a count with seven hundreds of precedent behind it, not a fraction
+// to solve for. Dwarves go 76 → 80.
+//
+// ## ⚠️ The axis is enemy `def`, and it is this tower's first exclusive licence in six hundred floors
+//
+// Six hundred floors ago this tower's whole premise was written down as *it stands armour in the way
+// and asks the faction that never had to break a wall to break one.* It has never been the axis. The
+// fourth hundred measured `def` **inert**, the fifth re-measured it at band 5 as worth 0.38 / 2.85 and
+// **declined it on the clock** — it spent the half of the vocabulary that converts budget into deaths
+// rather than into seconds. What changed at band 6 is the squeeze: the board weight that reads ≥3.90
+// of five falls from **14,268 common-equivalent at floor 501 to 3,864 at floor 600**, a factor of
+// **3.69** over one hundred floors, so the seconds armour buys are seconds the fallen weight gave back.
+//
+// Priced against a control of an `ascended` anchor at 900/40 behind four `legendary` bodies at 500/30,
+// every stat line scaled by the factor that puts each arrangement on the heaviest control it still
+// reads ≥3.60 on — elf-alt at **×0.725** — at level 283 in Relic 100, reading **3.92 of five at 16.0s**
+// and moving in both directions. Forty seeds, **zero timeouts on every row**:
+//
+// | four carriers at | elf-ref | elf-alt | mean fight (alt) |
+// | ---------------- | ------- | ------- | ---------------- |
+// | `def` 22 — control | 3.88  | 3.92    | 16.0s            |
+// | `def` 30         | 3.70    | 3.85    | 17.4s            |
+// | `def` 38         | 3.65    | 3.83    | 17.5s            |
+// | `def` 46         | 3.55    | 3.70    | 18.2s            |
+// | `def` 54         | 3.40    | 3.50    | 19.4s            |
+// | `def` 62         | 3.38    | 3.00    | 22.7s            |
+// | `def` 70         | 3.23    | 2.80    | 21.4s            |
+//
+// 1. ⚠️ **It grades in _value_ and not usefully in carrier count, which is chapter 29's rule arriving
+//    on a tower.** At `def` 70 the alternate reads 3.98 / 4.00 / 3.70 / 3.63 / **2.48** across zero to
+//    four carriers — flat through the middle and a cliff at the end, which is the survivors metric
+//    saturating — where at `def` 54 the same walk is 3.98 / 3.98 / 3.92 / 3.77 / 3.60. **A defensive
+//    stat grades in value and an offensive one in carrier count**, so the bands here walk the value
+//    and only the closing three walk the count as well.
+// 2. ⚠️ **"Is it ours" comes back _first of fourteen_ on the raw table and first on the residual, which
+//    is exclusivity rather than margin — the stronger licence, and this tower has never had it.** Each
+//    arrangement calibrated to the heaviest control it still reads ≥3.60 on, then given `def` 70 on
+//    four bodies: **elf-alt 1.73**, angel-alt 1.45, dwarf-ref 1.42, angel-ref 1.38, human-ref 1.13,
+//    undead-ref 1.00, undead-alt 0.95, dwarf-alt 0.92, monster-ref 0.88, elf-ref 0.57, demon-ref 0.55,
+//    demon-alt 0.55, monster-alt 0.45, human-alt 0.35. The fourth and fifth hundreds both came back
+//    *fourth* of fourteen and had to be taken on margin.
+// 3. ⚠️ **The fight-length confound is real here and the residual is what settles it.** `def`'s cost
+//    correlates **0.79** with how long each crew's fights already are, and the three arrangements
+//    nearest elf-alt on the raw table are the three slowest in the game (angel-alt 60s, angel-ref 47s,
+//    dwarf-ref 43s on their own controls, against elf-alt's **15s**). Fit that trend and rank the
+//    residual and elf-alt is **first at +1.59 against a second place of +0.62** — 156% clear, the
+//    widest residual margin any hundred has recorded. The Demon fifth hundred's test, used to rescue
+//    an axis rather than to disqualify one.
+// 4. ⚠️ **What makes it theirs is what the crew does _not_ carry, and it is total.** The two Elf
+//    arrangements are the **only two of fourteen carrying zero of `physicalResist`, `tenacity`,
+//    `critBlock`, `critDamageResist` and `lifeLeech` at once**, on the lowest health pool in the game
+//    (Σ2,305 / Σ2,180 against the next-lowest 2,485) and the second-lowest authored `def` (Σ83 / Σ75).
+//    Armour does not reduce what an Elf five deals; it converts the fight into extra enemy swings, and
+//    this is the one crew with nothing at all to absorb a swing with.
+// 5. ⚠️ **The naive mechanism arguments do not survive the table, which is worth recording because
+//    both look decisive.** "Their attack is small so armour costs them most" is false — `baseDamage`
+//    is `atk²/(atk + def)` and the Elf arrangements carry Σ292 / Σ304 of authored `atk`, **second and
+//    third of the fourteen** behind monster-alt's Σ306 — which reads 0.45, thirteenth; the cost
+//    correlates **−0.31** with attack. "They have no pierce to open
+//    it with" is false too — the alternate's `physicalPierce` Σ0.20 is second only to the Monsters'
+//    Σ0.56 / Σ0.70, and the correlation across the table is **−0.17**. **Take the measurement, not the register.**
+// 6. ⚠️ **It is armour rather than bulk, and enemy `hp` is the Undead third hundred's axis anyway.**
+//    On the same control, health ×1.5 is worth **0.70** to the binding arrangement and ranks third of
+//    fourteen; `def` 70 is worth 1.73 and ranks first, at three seconds less of added fight.
+// 7. ⚠️ **Every pairing measured is additive or worse, so the axis ships alone.** `def` 70 with
+//    `physicalResist` 0.40 reads 3.80 against a sum of halves of 3.68 (×1.03) and costs +15 seconds;
+//    with `dodge` 0.55 it reads 4.03 — a total loss, which is not a dial. And `physicalResist` is the
+//    Dwarf Tower's own sixth hundred, shipped one session ago: on the residual it puts dwarf-ref
+//    +1.15 and elf-alt +1.16, a dead heat. **Two towers with one stat is a question about the
+//    argument**, and that one is already answered elsewhere.
+// 8. ⚠️ **Inert, measured, and not worth re-measuring at this band**: `magicResist` 0.60 is worth
+//    **−0.07** and `magicPierce` 0.40 **0.03**, both disqualified by the formula rather than by size —
+//    the crew deals ten physical damage effects and zero magical, so a magic ward has nothing to act
+//    on; `tenacity` 0.85 reads **0.03** and `accuracy` 1.25 **0.25** against a crew whose own accuracy
+//    is 5.30 of a possible 5.00; complete crit denial (`critBlock` 0.34 with `critDamageResist` 0.52)
+//    reads 0.18, which reproduces the fifth hundred's 0.05 exactly.
+//
+// ⚠️ **The register, measured before these four blocks joined the pool.** `def` sits on **all 426**
+// shipped blocks — so, exactly as chapter 23 requires of a common stat, the band claim is a **count of
+// bodies at a threshold** rather than a claim about presence. In common-equivalent terms at level 283
+// (a `legendary` block's authored `def` is worth ×1.513 of a `common` one and an `ascended` ×2.287) the
+// pool reads a median of **34**, a p90 of **101** and a ceiling of **160** — {@link THE_DOORSTONE},
+// authored 70 on an `ascended` chassis. ⚠️ **The lean owns the whole top of that register and can field
+// almost none of it**, which is chapter 28's shape rather than chapter 27's. Twenty-four bodies sit at
+// or above common-equivalent `def` 60 and are light enough to stand on a closing board (hp ≤ 700), and
+// **twenty of them are `ascended`**; restricted to the four factions that counter Elves the list is
+// **nine, seven of them `ascended`**, and the two legendaries left are the Backstroke Ironside at ce 70
+// and the Irontally Mason at ce 61, both hot and one of them a wide voice. So the three new legendaries create
+// the light armoured register from nothing at ce **70 / 85 / 97**, all inside the pool's p90, and the
+// roof holds **156**, under the Doorstone's 160.
+//
+// ⚠️ **Armour on the anchor is worth nothing and armour on the escorts is the whole axis**, which is
+// chapter 29's rule reproduced on a tower and the reason these four are light. Held on the same board:
+// `def` 70 on the **anchor** alone reads 4.00 of five against a 3.98 control — **0.00** — where the same
+// value on the four escorts reads 2.48. The roof's own 68 is therefore identity rather than difficulty:
+// holding its escort's armour and walking the roof from 24 to 68 moves the binding arrangement 3.02 →
+// 2.67, worth **0.35**, where the board's armour is worth **1.21**.
+//
+// ⚠️ **The carriers wear `brawler`, and `tank` would switch the axis off** — the Deepworks' finding,
+// reproduced and larger. Held at an identical stat line on the same board, all-`tank` reads **4.05 of
+// five** where all-`brawler` reads 1.77 and all-`ranger` **0.38**: at Relic 100 `GEAR_PROFILES` pays a
+// tank +46% attack and a ranger +112%, so on a refusal axis the archetype is worth more than the axis.
+//
+// ⚠️ **The rank a carrier stands in is not a dial here, the fourth different answer that question has
+// given.** One body moved between ranks is worth **0.00 to 0.20** — 4.05 in front against 3.85 behind at
+// `def` 70. A dodge bills what is *aimed at*, an `attackSpeed` bills what is *left alive*, a resist
+// bills every blow that reaches the body whenever it arrives, and `def` does the same. Carry the
+// measurement, never the precedent.
+//
+// ⚠️ **Nothing here restores anything.** No block below carries `lifeLeech`, `recovery`, `healthRegen`,
+// a heal, a drain, a shield or a taunt, and the claim about the *boards* is stated as counts in
+// [`tower-elf.ts`](./tower-elf.ts).
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It never touches the iron. It packs the box the iron sleeps in.
+ *
+ * The opening band's carrier: the axis at its entry size — **`def` 46 on 500 health**, which is
+ * common-equivalent **70** on a `legendary` chassis and exactly the ceiling the shipped light
+ * legendaries reach ({@link BACKSTROKE_IRONSIDE}, 660/60). ⚠️ **A plain block at the bottom of a new
+ * axis is the lesson**, exactly as the Headrace Hand is one hundred below and the Deadfall Timberer is
+ * one tower over: **one carrier beside this hundred's control is worth nothing at all** — 4.00 of five
+ * against a 3.98 control, because this axis grades in value rather than in count — and the opening
+ * bands have to teach what the skin is before the closing ones can charge for three of them.
+ */
+export const CASEBOX_PACKER = {
+  id: 'casebox-packer',
+  name: 'Casebox Packer',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 500,
+    atk: 28,
+    def: 46,
+    haste: 92,
+    critChance: 0.09,
+    critDamageAmp: 0.7,
+    critBlock: 0.06,
+    physicalResist: 0.08,
+  },
+  skills: [PACK_THE_BOX],
+} as const;
+
+/**
+ * Cold water and a smell like a smithy on fire. Whatever comes out is not the thing that went in.
+ *
+ * The middle bands' carrier: **`def` 56 on 460 health**, common-equivalent **85** — past every
+ * legendary light body the pool ships and still inside its p90 of 101. It is the lightest of the four
+ * on health for the same reason the axis is authored on escorts at all: armour on a heavy body is the
+ * ninety-second clock, and armour on a light one is the axis.
+ */
+export const SLACKTUB_TENDER = {
+  id: 'slacktub-tender',
+  name: 'Slacktub Tender',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 460,
+    atk: 26,
+    def: 56,
+    haste: 90,
+    critChance: 0.1,
+    critDamageAmp: 0.75,
+    critBlock: 0.08,
+    physicalResist: 0.1,
+  },
+  skills: [DRAW_THE_TEMPER, PACK_THE_BOX],
+} as const;
+
+/**
+ * A day and a night at cherry red, for a skin you could take off with a file. Nobody has a file.
+ *
+ * The hundred's lieutenant, standing on the tenth floors of its upper half at **`def` 64 on 560
+ * health** — common-equivalent **97**, the deepest armour any legendary body in the game carries under
+ * 700 health. ⚠️ **Its attack is 30, and that is the Camwright's arithmetic taken one band further**:
+ * the party is frozen at band 6 while the boards climb forty-seven levels and fifty-nine gear
+ * positions, so the weight that reads 3.90 of five falls by a factor of **3.69** across the hundred and
+ * its line was settled against all of its appearances rather than its first.
+ */
+export const SOAKPIT_MASTER = {
+  id: 'soakpit-master',
+  name: 'Soakpit Master',
+  faction: 'dwarf',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 560,
+    atk: 30,
+    def: 64,
+    haste: 88,
+    critChance: 0.11,
+    critDamageAmp: 0.78,
+    critBlock: 0.08,
+    tenacity: 0.3,
+    physicalResist: 0.1,
+  },
+  skills: [THE_LONG_SOAK, DRAW_THE_TEMPER],
+} as const;
+
+/**
+ * The hold is six hundred floors gone. The works are still turning out plate for nobody.
+ *
+ * The roof, and the last floor of the tower. ⚠️ **The axis at its authored ceiling — `def` 68 on 780
+ * health, common-equivalent 156 against {@link THE_DOORSTONE}'s 160 — and on the roof that is identity
+ * rather than difficulty**: holding the escort's armour and walking this one from 24 to 68 is worth
+ * **0.35 of five**, where stripping the whole board's armour to the pool median is worth **1.21 and
+ * fifteen seconds** (100% / 3.98 against 100% / 3.88 stripped, against the shipped 100% / 3.13 and
+ * 80% / 2.40). **The axis carries the floor; the boss wears it.**
+ *
+ * ⚠️ **Settled on its attack, the sixth tower roof running.** With weight held at 780 the board reads
+ * 100% / 3.38 for the binding arrangement at `atk` 21, 95% / 2.98 at 22, 85% / 2.50 at 23 and
+ * **80% / 2.40 at the shipped 24**. **Shortlist on weight, settle on attack.**
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. The seven
+ * towers' last-floor anchors, as a list rather than a superlative, because the superlative has gone
+ * stale three times: The Undermost 580/36, **The Case-Hardened 780/24**, The Unquenched 900/38, The
+ * Unlacing 950/48, The Headlong 1050/25, The Blackthorn 1180/34, The Unstruck 1250/44. Nothing on it
+ * restores anything, it carries no taunt, and the board it stands on carries no heal, drain, shield or
+ * regeneration.
+ */
+export const THE_CASEHARDENED = {
+  id: 'the-casehardened',
+  name: 'The Case-Hardened',
+  faction: 'dwarf',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 780,
+    atk: 24,
+    def: 68,
+    haste: 86,
+    critChance: 0.12,
+    critDamageAmp: 0.8,
+    critDamageResist: 0.18,
+    critBlock: 0.1,
+    tenacity: 0.45,
+    physicalResist: 0.12,
+    magicResist: 0.12,
+  },
+  skills: [NOTHING_MARKS_IT, THE_LONG_SOAK, DRAW_THE_TEMPER],
 } as const;
 
 export const ENEMIES = [
@@ -15928,4 +16183,8 @@ export const ENEMIES = [
   STOPEWARD_MASON,
   UNDERSET_PIONEER,
   THE_UNDERMOST,
+  CASEBOX_PACKER,
+  SLACKTUB_TENDER,
+  SOAKPIT_MASTER,
+  THE_CASEHARDENED,
 ] as const;

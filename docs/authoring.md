@@ -1967,8 +1967,8 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Twenty-eight hundreds gave twenty-eight answers — every second, third, fourth and fifth hundred
-of all seven towers — and no two escalate the same way. Read the crew's failure mode before choosing;
+⚠️ **Thirty-one hundreds gave thirty-one answers — every second, third, fourth and fifth hundred of
+all seven towers, and the sixth of the Human, Dwarf and Elf — and no two escalate the same way. Read the crew's failure mode before choosing;
 do not copy the last session's shape.** [towers](towers.md)
 
 ⚠️ **The cross-crew table has now failed to choose the axis four fifth hundreds running, for four
@@ -1988,6 +1988,57 @@ where `critChance`'s correlates **0.645**: the four heaviest-armoured arrangemen
 costliest rows on pierce (angel-alt Σ195 → 2.42, angel-ref Σ174 → 1.96, dwarf-alt Σ186 → 1.17,
 dwarf-ref Σ163 → 0.74), where crit's ordering breaks at the bottom (undead-alt reads 1.17 on Σ45 of
 `def`). **Correlate the cost against the register the axis is pointed at.** [towers](towers.md)
+
+⚠️ **A refusal recorded on the _clock_ expires when the clock gets cheaper, which is a different
+expiry from the one recorded on size.** The Elf Tower's fourth hundred measured `def` inert and its
+fifth measured it at 0.38 / 2.85 and **declined it on seconds**, taking the half of the vocabulary
+that converts budget into deaths. Its sixth takes it, and nothing about the stat changed: the board
+weight that reads ≥3.90 of five falls from **14,268 common-equivalent at floor 501 to 3,864 at floor
+600**, a factor of 3.69, so the twelve seconds armour buys are seconds the fallen weight gave back.
+**Re-price a mechanic a neighbouring band declined, and say which of size or seconds the refusal was
+recorded on.** [towers](towers.md)
+
+⚠️ **The residual and the counter-example are both legitimate readings of a confounded table, and
+which one applies is a property of the table rather than of the session.** The Dwarf sixth hundred
+disproved the fight-length confound with a counter-example — angel-alt, the slowest arrangement of
+all fourteen, ranked twelfth — and the correlation was 0.177, so no residual was needed. The Elf
+sixth hundred has the same confound at **0.79** and no such row: the three arrangements nearest the
+binding one are the three slowest in the game. Fitting the trend puts elf-alt **first at +1.59
+against a second place of +0.62, 156% clear**. **Look for the counter-example first; fit the residual
+only when it is not there.** [towers](towers.md)
+
+⚠️ **A defensive stat grades in _value_ and an offensive one in _carrier count_, and a tower hundred
+reproduces chapter 29's rule exactly.** At the Elf sixth hundred's control, `def` 70 reads
+3.98 / 4.00 / 3.70 / 3.63 / **2.48** across zero to four carriers — flat through the middle and a
+cliff at the end, which is the survivors metric saturating — where the same walk at `def` 54 spans
+0.38 in total. So the bands walk the **value** and only the closing three walk the count. **Check
+which dimension your axis has before planning six bands on it.** [towers](towers.md)
+
+⚠️ **Armour on the anchor is worth 0.00 and armour on the escorts is the whole axis, so a band table
+about armour is a count over the _light_ bodies.** Held on one board at the Elf sixth hundred, `def`
+70 on the anchor reads 4.00 of five against a 3.98 control; the same value on the four escorts reads
+2.48. Its band table therefore counts bodies at common-equivalent `def` ≥ 60 **under 700 raw health**
+and reads 0 / 0–1 / 1–2 / 2 / 2–3 / 2–3, while the opening band's boards carry two or three heavy
+bodies over that threshold where the measurement says they are worth nothing. **State which bodies a
+count is over** — chapter 29's rule, and the counts-not-absolutes fix stacked on top of it.
+[towers](towers.md)
+
+⚠️ **A rung boundary is only a reprieve on the retirement check when the hundred's _gear_ is flat.**
+The Elf fifth hundred's check came back completely clean and reasoned that a band boundary hands the
+crew ×1.6 and twenty-four levels where the boards gain forty-seven, and ×1.6 outruns
+`perLevel.ascended`. The sixth's check, at the same kind of boundary, retires **eight of the tower's
+fourteen `ascended` blocks outright** — because floors 401–500 climb Masterwork 1 → Relic 40 for
+×1.09 in effective tank health where 501–600 climb Relic 41 → Relic 100 for **×1.47**. **Multiply the
+gear step into the boundary before predicting the check.** [towers](towers.md)
+
+⚠️ **Two mechanism arguments for an armour axis are both false, and each looks decisive.** "The crew
+with the smallest attack loses most to `def`" — `baseDamage` is `atk²/(atk + def)`, and the Elf
+arrangements carry Σ292 / Σ304, second and third of the fourteen behind monster-alt's Σ306 — which
+pays 0.45 and ranks thirteenth; the cost correlates **−0.31** with attack. "The crew with no pierce to open it" — they carry `physicalPierce`
+Σ0.12 / Σ0.20, the alternate's second only to the Monsters', at **−0.17**. What the table actually
+tracks is the **absence** register: those two arrangements are the only two of fourteen carrying zero
+`physicalResist`, `tenacity`, `critBlock`, `critDamageResist` **and** `lifeLeech` at once, on the
+lowest health pool in the game. **Take the measurement, not the register.** [towers](towers.md)
 
 ⚠️ **A hundred can be built on _refusing_ the axis of the hundreds below it, and reading the damage
 formula is what licenses it.** The Dwarf Tower spent two hundred floors on `physicalPierce` — the Proof

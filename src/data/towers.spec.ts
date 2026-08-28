@@ -137,8 +137,8 @@ const TOWER_UNIT = 100;
  * it.** It has now been done this way five times: 21e–21k for the second hundred, again for the third,
  * again for the fourth, again for the fifth, and this.
  *
- * ⚠️ **The Dwarf Tower is off the list**: its sixth hundred — the Deepworks — shipped, so two of seven
- * stand at six hundred floors and five are still at five hundred.
+ * ⚠️ **The Dwarf Tower came off with its Deepworks and the Elf Tower with its Case-Hardening**, so
+ * three of seven stand at six hundred floors and four are still at five hundred.
  *
  * ⚠️ **The list is owed in the same session as the bump, not in the session that authors the first
  * tower.** Between the two there is nothing at all holding the six short towers. The fourth hundred's
@@ -161,13 +161,7 @@ const TOWER_UNIT = 100;
  * wore and the extension is a new segment past it. **All 200 shipped geared floors are byte-identical
  * on every tower, pending or not** — see `core/towers.ts`.
  */
-const PENDING: readonly string[] = [
-  'tower-elf',
-  'tower-undead',
-  'tower-monster',
-  'tower-angel',
-  'tower-demon',
-];
+const PENDING: readonly string[] = ['tower-undead', 'tower-monster', 'tower-angel', 'tower-demon'];
 
 /** The height a tower is actually authored at: the rules' height, or the band below for a pending one. */
 const authoredHeight = (tower: TowerData): number =>

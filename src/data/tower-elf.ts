@@ -2,16 +2,20 @@ import {
   ACOLYTE,
   ANVILBACK_SMITH,
   ASHPIT_SCUTTLER,
+  BACKSTROKE_IRONSIDE,
   BARROWMIST_KEENER,
   BARROW_SOVEREIGN,
   BOAR,
   BOLTFAST_IRONSIDE,
   BONECHAIN_WARDEN,
   BRACEWORK_DELVER,
+  BREAKSTONE_WARDEN,
   BULWARK_ENEMY,
   CAIRNBOUND_SENTINEL,
   CAIRNWARD_HUSK,
   CARRION_SWARM,
+  CASEBOX_PACKER,
+  CENSERSTEP_ACOLYTE,
   CHALKHIDE_BROWSER,
   CHARNEL_DRUDGE,
   CINDERFLAW_PROVER,
@@ -26,16 +30,19 @@ import {
   DEEPGALLERY_RUNNER,
   DEEPLAMP_SEALER,
   DEEPROCK_MINER,
+  DEEPSET_ANVILWARD,
   DRIFTMOUTH_CHOKER,
   EDGETURN_WARDEN,
   EMBERSEED_WARLOCK,
   EMBERSHELL_WHELP,
+  EMBERVAULT_KEEPER,
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
   GATEFAST_WARDEN,
   GILDED_SENTRY,
   GLADE_STALKER,
+  GLANCEWORK_SMITH,
   GLASSCHOIR_ARBITER,
   GOLEM,
   GRAVEMOURN_KEEPER,
@@ -59,7 +66,9 @@ import {
   LUMEN_ACOLYTE,
   MARCHWARD_PIKEMAN,
   MARROWHUNT_ALPHA,
+  MIREWHELP,
   MOONSONG_WEAVER,
+  NEVERMARK_KEEPER,
   NIGHTMARCH_OUTRIDER,
   OATHBREAKER,
   OATHSHIELD_VANGUARD,
@@ -83,18 +92,26 @@ import {
   RIVETLINE_HAND,
   RUNEWARDEN,
   SCARBOUND_BELLOWER,
+  SEAMBOUND_DELVER,
   SENTINEL,
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SETSTONE_DRUDGE,
   SHADE,
   SHARDLIGHT_ACOLYTE,
+  SLACKTUB_TENDER,
+  SLAGBORE_HARROW,
   SLAGBOUND_DRUDGE,
   SLAGHIDE_PURSUER,
   SLIME,
+  SLIPFAST_IRONSIDE,
+  SOAKPIT_MASTER,
   SPLINTERYARD_HONER,
+  SPOILROOF_HAND,
+  SPRUNGPLATE_HAND,
   STORMCALLER,
   THE_CAMWRIGHT,
+  THE_CASEHARDENED,
   THE_DEADBOLT,
   THE_EDGEWRIGHT,
   THE_GRAVEWRIGHT,
@@ -116,7 +133,7 @@ import {
 } from './enemies';
 
 /**
- * The Elf Tower — five hundred floors, enemy levels 1 to 236.
+ * The Elf Tower — six hundred floors, enemy levels 1 to 283.
  *
  * ## Why the enemies are mostly Dwarven
  *
@@ -473,7 +490,123 @@ import {
  * the shape this tower's third hundred measured at 0%. Capped, the hundred ships at a mean of **0.75
  * with 17 boards over one**, against the third and fourth hundreds' 0.62 and 1.03.
  *
- * Re-run `npm run test:balance` after touching any band above floor 180, 270, 385 or 485.
+ *
+ * ## ⚠️ The sixth hundred — the Case-Hardening — is the tower's founding sentence, finally taken as the axis
+ *
+ * Floors 501–600, levels 236–283, Relic 41 to Relic 100. The trip-hammers have been running for a
+ * hundred floors and what they are *for* is past them: the packing boxes, the carburising fires, the
+ * slack tubs and the tempering ovens. The hold is six hundred floors gone and the works are still
+ * turning out plate for nobody. The whole measurement lives in [`enemies.ts`](./enemies.ts) beside the
+ * four blocks that carry it; what belongs here is what the floors do with it.
+ *
+ * 1. ⚠️ **The axis is enemy `def`, and the header of this file has been describing it since floor
+ *    one** — *it stands armour in the way and asks the faction that never had to break a wall to break
+ *    one.* It has never been the axis before. The fourth hundred measured `def` **inert** and the
+ *    fifth measured it at 0.38 / 2.85 and **declined it on the clock**. What changed is the squeeze:
+ *    the board weight that reads ≥3.90 of five falls from **14,268 common-equivalent at floor 501 to
+ *    3,864 at floor 600**, a factor of **3.69**, so the seconds armour buys are seconds the fallen
+ *    weight gave back. **A refusal recorded on the clock expires when the clock gets cheaper.**
+ * 2. ⚠️ **It is this tower's first exclusive licence in six hundred floors.** Across all fourteen
+ *    shipped arrangements, each calibrated to the heaviest control it still reads ≥3.60 on, `def` 70
+ *    on four bodies puts **elf-alt first of fourteen at 1.73** — and first on the residual at **+1.59
+ *    against a second place of +0.62**, 156% clear, the widest residual margin any hundred has
+ *    recorded. The fourth and fifth hundreds both came back *fourth* and had to be taken on margin.
+ * 3. ⚠️ **It grades in value and not usefully in carrier count**, which is chapter 29's rule arriving
+ *    on a tower — at `def` 70 the alternate reads 3.98 / 4.00 / 3.70 / 3.63 / **2.48** across zero to
+ *    four carriers, flat through the middle and a cliff at the end. So the bands walk the **value**
+ *    and only the closing three walk the count as well.
+ * 4. ⚠️ **Armour on the anchor is worth 0.00 and armour on the escorts is the axis**, so the hundred
+ *    is authored on light bodies and its own roof wears the deepest armour as identity rather than as
+ *    difficulty. See [`enemies.ts`](./enemies.ts) for both measurements.
+ * 5. ⚠️ **The retirement check is the harshest this tower has ever run, and it is the gear that did
+ *    it.** Fielded alone behind four 300/18 commons at floor 600 in Relic 100, **eight of the fourteen
+ *    `ascended` blocks this tower fields read 0%** for the binding arrangement and a ninth, the
+ *    Colossus, reads 8% — the Wardwright (1560/92) dying at 9.2s, the Edgewright (1300/84) at 8.9s,
+ *    the Platewright (1240/64) at 18.3s and the Colossus (1250/88) at 29.3s, which is the Deepworks'
+ *    reading of the same check: **the heavy ones lose to damage and the light ones lose to the
+ *    clock.** {@link PLATESHOD_HAMMERER} at 1060/80, the heaviest legendary this tower fields often,
+ *    reads **35% / 0.88** there. Only {@link THE_GREAT_HELVE} (100% / 4.30) and {@link THE_CAMWRIGHT}
+ *    (100% / 4.15) — the fifth hundred's own two — plus {@link WARDEN} and {@link HIEROPHANT} still
+ *    stand at the roof's floor. ⚠️ **"Retires" means from the _closing_ bands, and on this hundred it
+ *    is a per-floor answer rather than a per-block one**: {@link THE_PLATEWRIGHT} reads 0% alone at
+ *    floor 600 and still anchors nine floors of the opening band (501–514) at 100%, and the Plateshod
+ *    stands on nineteen floors up to 564. The other seven anchor nothing above floor 500 at all.
+ *    ⚠️ **The fifth
+ *    hundred's check came back completely clean on the same argument that fails here** — a band
+ *    boundary hands the crew a rung and twenty-four levels where the boards gain forty-seven — because
+ *    ×1.6 outruns `perLevel.ascended` **and does not outrun the gear**: floors 401–500 climb Masterwork
+ *    1 → Relic 40 for ×1.09 in effective tank health where 501–600 climb Relic 41 → 100 for **×1.47**.
+ *    **A rung boundary is only a reprieve on a hundred whose gear is flat.**
+ * 6. ⚠️ **The board budget still falls and the fourth and fifth hundreds' own boards prove it**:
+ *    floors 400, 450, 480 and 500 carried up to floor 600 all read **0% for both arrangements**.
+ *
+ * The bands walk the value first and the count second, counted as bodies at or above
+ * common-equivalent `def` 60 **on a body under 700 raw health** — a count, because `def` sits on all
+ * 430 shipped blocks (426 before this hundred's four) and an absolute claim would be false the day it
+ * was written, and *light* because armour on a heavy body measured 0.00:
+ *
+ * | Band | Floors  | Levels  | Grade        | Light carriers | Top light ceDef | Raw health  |
+ * | ---- | ------- | ------- | ------------ | -------------- | --------------- | ----------- |
+ * | 1    | 501–520 | 236–245 | Relic 41–52  | 0              | 0–45            | 4,280–4,790 |
+ * | 2    | 521–545 | 246–257 | Relic 53–67  | 0–1            | 45–70           | 3,320–4,420 |
+ * | 3    | 546–567 | 258–267 | Relic 68–80  | 1–2            | 70–85           | 3,125–4,020 |
+ * | 4    | 568–585 | 268–276 | Relic 81–91  | 2              | 85              | 2,600–3,320 |
+ * | 5    | 586–595 | 276–281 | Relic 92–97  | 2–3            | 85–97           | 2,505–3,000 |
+ * | 6    | 596–600 | 281–283 | Relic 98–100 | 2–3            | 85–97           | 2,520–2,620 |
+ *
+ * ⚠️ **The opening band's armour is on the anchors, where the measurement says it is worth nothing**,
+ * which is why band 1's light-carrier count is zero while its boards carry two or three bodies at
+ * common-equivalent `def` 60 or more. {@link RINGWALL_HAMMERER} at ce 100, {@link THE_CAMWRIGHT} at
+ * 105 and {@link THE_PLATEWRIGHT} at 105 are all heavy, and heavy armour is fight length rather than
+ * difficulty. **State which bodies a count is over.**
+ *
+ * ⚠️ **The lean owns the top of the `def` register and can field almost none of it**, which is
+ * chapter 28's shape rather than chapter 27's. Twenty-four shipped bodies sit at or above
+ * common-equivalent `def` 60 and are light enough for a closing board, and **twenty of them are
+ * `ascended`**; restricted to the four factions that counter Elves the list is **nine, seven of them
+ * `ascended`**, and the two legendaries left (the Backstroke Ironside at ce 70 and the Irontally
+ * Mason at ce 61) are both hot and one is a wide voice. So the three new legendaries create the light
+ * armoured register from nothing at ce 70 / 85 / 97.
+ *
+ * ⚠️ **There is no grade boundary anywhere inside this hundred**, because Relic is the last grade — so
+ * the "a band after a boundary opens heavier" rule does not apply to it at all. The third hundred in
+ * the project with that property, after the Headlong and the Deepworks.
+ *
+ * ⚠️ **`SLOW` stays rationed and the claim is a count**, exactly as the fifth hundred's is: none of the
+ * four new blocks carries it and the hundred's boards carry it on **27 of 100, over 33 slots**,
+ * against the fifth hundred's 30 boards and the fourth's 62. The status multiplies `haste` by 0.7 and
+ * an Elf five carries the highest in the game.
+ *
+ * ⚠️ **The closing fifteen floors are pinned rather than composed**, because the alternate's survivor
+ * readings sit inside a 0.6-wide band up there and the returning pool saws through it. Measured one at
+ * a time, floors 586–600 read **3.23 → 3.00 → 3.13 → 3.23 → 3.02 → 2.92 → 2.83 → 2.80 → 2.77 → 2.60 →
+ * 2.70 → 2.58 → 2.65 → 2.50 → 2.40** for the alternate five.
+ *
+ * ## What the bands measure at
+ *
+ * Sixth hundred: floor 501 in six seconds with all five alive, 520 in eight at 4.92, 545 in seven at
+ * 4.58, 560 in nine at 4.20, 570 in sixteen at 4.15, 580 in thirteen at 4.15, 590 in sixteen at 3.02,
+ * 599 in twenty at 2.50, and the roof in **twenty-three seconds at 100% / 3.13 — 34.0s and 80% / 2.40 for the alternate
+ * five.** ⚠️ **Zero timeouts anywhere in the hundred; the longest single attempt is 56.3 seconds**
+ * against the sweep's 67.5-second bar, and the longest mean is 34.0s against the 60-second one. **Both
+ * arrangements first pay a member on the same floor, 503**, which no earlier hundred on this tower
+ * has done — the fourth and fifth split by four and twenty floors.
+ *
+ * ⚠️ **The sustain claim is the strict one and it cost the hundred one block.** Of the **56 blocks**
+ * it fields: **zero** carry a point of `lifeLeech`, `recovery` or `healthRegen`; **zero** carry a heal,
+ * drain or shield effect; **zero** carry a `regen`, ward or guard status; and **zero** carry a taunt.
+ * The Cairnbound Sentinel went for its `recovery` and was replaced by {@link QUENCHPIT_IRONHIDE} at a
+ * matched weight. ⚠️ **No board pairs two `ascended` blocks**, and ⚠️ **no board carries more than two
+ * bodies with a board-wide turn** — the hundred ships at a mean of **0.27 with four boards over one**,
+ * against the fourth and fifth hundreds' 1.03 and 0.75.
+ *
+ * ⚠️ **The lean overshoot was corrected during authoring, for the fifth session running.** Authored
+ * from the Dwarf bench the hundred came out at **88.6% Dwarf**, which would have taken the whole tower
+ * to 66.3% and over the ceiling. Converting texture slots one at a time in a fixed order across every
+ * band — never an axis carrier, never a lead body, substitutes drawn only from monster, angel and
+ * demon — took the hundred to **66.2%** and the tower to **64.04%**.
+ *
+ * Re-run `npm run test:balance` after touching any band above floor 180, 270, 385, 485 or 585.
  */
 export const TOWER_ELF = {
   id: 'tower-elf',
@@ -4303,6 +4436,824 @@ export const TOWER_ELF = {
       enemies: {
         front: [THE_GREAT_HELVE, HELVESTRUCK_SMITH],
         back: [HELVESTRUCK_SMITH, SETSTONE_DRUDGE, PROPGALLERY_HAND],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Packing Floor — Floors 501–520, levels 236–245, Relic 41–52 — the boxes are packed with bone and charcoal and the hold’s own dead still anchor the boards. Nothing here is armoured that is not already heavy.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f501',
+      name: 'Floor 501',
+      enemies: {
+        front: [THE_PLATEWRIGHT, KILNCRACK_CANTOR],
+        back: [QUENCHPIT_IRONHIDE, HUSHGLASS_WARDEN, BRACEWORK_DELVER],
+      },
+    },
+    {
+      id: 't-elf-f502',
+      name: 'Floor 502',
+      enemies: {
+        front: [THE_CAMWRIGHT, BOLTFAST_IRONSIDE],
+        back: [CINDERFLAW_PROVER, HUSHGLASS_WARDEN, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-elf-f503',
+      name: 'Floor 503',
+      enemies: {
+        front: [THE_PLATEWRIGHT, KILNCRACK_CANTOR],
+        back: [SPLINTERYARD_HONER, KILNSTROKE_CELEBRANT, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-elf-f504',
+      name: 'Floor 504',
+      enemies: {
+        front: [THE_PLATEWRIGHT, RINGWALL_HAMMERER],
+        back: [WRATHBORN, CINDERFLAW_PROVER, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f505',
+      name: 'Floor 505',
+      enemies: {
+        front: [THE_PLATEWRIGHT, ANVILBACK_SMITH],
+        back: [KILNCRACK_CANTOR, KILNSTROKE_CELEBRANT, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f506',
+      name: 'Floor 506',
+      enemies: {
+        front: [THE_PLATEWRIGHT, ANVILBACK_SMITH],
+        back: [KILNCRACK_CANTOR, DEEPLAMP_SEALER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f507',
+      name: 'Floor 507',
+      enemies: {
+        front: [THE_PLATEWRIGHT, ANVILBACK_SMITH],
+        back: [KILNCRACK_CANTOR, CINDERFLAW_PROVER, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-elf-f508',
+      name: 'Floor 508',
+      enemies: {
+        front: [THE_GREAT_HELVE, RINGWALL_HAMMERER],
+        back: [WRATHBORN, DEEPLAMP_SEALER, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f509',
+      name: 'Floor 509',
+      enemies: {
+        front: [THE_PLATEWRIGHT, ANVILBACK_SMITH],
+        back: [KILNCRACK_CANTOR, HUSHGLASS_WARDEN, BRACEWORK_DELVER],
+      },
+    },
+    {
+      id: 't-elf-f510',
+      name: 'Floor 510 — The Bone Chest',
+      enemies: {
+        front: [THE_GREAT_HELVE, RINGWALL_HAMMERER],
+        back: [WRATHBORN, COLDHEARTH_IRONSWORN, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f511',
+      name: 'Floor 511',
+      enemies: {
+        front: [THE_PLATEWRIGHT, KILNCRACK_CANTOR],
+        back: [QUENCHWRIGHT, DEEPLAMP_SEALER, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f512',
+      name: 'Floor 512',
+      enemies: {
+        front: [THE_GREAT_HELVE, ANVILBACK_SMITH],
+        back: [WRATHBORN, CINDERFLAW_PROVER, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f513',
+      name: 'Floor 513',
+      enemies: {
+        front: [THE_CAMWRIGHT, KILNCRACK_CANTOR],
+        back: [SPLINTERYARD_HONER, KILNSTROKE_CELEBRANT, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-elf-f514',
+      name: 'Floor 514',
+      enemies: {
+        front: [THE_PLATEWRIGHT, GATEFAST_WARDEN],
+        back: [KILNCRACK_CANTOR, COLDHEARTH_IRONSWORN, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f515',
+      name: 'Floor 515',
+      enemies: {
+        front: [THE_CAMWRIGHT, GATEFAST_WARDEN],
+        back: [SPLINTERYARD_HONER, KILNSTROKE_CELEBRANT, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-elf-f516',
+      name: 'Floor 516',
+      enemies: {
+        front: [THE_CAMWRIGHT, RINGWALL_HAMMERER],
+        back: [QUENCHPIT_IRONHIDE, COLDHEARTH_IRONSWORN, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f517',
+      name: 'Floor 517',
+      enemies: {
+        front: [THE_CAMWRIGHT, RINGWALL_HAMMERER],
+        back: [QUENCHPIT_IRONHIDE, DEEPLAMP_SEALER, HUSHGLASS_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f518',
+      name: 'Floor 518',
+      enemies: {
+        front: [THE_CAMWRIGHT, RINGWALL_HAMMERER],
+        back: [KILNCRACK_CANTOR, DEEPLAMP_SEALER, SLAGHIDE_PURSUER],
+      },
+    },
+    {
+      id: 't-elf-f519',
+      name: 'Floor 519',
+      enemies: {
+        front: [THE_CAMWRIGHT, RINGWALL_HAMMERER],
+        back: [DEEPLAMP_SEALER, KILNSTROKE_CELEBRANT, HEADRACE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f520',
+      name: 'Floor 520 — The Sealed Box',
+      enemies: {
+        front: [THE_CAMWRIGHT, RINGWALL_HAMMERER],
+        back: [WRATHBORN, CINDERFLAW_PROVER, SLAGHIDE_PURSUER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Carburising Fires — Floors 521–545, levels 246–257, Relic 53–67 — the fires are banked and the first light body comes out of them harder than it went in.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f521',
+      name: 'Floor 521',
+      enemies: {
+        front: [THE_GREAT_HELVE, KILNSTROKE_CELEBRANT],
+        back: [SPLINTERYARD_HONER, CENSERSTEP_ACOLYTE, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f522',
+      name: 'Floor 522',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, GATEFAST_WARDEN],
+        back: [WRATHBORN, HELVESTRUCK_SMITH, MIREWHELP],
+      },
+    },
+    {
+      id: 't-elf-f523',
+      name: 'Floor 523',
+      enemies: {
+        front: [THE_CAMWRIGHT, KILNSTROKE_CELEBRANT],
+        back: [DEEPLAMP_SEALER, CINDERFLAW_PROVER, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f524',
+      name: 'Floor 524',
+      enemies: {
+        front: [THE_GREAT_HELVE, SLIPFAST_IRONSIDE],
+        back: [HUSHGLASS_WARDEN, HEADRACE_HAND, MIREWHELP],
+      },
+    },
+    {
+      id: 't-elf-f525',
+      name: 'Floor 525',
+      enemies: {
+        front: [OATHSTONE_BASTION, KILNSTROKE_CELEBRANT],
+        back: [SPLINTERYARD_HONER, CINDERFLAW_PROVER, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f526',
+      name: 'Floor 526',
+      enemies: {
+        front: [THE_CAMWRIGHT, COLDHEARTH_IRONSWORN],
+        back: [HEADRACE_HAND, CINDERFLAW_PROVER, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f527',
+      name: 'Floor 527',
+      enemies: {
+        front: [OATHSTONE_BASTION, EMBERVAULT_KEEPER],
+        back: [BRACEWORK_DELVER, CENSERSTEP_ACOLYTE, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f528',
+      name: 'Floor 528',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, COLDHEARTH_IRONSWORN],
+        back: [WRATHBORN, HELVESTRUCK_SMITH, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f529',
+      name: 'Floor 529',
+      enemies: {
+        front: [OATHSTONE_BASTION, EMBERVAULT_KEEPER],
+        back: [SPLINTERYARD_HONER, THORNBACK_GRAZER, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f530',
+      name: 'Floor 530 — The Banked Fire',
+      enemies: {
+        front: [OATHSTONE_BASTION, COLDHEARTH_IRONSWORN],
+        back: [HUSHGLASS_WARDEN, HELVESTRUCK_SMITH, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f531',
+      name: 'Floor 531',
+      enemies: {
+        front: [THE_CAMWRIGHT, GRUDGEPLATE_SMITH],
+        back: [BRACEWORK_DELVER, CINDERFLAW_PROVER, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f532',
+      name: 'Floor 532',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SLIPFAST_IRONSIDE],
+        back: [SLAGBORE_HARROW, PROPGALLERY_HAND, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f533',
+      name: 'Floor 533',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, COLDHEARTH_IRONSWORN],
+        back: [SPLINTERYARD_HONER, THORNBACK_GRAZER, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f534',
+      name: 'Floor 534',
+      enemies: {
+        front: [THE_GREAT_HELVE, COLDHEARTH_IRONSWORN],
+        back: [HUSHGLASS_WARDEN, CASEBOX_PACKER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f535',
+      name: 'Floor 535',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, COLDHEARTH_IRONSWORN],
+        back: [GLANCEWORK_SMITH, CINDERFLAW_PROVER, BACKSTROKE_IRONSIDE],
+      },
+    },
+    {
+      id: 't-elf-f536',
+      name: 'Floor 536',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, BACKSTROKE_IRONSIDE],
+        back: [HUSHGLASS_WARDEN, SPRUNGPLATE_HAND, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f537',
+      name: 'Floor 537',
+      enemies: {
+        front: [THE_GREAT_HELVE, COLDHEARTH_IRONSWORN],
+        back: [DEEPLAMP_SEALER, CASEBOX_PACKER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f538',
+      name: 'Floor 538',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, BACKSTROKE_IRONSIDE],
+        back: [SLAGBORE_HARROW, HELVESTRUCK_SMITH, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f539',
+      name: 'Floor 539',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, GRUDGEPLATE_SMITH],
+        back: [BACKSTROKE_IRONSIDE, CENSERSTEP_ACOLYTE, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f540',
+      name: 'Floor 540 — The Long Soak',
+      enemies: {
+        front: [SCARBOUND_BELLOWER, COLDHEARTH_IRONSWORN],
+        back: [CLEFTHORN_GORER, BACKSTROKE_IRONSIDE, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f541',
+      name: 'Floor 541',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SLIPFAST_IRONSIDE],
+        back: [BACKSTROKE_IRONSIDE, THORNBACK_GRAZER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f542',
+      name: 'Floor 542',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SLIPFAST_IRONSIDE],
+        back: [SLAGBORE_HARROW, BACKSTROKE_IRONSIDE, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f543',
+      name: 'Floor 543',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SLIPFAST_IRONSIDE],
+        back: [CASEBOX_PACKER, BREAKSTONE_WARDEN, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f544',
+      name: 'Floor 544',
+      enemies: {
+        front: [BOLTFAST_IRONSIDE, COLDHEARTH_IRONSWORN],
+        back: [SLAGBORE_HARROW, BACKSTROKE_IRONSIDE, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f545',
+      name: 'Floor 545',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SLIPFAST_IRONSIDE],
+        back: [CASEBOX_PACKER, BOAR, EMBERSHELL_WHELP],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Slack Tubs — Floors 546–567, levels 258–267, Relic 68–80 — the heavies are gone and what is left is thin, quick, and skinned.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f546',
+      name: 'Floor 546',
+      enemies: {
+        front: [OATHSTONE_BASTION, CASEBOX_PACKER],
+        back: [HUSHGLASS_WARDEN, HELVESTRUCK_SMITH, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f547',
+      name: 'Floor 547',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, SLIPFAST_IRONSIDE],
+        back: [CASEBOX_PACKER, CENSERSTEP_ACOLYTE, COLDFORGE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f548',
+      name: 'Floor 548',
+      enemies: {
+        front: [OATHSTONE_BASTION, SLIPFAST_IRONSIDE],
+        back: [CLEFTHORN_GORER, CINDERFLAW_PROVER, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f549',
+      name: 'Floor 549',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, GLANCEWORK_SMITH],
+        back: [CASEBOX_PACKER, THORNBACK_GRAZER, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-elf-f550',
+      name: 'Floor 550 — The Slack Tub',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, GLANCEWORK_SMITH],
+        back: [SLAGBORE_HARROW, CASEBOX_PACKER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f551',
+      name: 'Floor 551',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CASEBOX_PACKER],
+        back: [GLANCEWORK_SMITH, CENSERSTEP_ACOLYTE, DEEPSET_ANVILWARD],
+      },
+    },
+    {
+      id: 't-elf-f552',
+      name: 'Floor 552',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, RIVETLINE_HAND],
+        back: [BOAR, SLACKTUB_TENDER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f553',
+      name: 'Floor 553',
+      enemies: {
+        front: [RINGWALL_HAMMERER, SLIPFAST_IRONSIDE],
+        back: [CASEBOX_PACKER, THORNBACK_GRAZER, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f554',
+      name: 'Floor 554',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, GLANCEWORK_SMITH],
+        back: [CASEBOX_PACKER, SPRUNGPLATE_HAND, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f555',
+      name: 'Floor 555',
+      enemies: {
+        front: [RINGWALL_HAMMERER, GRUDGEPLATE_SMITH],
+        back: [CASEBOX_PACKER, CENSERSTEP_ACOLYTE, HEADRACE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f556',
+      name: 'Floor 556',
+      enemies: {
+        front: [THE_CAMWRIGHT, SLIPFAST_IRONSIDE],
+        back: [CLEFTHORN_GORER, CASEBOX_PACKER, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f557',
+      name: 'Floor 557',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CASEBOX_PACKER],
+        back: [SLACKTUB_TENDER, BOAR, PLUMBLINE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f558',
+      name: 'Floor 558',
+      enemies: {
+        front: [ANVILBACK_SMITH, GRUDGEPLATE_SMITH],
+        back: [CLEFTHORN_GORER, CASEBOX_PACKER, SLACKTUB_TENDER],
+      },
+    },
+    {
+      id: 't-elf-f559',
+      name: 'Floor 559',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CASEBOX_PACKER],
+        back: [SLACKTUB_TENDER, CENSERSTEP_ACOLYTE, UNMARKED_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f560',
+      name: 'Floor 560 — The Cold Water',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CASEBOX_PACKER],
+        back: [SLACKTUB_TENDER, PROPGALLERY_HAND, ASHPIT_SCUTTLER],
+      },
+    },
+    {
+      id: 't-elf-f561',
+      name: 'Floor 561',
+      enemies: {
+        front: [ANVILBACK_SMITH, SLIPFAST_IRONSIDE],
+        back: [CASEBOX_PACKER, BOAR, SLACKTUB_TENDER],
+      },
+    },
+    {
+      id: 't-elf-f562',
+      name: 'Floor 562',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CASEBOX_PACKER],
+        back: [CASEBOX_PACKER, PROPGALLERY_HAND, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f563',
+      name: 'Floor 563',
+      enemies: {
+        front: [RINGWALL_HAMMERER, GRUDGEPLATE_SMITH],
+        back: [SLACKTUB_TENDER, SHARDLIGHT_ACOLYTE, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f564',
+      name: 'Floor 564',
+      enemies: {
+        front: [PLATESHOD_HAMMERER, CASEBOX_PACKER],
+        back: [BOAR, SLACKTUB_TENDER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f565',
+      name: 'Floor 565',
+      enemies: {
+        front: [ANVILBACK_SMITH, GRUDGEPLATE_SMITH],
+        back: [SLACKTUB_TENDER, GILDED_SENTRY, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f566',
+      name: 'Floor 566',
+      enemies: {
+        front: [RINGWALL_HAMMERER, RIVETLINE_HAND],
+        back: [CLEFTHORN_GORER, CASEBOX_PACKER, SLACKTUB_TENDER],
+      },
+    },
+    {
+      id: 't-elf-f567',
+      name: 'Floor 567',
+      enemies: {
+        front: [ANVILBACK_SMITH, RIVETLINE_HAND],
+        back: [SLACKTUB_TENDER, SLACKTUB_TENDER, GILDED_SENTRY],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Tempering Colours — Floors 568–585, levels 268–276, Relic 81–91 — straw, bronze, blue. Two skins on every board and the weight still falling.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f568',
+      name: 'Floor 568',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, RIVETLINE_HAND],
+        back: [THORNBACK_GRAZER, SLACKTUB_TENDER, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f569',
+      name: 'Floor 569',
+      enemies: {
+        front: [ANVILBACK_SMITH, SLIPFAST_IRONSIDE],
+        back: [SLACKTUB_TENDER, BOAR, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f570',
+      name: 'Floor 570 — The Straw Colour',
+      enemies: {
+        front: [BOLTFAST_IRONSIDE, RIVETLINE_HAND],
+        back: [CASEBOX_PACKER, SLACKTUB_TENDER, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-elf-f571',
+      name: 'Floor 571',
+      enemies: {
+        front: [ANVILBACK_SMITH, GLANCEWORK_SMITH],
+        back: [SLACKTUB_TENDER, VAULTLIGHT_CENSER, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f572',
+      name: 'Floor 572',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, RIVETLINE_HAND],
+        back: [THORNBACK_GRAZER, SLACKTUB_TENDER, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f573',
+      name: 'Floor 573',
+      enemies: {
+        front: [BOLTFAST_IRONSIDE, RIVETLINE_HAND],
+        back: [CASEBOX_PACKER, BOAR, SLACKTUB_TENDER],
+      },
+    },
+    {
+      id: 't-elf-f574',
+      name: 'Floor 574',
+      enemies: {
+        front: [ANVILBACK_SMITH, SLACKTUB_TENDER],
+        back: [THORNBACK_GRAZER, CASEBOX_PACKER, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f575',
+      name: 'Floor 575',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, RIVETLINE_HAND],
+        back: [CASEBOX_PACKER, GILDED_SENTRY, SLACKTUB_TENDER],
+      },
+    },
+    {
+      id: 't-elf-f576',
+      name: 'Floor 576',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, CASEBOX_PACKER],
+        back: [THORNBACK_GRAZER, SLACKTUB_TENDER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f577',
+      name: 'Floor 577',
+      enemies: {
+        front: [GATEFAST_WARDEN, RIVETLINE_HAND],
+        back: [CASEBOX_PACKER, VAULTLIGHT_CENSER, SLACKTUB_TENDER],
+      },
+    },
+    {
+      id: 't-elf-f578',
+      name: 'Floor 578',
+      enemies: {
+        front: [RINGWALL_HAMMERER, CASEBOX_PACKER],
+        back: [BOAR, SLACKTUB_TENDER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f579',
+      name: 'Floor 579',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, HELVESTRUCK_SMITH],
+        back: [SLACKTUB_TENDER, GILDED_SENTRY, CASEBOX_PACKER],
+      },
+    },
+    {
+      id: 't-elf-f580',
+      name: 'Floor 580 — The Blue Draw',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, CASEBOX_PACKER],
+        back: [THORNBACK_GRAZER, SLACKTUB_TENDER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f581',
+      name: 'Floor 581',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, CASEBOX_PACKER],
+        back: [SLACKTUB_TENDER, VAULTLIGHT_CENSER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f582',
+      name: 'Floor 582',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, CASEBOX_PACKER],
+        back: [VAULTLIGHT_CENSER, SLACKTUB_TENDER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f583',
+      name: 'Floor 583',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, CASEBOX_PACKER],
+        back: [SLACKTUB_TENDER, EMBERSHELL_WHELP, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f584',
+      name: 'Floor 584',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, SLACKTUB_TENDER],
+        back: [THORNBACK_GRAZER, CASEBOX_PACKER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f585',
+      name: 'Floor 585',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, HELVESTRUCK_SMITH],
+        back: [CASEBOX_PACKER, GILDED_SENTRY, SLACKTUB_TENDER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Proof Butt — Floors 586–595, levels 276–281, Relic 92–97 — where the works fire at their own plate to see whether it opens.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f586',
+      name: 'Floor 586',
+      enemies: {
+        front: [HELVESTRUCK_SMITH, SOAKPIT_MASTER],
+        back: [SLACKTUB_TENDER, NEVERMARK_KEEPER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f587',
+      name: 'Floor 587',
+      enemies: {
+        front: [GLANCEWORK_SMITH, SLACKTUB_TENDER],
+        back: [SOAKPIT_MASTER, GILDED_SENTRY, HEADRACE_HAND],
+      },
+    },
+    {
+      id: 't-elf-f588',
+      name: 'Floor 588',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, SOAKPIT_MASTER],
+        back: [CASEBOX_PACKER, PROPGALLERY_HAND, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f589',
+      name: 'Floor 589',
+      enemies: {
+        front: [SLIPFAST_IRONSIDE, SOAKPIT_MASTER],
+        back: [SLACKTUB_TENDER, BOAR, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f590',
+      name: 'Floor 590 — The Proof Shot',
+      enemies: {
+        front: [GLANCEWORK_SMITH, SLACKTUB_TENDER],
+        back: [CASEBOX_PACKER, HEADRACE_HAND, VAULTLIGHT_CENSER],
+      },
+    },
+    {
+      id: 't-elf-f591',
+      name: 'Floor 591',
+      enemies: {
+        front: [SPRUNGPLATE_HAND, SOAKPIT_MASTER],
+        back: [SLACKTUB_TENDER, CASEBOX_PACKER, EMBERSHELL_WHELP],
+      },
+    },
+    {
+      id: 't-elf-f592',
+      name: 'Floor 592',
+      enemies: {
+        front: [HELVESTRUCK_SMITH, SLACKTUB_TENDER],
+        back: [SOAKPIT_MASTER, CASEBOX_PACKER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f593',
+      name: 'Floor 593',
+      enemies: {
+        front: [SPRUNGPLATE_HAND, SOAKPIT_MASTER],
+        back: [CASEBOX_PACKER, SLACKTUB_TENDER, NEVERMARK_KEEPER],
+      },
+    },
+    {
+      id: 't-elf-f594',
+      name: 'Floor 594',
+      enemies: {
+        front: [SPRUNGPLATE_HAND, SOAKPIT_MASTER],
+        back: [SLACKTUB_TENDER, CASEBOX_PACKER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-elf-f595',
+      name: 'Floor 595',
+      enemies: {
+        front: [SPRUNGPLATE_HAND, SLACKTUB_TENDER],
+        back: [SOAKPIT_MASTER, CASEBOX_PACKER, GILDED_SENTRY],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Case-Hardened — Floors 596–600, levels 281–283, Relic 98–100 — five floors, each measured on its own, and the thing the works were for at the top of them.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-elf-f596',
+      name: 'Floor 596',
+      enemies: {
+        front: [SEAMBOUND_DELVER, SOAKPIT_MASTER],
+        back: [CASEBOX_PACKER, SLACKTUB_TENDER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f597',
+      name: 'Floor 597',
+      enemies: {
+        front: [SEAMBOUND_DELVER, CASEBOX_PACKER],
+        back: [SOAKPIT_MASTER, SLACKTUB_TENDER, CLEFTHORN_GORER],
+      },
+    },
+    {
+      id: 't-elf-f598',
+      name: 'Floor 598',
+      enemies: {
+        front: [SEAMBOUND_DELVER, SOAKPIT_MASTER],
+        back: [SLACKTUB_TENDER, CASEBOX_PACKER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f599',
+      name: 'Floor 599',
+      enemies: {
+        front: [SEAMBOUND_DELVER, SLACKTUB_TENDER],
+        back: [SOAKPIT_MASTER, CASEBOX_PACKER, SHARDLIGHT_ACOLYTE],
+      },
+    },
+    {
+      id: 't-elf-f600',
+      name: 'Floor 600 — The Case-Hardened',
+      enemies: {
+        front: [THE_CASEHARDENED, SLACKTUB_TENDER],
+        back: [CASEBOX_PACKER, SPOILROOF_HAND, GILDED_SENTRY],
       },
     },
   ],

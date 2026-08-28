@@ -320,6 +320,49 @@ speed tax belongs to whichever crew is slowest.** The tower:campaign crystal rat
 rather than carried, is **2.729** with two towers extended (1,147,600 against 420,500); a completed
 round is 3.101. Full findings in [towers](towers.md).
 
+⚠️ **The Case-Hardening — the Elf Tower's sixth hundred — is the third of the fifth round, and its
+axis is the sentence that file has opened with since its first hundred, finally taken.**
+`tower-elf.ts` has said for six hundred floors that the tower _stands armour in the way and asks the
+faction that never had to break a wall to break one_, and enemy `def` had never been the axis: the
+fourth hundred measured it **inert** and the fifth measured it at 0.38 / 2.85 and **declined it on the
+clock**. ⚠️ **A refusal recorded on the clock expires when the clock gets cheaper** — the board weight
+that reads ≥3.90 of five falls **14,268 → 3,864 common-equivalent** across the hundred, a factor of
+3.69, so the twelve seconds armour buys are seconds the fallen weight gave back.
+
+⚠️ **It is this tower's first exclusive licence in six hundred floors — first of fourteen raw and
+first on the residual.** `def` 70 on four bodies costs **elf-alt 1.73** against a second place of
+1.45, and the fourth and fifth hundreds both came back _fourth_ and had to be taken on margin.
+⚠️ **The fight-length confound is real here and the counter-example is missing**, which is the
+Deepworks' test failing to apply one session later: the cost correlates **0.79** with how long each
+crew's fights already are and the three arrangements nearest elf-alt are the three slowest in the
+game, so the residual is what settles it — **first at +1.59 against +0.62, 156% clear**, the widest
+any hundred has recorded. **Look for the counter-example first and fit the residual only when it is
+not there.**
+
+⚠️ **Both naive mechanism arguments are false and the table says so.** "Their attack is small" —
+`baseDamage` is `atk²/(atk + def)` and the Elf arrangements carry Σ292 / Σ304 of authored `atk`,
+second and third of the fourteen behind monster-alt's Σ306 — which pays 0.45 and ranks thirteenth —
+the cost correlating −0.31 with attack. "They have no pierce" — they carry
+`physicalPierce` Σ0.12 / Σ0.20, the alternate's second only to the Monsters', at −0.17. What the table
+tracks is the
+**absence** register: those two are the only two of fourteen carrying zero `physicalResist`,
+`tenacity`, `critBlock`, `critDamageResist` **and** `lifeLeech` at once, on the lowest health pool in
+the game.
+
+⚠️ **A defensive stat grades in value where an offensive one grades in carrier count, and armour on
+the anchor is worth 0.00** — chapter 29's two rules reproduced on a tower. So the hundred is authored
+on light bodies, its band table counts carriers **under 700 raw health**, and its roof wears the
+deepest armour in the game bar one as identity rather than as difficulty.
+
+⚠️ **The retirement check is the harshest this tower has run and the gear is why.** Eight of the
+fourteen `ascended` blocks the tower fields read 0% at floor 600 and the Colossus reads 8%, where the
+fifth hundred's check came back completely clean at the same kind of boundary — because ×1.6 outruns
+`perLevel.ascended` **and does not outrun the gear**: floors 401–500 climb Masterwork 1 → Relic 40 for
+×1.09 in effective tank health where 501–600 climb Relic 41 → Relic 100 for **×1.47**. **A rung
+boundary is only a reprieve on a hundred whose gear is flat.** The tower:campaign crystal ratio,
+recomputed by hand rather than carried, is **2.804** with three towers extended (1,178,900 against
+420,500); a completed round is 3.101. Full findings in [towers](towers.md).
+
 ⚠️ **The Processional — the Demon Tower's fifth hundred — closes the round, and its axis is the first
 taken on _affordability_ rather than on exclusivity or margin.** `dodge` grades eight monotone steps on
 **both** Demon arrangements with zero timeouts (3.98 → 1.71 and 3.64 → 0.14 across 0.08 → 0.50), and it

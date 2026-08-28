@@ -394,9 +394,9 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](../docs/towers.md)** — seven faction towers, **six hundred floors each at levels 1
-  to 283 — the Human and Dwarf Towers complete and the other five at five hundred while a fifth round is in
-  flight**. What a tower is for, the three fields a clear may never touch, the six crews, and
-  twenty-nine hundreds' worth of measured escalation findings.
+  to 283 — the Human, Dwarf and Elf Towers complete and the other four at five hundred while a fifth round
+  is in flight**. What a tower is for, the three fields a clear may never touch, the six crews, and
+  thirty-one hundreds' worth of measured escalation findings.
 - **[docs/descent.md](../docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -895,9 +895,9 @@ Asserted in `core/battle/simulate.spec.ts`.
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
   notices a tower nobody went back for. ⚠️ **Both lists are back and a fifth round is in flight: the
-  height is 600, the Human Tower is there and the other six are at 500**, and they went back **in the
-  same session as the bump** for the second round running — between a bump and the first authored tower
-  there is nothing at all holding the six short ones. **Put the lists back with every bump, not with
+  height is 600, the Human, Dwarf and Elf Towers are there and the other four are at 500**, and they went
+  back **in the same session as the bump** for the second round running — between a bump and the first
+  authored tower there is nothing at all holding the short ones. **Put the lists back with every bump, not with
   the first authored tower**, and keep the shapes they force — `topFloors` reading the **authored**
   height and the roof-versus-band-opener comparison computed **per tower** — which stop the sweep
   reading an undefined stage. ⚠️ **The "and it stays naked" half has not fired for two rounds and it
@@ -936,8 +936,42 @@ Asserted in `core/battle/simulate.spec.ts`.
 - ⚠️ **The tower:campaign crystal ratio decays without anybody touching it, so recompute _both_ totals
   rather than carrying either.** The fifth hundred recorded 3.093 against "the 25-chapter campaign's
   351,500"; chapters 26–29 shipped, the campaign now pays **420,500**, and the same seven
-  five-hundred-floor towers were really at **2.585**. It reads **2.655** now and a completed round is
-  **3.101**. [towers](../docs/towers.md)
+  five-hundred-floor towers were really at **2.585**. It reads **2.804** now — three towers at six hundred
+  floors and four pending — and a completed round is **3.101**. [towers](../docs/towers.md)
+- ⚠️ **A refusal recorded on the _clock_ expires when the clock gets cheaper, which is a different
+  expiry from the one recorded on size.** The Elf Tower's fourth hundred measured `def` inert and its
+  fifth measured it at 0.38 / 2.85 and **declined it on seconds**; its sixth takes it, and nothing
+  about the stat changed — the board weight reading ≥3.90 of five falls **14,268 → 3,864
+  common-equivalent** across the hundred, so the twelve seconds armour buys are seconds the fallen
+  weight gave back. **Say which of size or seconds a refusal was recorded on.** [towers](../docs/towers.md)
+- ⚠️ **The counter-example and the residual are both legitimate readings of a confounded cross-crew
+  table, and which applies is a property of the table.** The Dwarf sixth hundred disproved the
+  fight-length confound with a row that should have been first and was twelfth (correlation 0.177).
+  The Elf sixth has the same confound at **0.79** and no such row — the three arrangements nearest the
+  binding one are the three slowest in the game — so the residual is what settles it, putting elf-alt
+  **first at +1.59 against +0.62**. **Look for the counter-example first.** [towers](../docs/towers.md)
+- ⚠️ **A defensive stat grades in _value_ and an offensive one in _carrier count_, on a tower as well
+  as in a chapter.** `def` 70 reads 3.98 / 4.00 / 3.70 / 3.63 / **2.48** across zero to four carriers
+  at the Elf sixth hundred's control — flat through the middle and a cliff at the end, the survivors
+  metric saturating. **Check which dimension your axis has before planning six bands on it.**
+  [towers](../docs/towers.md)
+- ⚠️ **Armour on the anchor is worth 0.00 and armour on the escorts is the axis, so a band table about
+  armour counts the _light_ bodies.** `def` 70 on the anchor reads 4.00 of five against a 3.98
+  control; the same value on four escorts reads 2.48. The Elf sixth hundred's table therefore counts
+  bodies at common-equivalent `def` ≥ 60 **under 700 raw health**, while its opening band's boards
+  carry two or three heavy bodies over that threshold where the measurement says they are worth
+  nothing. **State which bodies a count is over.** [towers](../docs/towers.md)
+- ⚠️ **A rung boundary is only a reprieve on the retirement check when the hundred's _gear_ is flat.**
+  The Elf fifth hundred's check came back clean because ×1.6 and twenty-four levels outrun
+  `perLevel.ascended` over forty-seven; the sixth's retires **eight of that tower's fourteen
+  `ascended` blocks**, because floors 401–500 climb Masterwork 1 → Relic 40 for ×1.09 in effective
+  tank health where 501–600 climb Relic 41 → 100 for **×1.47**. **Multiply the gear step into the
+  boundary before predicting the check.** [towers](../docs/towers.md)
+- ⚠️ **On a refusal axis at Relic 100 the gear archetype is worth more than the axis.** Held at an
+  identical stat line, all-`tank` reads **4.05 of five** where all-`brawler` reads 1.77 and
+  all-`ranger` **0.38** — `GEAR_PROFILES` pays a tank +46% attack and a ranger +112%. The Dwarf sixth
+  hundred's finding at three times the size, because Relic 100 is the biggest gear in the game.
+  [towers](../docs/towers.md)
 - ⚠️ **A hundred can be built on _refusing_ the axis of the hundreds below it, and the damage formula
   is what licenses it.** The Dwarf Tower spent its fourth hundred on `physicalPierce` and its fifth on
   that pierce carried with the attack behind it; `effectiveDefence` returns `def × (1 − pierce)` and

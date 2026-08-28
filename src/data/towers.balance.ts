@@ -223,7 +223,8 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * last one deletes this list and the branch below it.** Fifth round: 21e–21k, then the third hundred,
  * then the fourth, then the fifth, then this.
  *
- * ⚠️ **The Dwarf Tower came off this list with its Deepworks**; five names remain.
+ * ⚠️ **The Dwarf Tower came off this list with its Deepworks and the Elf Tower with its
+ * Case-Hardening**; four names remain.
  *
  * ⚠️ **Two shapes here already read the authored height and need no exemption**, and they were left
  * that way by the fifth hundred precisely so this bump could not miss them: {@link topFloors} takes
@@ -236,13 +237,7 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * ramp pins floor 500 to the Relic 40 it already wore, so every pending tower sweeps the boards it was
  * tuned with. Only its level line moves, and only on 21 of 500 floors by a single level.
  */
-const PENDING: readonly string[] = [
-  'tower-elf',
-  'tower-undead',
-  'tower-monster',
-  'tower-angel',
-  'tower-demon',
-];
+const PENDING: readonly string[] = ['tower-undead', 'tower-monster', 'tower-angel', 'tower-demon'];
 
 /** Which crew meets a floor. Band 1 takes the first hundred, band 2 the second, and so on. */
 const bandOf = (floor: number): number => Math.min(Math.ceil(floor / BAND_FLOORS), BANDS) || 1;

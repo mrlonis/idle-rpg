@@ -10327,6 +10327,91 @@ export const THE_ROOF_COMES_DOWN = {
   priority: 4,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's sixth hundred — the Case-Hardening, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **The turns stay plain, for the third Elf hundred running, because the axis is the stat line.**
+// `def` is a refusal, and a refusal is only legible if the thing being refused is the ordinary swing.
+// ⚠️ **A rider is a worse idea here than on the Deepworks**, because the two riders this tower would
+// reach for are both locks on this crew rather than texture: {@link SLOW} multiplies `haste` and an
+// Elf five carries the highest in the game (Σ580 / Σ620) — the fifth hundred measured three carriers
+// applying it at **0% at every roof attack from 28 down to 12** — and {@link SUNDER} takes armour off,
+// which is this hundred's own axis with the sign reversed. So all four are bare damage on
+// `enemy-front`, the fifth Dwarf-leaning hundred running, on the tower family's settled finding that
+// aim past the front rank is inert or negative on all seven towers.
+//
+// The cooldowns are 40 to 52, the same register the Trip-Hammers used one hundred below, which is
+// what keeps the **stat line** the only thing that changed between the two.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Bone, hoof and charcoal, packed round the plate and luted shut. Then you wait.
+ *
+ * The opening band's turn, and plain on purpose. The Packer is the lightest of the four and its whole
+ * claim is the skin it came out of the box with — one carrier beside this hundred's control is worth
+ * 0.10 of five, which is the same argument the Headrace Hand makes a hundred floors below: the opening
+ * band has to teach what the skin is before the hundred can charge for three of them.
+ */
+export const PACK_THE_BOX = {
+  id: 'pack-the-box',
+  name: 'Pack the Box',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * Straw, then bronze, then blue. Past blue you have thrown it away.
+ *
+ * The middle bands' turn. Deliberately plain: the carrier it sits on is the axis, and everything this
+ * hundred charges for is in what the blow lands on rather than in what rides on it.
+ */
+export const DRAW_THE_TEMPER = {
+  id: 'draw-the-temper',
+  name: 'Draw the Temper',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * A day in the pit for a skin the thickness of a fingernail. The hold thought that was a bargain.
+ *
+ * The hundred's lieutenant turn, standing on the tenth floors of its upper half. A single-target
+ * selection rather than a scope, for the reason the Cam Comes Round is: a wide turn is the one shape
+ * on this tower big enough to carry a band on its own — its third hundred measured four wide voices at
+ * **0%** — and spending one here would make the stat underneath it unmeasurable.
+ */
+export const THE_LONG_SOAK = {
+  id: 'the-long-soak',
+  name: 'The Long Soak',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of works, to make one thing an edge does not find.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this** — with weight held at 780
+ * the board reads 100% / 3.38 for the binding arrangement at attack 21, 95% / 2.98 at 22, 85% / 2.50
+ * at 23 and **80% / 2.40 at the shipped 24** — so the power stays inside the shipped single-target
+ * register and the stat line is what was tuned. **Shortlist on weight, settle on attack**, the sixth
+ * tower roof running.
+ */
+export const NOTHING_MARKS_IT = {
+  id: 'nothing-marks-it',
+  name: 'Nothing Marks It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
   GUARD_BREAK,
   SECOND_WIND,
@@ -10784,6 +10869,10 @@ export const SKILLS = [
   SPLIT_THE_GRAIN,
   THE_MASTERS_MEASURE,
   THE_MASTERSTROKE_FALLS,
+  PACK_THE_BOX,
+  DRAW_THE_TEMPER,
+  THE_LONG_SOAK,
+  NOTHING_MARKS_IT,
   TAP_THE_RACE,
   THE_HELVE_FALLS,
   THE_CAM_COMES_ROUND,
