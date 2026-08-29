@@ -10497,7 +10497,90 @@ export const IT_OPENS_TO_THE_HEART = {
   priority: 4,
 } as const;
 
+/**
+ * It does not run and it does not fall, and the field has run out of ways to ask it to.
+ *
+ * The light carrier of the Glut, and the first body in six hundred floors of this tower that is
+ * authored to be *hard to finish* rather than hard to survive. ⚠️ **The power is low because the axis
+ * is not the blow** — {@link FENGORGED_WALLOWER} is 420 of health against 22 of attack, a ratio of 19
+ * against a shipped median of 13.2, and what it costs the crew is the seconds its pool takes off the
+ * clock rather than the damage it deals in them.
+ *
+ * `enemy-front` and no rider, for the eighth tower running: aiming past the front rank is inert or
+ * negative on all seven towers and this one measured it at −0.10 on its own fifth hundred.
+ */
+export const IT_DOES_NOT_THIN = {
+  id: 'it-does-not-thin',
+  name: 'It Does Not Thin',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * Everything the fen has eaten this season is standing in front of you wearing it.
+ *
+ * The middle carrier. Same shape one size up — 580 of health against 24 of attack, a ratio of 24 —
+ * and the `mage` set it wears is the half of the finding that is not obvious: on a **health** axis the
+ * `tank` archetype switches the axis off, reading 3.00 of five against a hot set's 2.00 at an
+ * identical stat line, because a tank set pays its grade into the pool and not into the blow. A pool
+ * nothing is billing is a long fight rather than a hard one.
+ */
+export const THE_SEASON_IT_ATE = {
+  id: 'the-season-it-ate',
+  name: 'The Season It Ate',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * The jaws close on it and keep closing, and there is still more of it on the other side.
+ *
+ * The lieutenant's turn, arriving in band 4 and standing on every board above it. ⚠️ **A health
+ * carrier bills what is _aimed at_**, which is the fourth distinct answer the rank question has given
+ * in four hundreds: carried on one body at this hundred's control, a fat escort is worth **3.02 of
+ * five in the front rank against 3.63 behind** at ×1.8 and 3.00 against 3.05 at ×3.0 — a spread that
+ * *shrinks* as the pool grows, where the Demon fifth hundred's dodge spread grew. So this one leads.
+ */
+export const AND_STILL_MORE_OF_IT = {
+  id: 'and-still-more-of-it',
+  name: 'And Still More of It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of bringing things down, and the last one will not go down.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this**, and the alternate five is
+ * what settled it. With weight held at 880 the shipped board reads, across attack 14 / 16 / 18 / 20 /
+ * 22 / 26: reference **100% / 2.80, 2.33, 2.13, 2.08, 2.02, 1.82** — which never falls below the bar at
+ * all — against alternate **100% / 1.10, 85% / 0.88, 70% / 0.70, 38%, 10%, 0%**. The 75% bar lands
+ * between 16 and 18. **Shortlist on weight, settle on attack**, the eighth tower roof running — and on
+ * a hundred whose whole axis is weight, the roof is the one place the attack has to come *down* to pay
+ * for it. ⚠️ **Held the other way at attack 16, health 760 / 820 / 880 / 940 / 1000 reads
+ * 100% / 100% / 85% / 75% / 38% for the alternate**, so both halves were walked and the pair is the
+ * heaviest that clears both bars.
+ */
+export const IT_WILL_NOT_GO_DOWN = {
+  id: 'it-will-not-go-down',
+  name: 'It Will Not Go Down',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 54,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
+  IT_DOES_NOT_THIN,
+  THE_SEASON_IT_ATE,
+  AND_STILL_MORE_OF_IT,
+  IT_WILL_NOT_GO_DOWN,
   GUARD_BREAK,
   SECOND_WIND,
   OATH_OF_ARMS,

@@ -6,6 +6,7 @@ import {
   BANDIT,
   BARROWMIST_KEENER,
   BARROW_SOVEREIGN,
+  BENCHLINE_LURKER,
   BLOODGORGE_HOUND,
   BLOODPACT_FIEND,
   BOAR,
@@ -35,14 +36,17 @@ import {
   DEEPROCK_MINER,
   DROWNED_MAST,
   DUSKFERN_SKIRMISHER,
+  DUSTPLATE_GRINDER,
   EDGETURN_WARDEN,
   EMBERSEED_WARLOCK,
   EMBERSHELL_WHELP,
   EMBERVAULT_KEEPER,
+  FENGORGED_WALLOWER,
   FENLORD,
   FORGE_THRALL,
   FORLORN_LEVY,
   FREE_BLADE,
+  GALLERY_SLIPFANG,
   GANTRY_WARDEN,
   GILDED_SENTRY,
   GLADE_STALKER,
@@ -61,6 +65,7 @@ import {
   HEXBOUND_TORMENTOR,
   HIEROPHANT,
   HOLLOWBARK_SENTRY,
+  ILLFALL_SKULKER,
   IRONSLING_WRIGHT,
   IRONWAKE_VANGUARD,
   KINGSWAY_LANCER,
@@ -81,6 +86,7 @@ import {
   NIGHTMARCH_OUTRIDER,
   OATHBREAKER,
   OATHSHIELD_VANGUARD,
+  OVERBURDEN_HULK,
   PALE_WARDEN,
   PANOPLY_BEARER,
   PASSBELL_RINGER,
@@ -99,18 +105,24 @@ import {
   RIFTBORN_HARROWER,
   RIMEPLATE,
   ROADWATCH_BOWMAN,
+  ROUGHCAST_GNAWER,
   RUINWING_DEVOURER,
   RUNEWARDEN,
   SCALEPLATE_BRAMBLE,
   SCARBOUND_BELLOWER,
+  SCARWEAVE_TRAMPLER,
+  SCATTERSTONE_HOWLER,
   SEALWARD_CUSTODIAN,
   SENTINEL,
   SEPULCHRE_HOUND,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHALEBED_CRAWLER,
+  SHATTERJAW_MAULER,
   SHEAFLESS_SHADE,
   SIGNAL_RUNNER,
   SILENTVAULT_KEEPER,
+  SILTFAT_BROODER,
   SKYSHRIKE,
   SLAGBLOOM_THICKET,
   SLAGBOUND_DRUDGE,
@@ -145,11 +157,13 @@ import {
   THE_UNBITTEN,
   THE_UNFALTERING,
   THE_UNQUENCHED,
+  THE_UNSWALLOWED,
   THORNBACK_GRAZER,
   THORNLING,
   THORNPLATE_WEARER,
   THORNWEALD_WARDEN,
   THURIBLE_ORDINAL,
+  TIDELESS_MAW,
   TYRANT,
   UNDERROAD_RANKER,
   UNDERVAULT_SAPPER,
@@ -169,7 +183,7 @@ import {
 } from './enemies';
 
 /**
- * The Monster Tower — five hundred floors, enemy levels 1 to 236.
+ * The Monster Tower — six hundred floors, enemy levels 1 to 283.
  *
  * ## The one tower with no counter-faction lean, and why that *is* its lean
  *
@@ -511,6 +525,140 @@ import {
  * than the one below — and the mechanism, rather than the trend, is that the boards get *lighter* as
  * the axis rises: floor 500 weighs **2,740** of health where floor 400 weighs 3,260 and floor 300
  * weighs 4,080.
+ *
+ * ## ⚠️ The sixth hundred is where "is it ours" came back _no_ for everything, its own plate included
+ *
+ * The fifth hundred found this crew ranked eighth to fourteenth of fourteen on thirteen stats and five
+ * mechanics, with `physicalResist` the one exception at second and third. At band 6 that exception is
+ * gone. **Forty candidates** — seventeen stats, twelve statuses and mechanics, a burst cadence at held
+ * damage per second, a second `ascended` anchor, and the damage *type* the board deals — were priced
+ * across all fourteen shipped arrangements, each crew calibrated in 2.5% steps to the heaviest control
+ * it still reads ≥3.60 on. **monster-ref sits at ×0.725 and monster-alt at ×0.650, the third-lowest
+ * and joint-lowest of the fourteen**, and the Monster fives rank **tenth to fourteenth on every
+ * candidate** but the plate, where they are fifth and seventh — behind elf-alt 1.89 and dwarf-ref
+ * 1.71, which is the Dwarf Tower's own sixth hundred, shipped one session earlier. ⚠️ **Fitting each
+ * candidate's cost against how long a crew's fights already run moves them by at most one place**, so
+ * the residual does not rescue it either: this is the Ironpace's finding arriving for the third time
+ * on one tower, and the first time with nothing left over.
+ *
+ * ## ⚠️ The axis is enemy **health at held attack**, and the licence is affordability
+ *
+ * Every hundred before this one attacked the trade at its **input**: the second by asking more
+ * questions than a leech crew has answers, the third and fifth with armour the jaws do not open, the
+ * fourth with evasion on top of it, the fifth again with a poison billing the seconds the plate
+ * bought. All five reduce the damage this crew *deals*, and `lifeLeech` off damage dealt is starved by
+ * every one of them. This one attacks the trade's **duration** — a pool the jaws cannot finish — and
+ * it is the first escalation here that makes the boards heavier rather than lighter.
+ *
+ * Measured at floor 600 in Relic 100 against a control of **3.85 / 3.70 at 13.3s / 15.5s**, escort
+ * health walked at held attack, forty seeds, **zero timeouts on every row and a 100% win rate
+ * throughout**:
+ *
+ * ```
+ *   escort health  ×1.0 ×1.3 ×1.6 ×1.9 ×2.2 ×2.5 ×2.8 ×3.1 ×3.4
+ *   reference      3.95 3.13 3.00 2.95 2.27 2.00 1.93 1.85 1.25
+ *   alternate      3.70 3.17 3.00 2.70 2.23 2.00 2.00 1.88 1.18
+ *   alt fight       16s  18s  21s  24s  28s  33s  37s  42s  49s
+ * ```
+ *
+ * ⚠️ **Nine monotone steps in value _and_ five in carrier count**, which is what a six-band hundred
+ * needs: at ×2.2 the walk across zero to four carriers reads **3.83 / 3.00 / 2.98 / 2.65 / 2.23** and
+ * **3.73 / 3.00 / 2.98 / 2.50 / 2.02**. The timeout count is what tells this apart from the
+ * ninety-second clock wearing a stat block, and it is checked rather than inferred — a wipe and a
+ * timeout are the same `defeat`.
+ *
+ * ⚠️ **The seconds are the price and they are the whole licence.** Of the ten arrangements that
+ * out-rank the Monster fives on this axis, **dwarf-alt runs 58.1s, angel-alt 54.5s, dwarf-ref 53.1s
+ * and angel-ref 39.4s** at the same grade — against a 60-second mean bar and a 67.5-second
+ * longest-cleared one. The crews the axis belongs to are the crews whose towers cannot author it; the
+ * Monster fives pay **27.6s and 30.9s**. That is the Demon fifth hundred's affordability licence, and
+ * this is the first time it has licensed a *weight* axis — which is this tower's own fourth-hundred
+ * warning, that weight axes belong to whichever crew is slowest, answered rather than ignored.
+ *
+ * ⚠️ **On a health axis the `tank` archetype switches the axis off.** Held at an identical stat line
+ * on one board, all-`tank` reads **3.00 of five** and all-`support` 2.90 against all-`brawler` 2.10,
+ * all-`mage` 2.10 and all-`ranger` **2.00** — `GEAR_PROFILES` pays a tank +46% attack at Relic 100 and
+ * a ranger +112%, and a pool with nothing billing it is a long fight rather than a hard one. **Not one
+ * carrier in this hundred wears `tank`.** That is the third hundred running to find the gear
+ * allocation worth more than a step of its own axis.
+ *
+ * ⚠️ **A health carrier bills what is _aimed at_, which is a fourth distinct answer to the rank
+ * question in four hundreds.** Carried on one body with the escort held, a fat escort is worth **3.02
+ * of five in front against 3.63 behind** at ×1.8, 3.00 against 3.40 at ×2.4 and 2.98 against 3.05 at
+ * ×3.0 — a spread of 0.61 → 0.40 → **0.07** that *shrinks* as the pool grows, where the Demon fifth
+ * hundred's `dodge` spread grew 0.45 → 1.00 with its value. A dodge bills what is aimed at, an
+ * `attackSpeed` what is left alive, a resist every blow that reaches the body — and a pool big enough
+ * to soak the whole fight soaks it from either rank. **Carry the measurement, never the precedent.**
+ *
+ * ⚠️ **Disqualified rather than merely weak, each for a stated reason.** `magicResist` 0.60 is worth
+ * **−0.04 / −0.12** — this crew deals nine physical damage effects and **zero** magical ones, which
+ * reproduces the third and fifth hundreds' reading a third time. `tenacity` 0.80 is worth 0.15 /
+ * **0.01**, complete crit **denial** 0.10 / 0.05 and `accuracy` **−0.05 / −0.07**, all against Σ0.00
+ * registers: a stat the crew carries none of is a stat there is nothing to refuse. `physicalPierce`
+ * 0.75 is worth 0.61 / 0.67, because Σ47,712 and Σ43,668 of `def` are the fourth- and third-lowest of
+ * the fourteen and there is nothing to open; `magicPierce` **−0.06 / −0.03**, because a pierce never
+ * touches a resist. `THORNMAIL` on all five is **−0.12 / −0.10** and an `OATHSHIELD` taunt **−0.20 /
+ * −0.10**, both the wrong sign. A board-wide `STUN` ranks fourteenth and twelfth, `BLOODRISEN`
+ * fourteenth and thirteenth, a board-wide `RALLY` thirteenth and fourteenth, a burst cadence at held
+ * damage per second fourteenth and twelfth, and a second `ascended` anchor tenth and eleventh.
+ * ⚠️ **The damage _type_ the board deals is the one candidate that is nearly theirs and still is
+ * not**: a wholly magical board costs monster-alt **0.60, third of fourteen** behind angel-ref 0.77
+ * and dwarf-alt 0.65, but the walk across zero to five casters spans only **0.52**, which is texture
+ * rather than an axis. **An axis that grades on one crew is not the same thing as an axis that is
+ * theirs, and neither is a mechanism that sounds right.**
+ *
+ * ## ⚠️ The retirement check retired the whole `ascended` roster, and the seconds say what killed each
+ *
+ * All seven of the fourth and fifth hundreds' `ascended` anchors read **0% for both arrangements** at
+ * floor 600 behind four 300/18 commons — Tyrant, The Crown Wheel, The Platewright, Oathbreaker, The
+ * Proof House, The Unquenched and The Turnaway. ⚠️ **But two of them read 100% there**: The Unquenched
+ * at 1.02 survivors and The Turnaway at 1.80, both for the *reference* five only, and both fail the
+ * alternate outright. Behind four 520/44 legendaries every one of the seven reads 0% for both. **The
+ * floor-500 board carried to floor 600 reads 0% / 0%** — the Crownworks collapse a seventh time.
+ * ⚠️ **"Retires" needs the floors it retires from**: {@link TYRANT} is one of the seven and still
+ * anchors this hundred's opening band, where floor 501 is forty-seven levels below the roof, beside
+ * {@link THE_REDMAW} and {@link THE_DEEPCUT} from the fourth hundred — and all three are gone by floor
+ * 521. **No board above floor 520 carries an `ascended` block at all** until the roof.
+ *
+ * ## ⚠️ What the hundred carries, stated as counts
+ *
+ * Of the **36 distinct blocks** it fields over floors 501–600, **zero** carry `lifeLeech`, `recovery`
+ * or `healthRegen`, and zero field a heal, a drain, a shield, a `regen`, a taunt, a link or a reflect —
+ * the absolute the fifth hundred was the first able to make, held for a second hundred. ⚠️ **It was
+ * checked before the boards were authored rather than after**, which is what the Angel fourth hundred's
+ * finding asks for: eight otherwise obvious returning blocks were screened out for carrying one
+ * (`FENLORD` and `RIMEPLATE` on `recovery`, `BRAMBLEHIDE_RAVENER`, `BLOODGORGE_HOUND`, `SLACKRUN_SIPPER`
+ * and `EBBDRIFT_LATCHER` on `lifeLeech`, `QUENCHPIT_IRONHIDE` and `SCARBOUND_BELLOWER` on their kits).
+ *
+ * Bodies at a health-to-attack ratio of 20 or above run **0–1 / 0–2 / 1–3 / 3–4 / 3–4 / 4–5** across
+ * the six bands, stated as counts because the ratio is on every block in the game rather than absent
+ * from it — and measured against the register **before** these four joined it: median **13.2**, p90
+ * **21.8**, ceiling **55.0** ({@link THE_NEVERMARK}) over 434 blocks, with the Monster faction's own
+ * ceiling at {@link SHALEBED_CRAWLER}'s 45.8. The three carriers run 19.1, 24.2 and 29.2 — every one
+ * **inside** the register — and the roof lands at **55.0**, exactly the game's own ceiling rather than
+ * a step past it, which is the Elf third hundred's shape rather than the Monster third's.
+ *
+ * ⚠️ **The flat-spread ceiling is what this tower overshoots, and it did again.** Authored the obvious
+ * way — the four new carriers and the cold texture the axis wants, nearly all Monster — the hundred came
+ * out at **78.8% Monster** and took the tower to **22.69%** against a 25% bound. The named fix worked:
+ * converting texture slots one at a time across every band, never an axis block and never an anchor,
+ * leaves the hundred at **60.0% Monster** and the tower at **19.50%**, with all seven factions between
+ * 9.97% and 19.50%. ⚠️ **Why it cannot go lower is worth recording**: the coldest bodies in the game are
+ * Monster ({@link SHALEBED_CRAWLER} 45.8, {@link SCATTERSTONE_HOWLER} 35.7, {@link ROUGHCAST_GNAWER}
+ * 34.6) where the next faction's coldest heavy body is {@link WEARWAY_GAUNT} at 23.9, so the closing
+ * bands' texture is nearly forced. **When the axis's own texture belongs to one faction, the spread is
+ * decided in the opening bands.**
+ *
+ * The hundred opens at floor 501 in 8.5 seconds with all five of the reference crew alive and the
+ * alternate already down one, and closes at **100% / 2.33 / 20.2s against 85% / 0.88 / 35.2s** — zero timeouts
+ * anywhere, worst reading 100% and 85%, longest single attempt **38.3s** against the 67.5s bar and
+ * slowest mean **35.2s** against the 60s bar. ⚠️ **Its longest fight is four seconds longer than the
+ * fifth hundred's 33.9s, which ends three consecutive hundreds of closing faster than the one below** —
+ * and the mechanism rather than the trend is that this is the first hundred here whose axis is weight,
+ * so the boards stop getting lighter: floor 600 weighs **5,246** common-equivalent where floor 500
+ * weighs 3,848 and floor 400 weighs 4,378 — and floor 501, nineteen levels under floor 550 and forty-
+ * seven under the roof, weighs **7,557**. ⚠️ **The hundred's own budget still falls, by a factor of
+ * 1.44**; what does not fall is the comparison with the hundreds below it.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -4380,6 +4528,823 @@ export const TOWER_MONSTER = {
       enemies: {
         front: [THE_UNQUENCHED, THURIBLE_ORDINAL],
         back: [VAULTLIGHT_CENSER, UNDERROAD_RANKER, THORNLING],
+      },
+    }, // -------------------------------------------------------------------------------------
+    // The Fatted Ground — Floors 501–520, levels 236–245, Relic 41–52 — the last of the old anchors, and behind each of them one body the jaws close on and do not close through. One carrier a board, and the only band in the hundred whose weight is still in front of it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f501',
+      name: 'Floor 501',
+      enemies: {
+        front: [THE_REDMAW, PANOPLY_BEARER],
+        back: [CENTURYBOUGH_WARDEN, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f502',
+      name: 'Floor 502',
+      enemies: {
+        front: [TYRANT, GRAVESTRIDE_SERJEANT],
+        back: [CLOSEWARD_SERAPH, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f503',
+      name: 'Floor 503',
+      enemies: {
+        front: [THE_DEEPCUT, PLATEBOUND_HUSK],
+        back: [SLAGHIDE_PURSUER, SLOWGROWTH_BOLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f504',
+      name: 'Floor 504',
+      enemies: {
+        front: [THE_REDMAW, GANTRY_WARDEN],
+        back: [SILENTVAULT_KEEPER, SCALEPLATE_BRAMBLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f505',
+      name: 'Floor 505',
+      enemies: {
+        front: [TYRANT, DROWNED_MAST],
+        back: [SPENTRANK_HAND, SLAGBLOOM_THICKET, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f506',
+      name: 'Floor 506',
+      enemies: {
+        front: [THE_REDMAW, PANOPLY_BEARER],
+        back: [CENTURYBOUGH_WARDEN, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f507',
+      name: 'Floor 507',
+      enemies: {
+        front: [TYRANT, GRAVESTRIDE_SERJEANT],
+        back: [CLOSEWARD_SERAPH, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f508',
+      name: 'Floor 508',
+      enemies: {
+        front: [THE_DEEPCUT, PLATEBOUND_HUSK],
+        back: [SLAGHIDE_PURSUER, SLOWGROWTH_BOLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f509',
+      name: 'Floor 509',
+      enemies: {
+        front: [THE_REDMAW, GANTRY_WARDEN],
+        back: [SILENTVAULT_KEEPER, SCALEPLATE_BRAMBLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f510',
+      name: 'Floor 510 — The Fatted Ground',
+      enemies: {
+        front: [TYRANT, DROWNED_MAST],
+        back: [SPENTRANK_HAND, SLAGBLOOM_THICKET, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f511',
+      name: 'Floor 511',
+      enemies: {
+        front: [THE_REDMAW, PANOPLY_BEARER],
+        back: [CENTURYBOUGH_WARDEN, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f512',
+      name: 'Floor 512',
+      enemies: {
+        front: [TYRANT, GRAVESTRIDE_SERJEANT],
+        back: [CLOSEWARD_SERAPH, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f513',
+      name: 'Floor 513',
+      enemies: {
+        front: [THE_DEEPCUT, PLATEBOUND_HUSK],
+        back: [SLAGHIDE_PURSUER, SLOWGROWTH_BOLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f514',
+      name: 'Floor 514',
+      enemies: {
+        front: [THE_REDMAW, GANTRY_WARDEN],
+        back: [SILENTVAULT_KEEPER, SCALEPLATE_BRAMBLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f515',
+      name: 'Floor 515',
+      enemies: {
+        front: [TYRANT, DROWNED_MAST],
+        back: [SPENTRANK_HAND, SLAGBLOOM_THICKET, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f516',
+      name: 'Floor 516',
+      enemies: {
+        front: [THE_REDMAW, PANOPLY_BEARER],
+        back: [CENTURYBOUGH_WARDEN, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f517',
+      name: 'Floor 517',
+      enemies: {
+        front: [TYRANT, GRAVESTRIDE_SERJEANT],
+        back: [CLOSEWARD_SERAPH, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f518',
+      name: 'Floor 518',
+      enemies: {
+        front: [THE_DEEPCUT, PLATEBOUND_HUSK],
+        back: [SLAGHIDE_PURSUER, SLOWGROWTH_BOLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f519',
+      name: 'Floor 519',
+      enemies: {
+        front: [THE_REDMAW, GANTRY_WARDEN],
+        back: [SILENTVAULT_KEEPER, SCALEPLATE_BRAMBLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f520',
+      name: 'Floor 520 — The Long Feed',
+      enemies: {
+        front: [TYRANT, DROWNED_MAST],
+        back: [SPENTRANK_HAND, SLAGBLOOM_THICKET, FENGORGED_WALLOWER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Long Feed — Floors 521–545, levels 246–257, Relic 53–67 — no board above 520 carries an `ascended` block, and what replaces them is a second body that will not thin. One or two a board — and the boards are *heavier* for having no anchor on them, which is the shape this hundred keeps to the roof.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f521',
+      name: 'Floor 521',
+      enemies: {
+        front: [OVERBURDEN_HULK, CENTURYBOUGH_WARDEN],
+        back: [PANOPLY_BEARER, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f522',
+      name: 'Floor 522',
+      enemies: {
+        front: [GANTRY_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f523',
+      name: 'Floor 523',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GRAVESTRIDE_SERJEANT],
+        back: [SLAGBLOOM_THICKET, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f524',
+      name: 'Floor 524',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DROWNED_MAST],
+        back: [SLAGHIDE_PURSUER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f525',
+      name: 'Floor 525',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, GALLERY_SLIPFANG],
+        back: [SILENTVAULT_KEEPER, SCALEPLATE_BRAMBLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f526',
+      name: 'Floor 526',
+      enemies: {
+        front: [SHATTERJAW_MAULER, PLATEBOUND_HUSK],
+        back: [CINDERFLAW_PROVER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f527',
+      name: 'Floor 527',
+      enemies: {
+        front: [GANTRY_WARDEN, REDWATER_STALKER],
+        back: [WALKED_GROUND_DEAD, SLOWGROWTH_BOLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f528',
+      name: 'Floor 528',
+      enemies: {
+        front: [OVERBURDEN_HULK, CENTURYBOUGH_WARDEN],
+        back: [PANOPLY_BEARER, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f529',
+      name: 'Floor 529',
+      enemies: {
+        front: [GANTRY_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f530',
+      name: 'Floor 530 — The Second Season',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GRAVESTRIDE_SERJEANT],
+        back: [SLAGBLOOM_THICKET, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f531',
+      name: 'Floor 531',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DROWNED_MAST],
+        back: [SLAGHIDE_PURSUER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f532',
+      name: 'Floor 532',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, GALLERY_SLIPFANG],
+        back: [SILENTVAULT_KEEPER, SCALEPLATE_BRAMBLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f533',
+      name: 'Floor 533',
+      enemies: {
+        front: [SHATTERJAW_MAULER, PLATEBOUND_HUSK],
+        back: [CINDERFLAW_PROVER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f534',
+      name: 'Floor 534',
+      enemies: {
+        front: [GANTRY_WARDEN, REDWATER_STALKER],
+        back: [WALKED_GROUND_DEAD, SLOWGROWTH_BOLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f535',
+      name: 'Floor 535',
+      enemies: {
+        front: [OVERBURDEN_HULK, CENTURYBOUGH_WARDEN],
+        back: [PANOPLY_BEARER, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f536',
+      name: 'Floor 536',
+      enemies: {
+        front: [GANTRY_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f537',
+      name: 'Floor 537',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GRAVESTRIDE_SERJEANT],
+        back: [SLAGBLOOM_THICKET, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f538',
+      name: 'Floor 538',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DROWNED_MAST],
+        back: [SLAGHIDE_PURSUER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f539',
+      name: 'Floor 539',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, GALLERY_SLIPFANG],
+        back: [SILENTVAULT_KEEPER, SCALEPLATE_BRAMBLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f540',
+      name: 'Floor 540 — The Standing Water',
+      enemies: {
+        front: [SHATTERJAW_MAULER, PLATEBOUND_HUSK],
+        back: [CINDERFLAW_PROVER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f541',
+      name: 'Floor 541',
+      enemies: {
+        front: [GANTRY_WARDEN, REDWATER_STALKER],
+        back: [WALKED_GROUND_DEAD, SLOWGROWTH_BOLE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f542',
+      name: 'Floor 542',
+      enemies: {
+        front: [OVERBURDEN_HULK, CENTURYBOUGH_WARDEN],
+        back: [PANOPLY_BEARER, WEARWAY_GAUNT, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f543',
+      name: 'Floor 543',
+      enemies: {
+        front: [GANTRY_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f544',
+      name: 'Floor 544',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, GRAVESTRIDE_SERJEANT],
+        back: [SLAGBLOOM_THICKET, MUSTER_PIKE, FENGORGED_WALLOWER],
+      },
+    },
+    {
+      id: 't-monster-f545',
+      name: 'Floor 545',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, DROWNED_MAST],
+        back: [SLAGHIDE_PURSUER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Thickening — Floors 546–567, levels 258–267, Relic 68–80 — one to three a board, and the first floors where the fat body leads rather than follows: a health carrier bills what is *aimed at*, at 3.02 of five in the front rank against 3.63 behind.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f546',
+      name: 'Floor 546',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SILTFAT_BROODER],
+        back: [PANOPLY_BEARER, FENGORGED_WALLOWER, SPENTRANK_HAND],
+      },
+    },
+    {
+      id: 't-monster-f547',
+      name: 'Floor 547',
+      enemies: {
+        front: [SHATTERJAW_MAULER, PLATEBOUND_HUSK],
+        back: [SCATTERSTONE_HOWLER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f548',
+      name: 'Floor 548',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SILTFAT_BROODER],
+        back: [PLATEBOUND_HUSK, FENGORGED_WALLOWER, SLAGBLOOM_THICKET],
+      },
+    },
+    {
+      id: 't-monster-f549',
+      name: 'Floor 549',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f550',
+      name: 'Floor 550 — The Thickening',
+      enemies: {
+        front: [OVERBURDEN_HULK, SILTFAT_BROODER],
+        back: [MUSTER_PIKE, FENGORGED_WALLOWER, SHALEBED_CRAWLER],
+      },
+    },
+    {
+      id: 't-monster-f551',
+      name: 'Floor 551',
+      enemies: {
+        front: [GANTRY_WARDEN, BENCHLINE_LURKER],
+        back: [WALKED_GROUND_DEAD, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f552',
+      name: 'Floor 552',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SILTFAT_BROODER],
+        back: [PANOPLY_BEARER, FENGORGED_WALLOWER, SPENTRANK_HAND],
+      },
+    },
+    {
+      id: 't-monster-f553',
+      name: 'Floor 553',
+      enemies: {
+        front: [SHATTERJAW_MAULER, PLATEBOUND_HUSK],
+        back: [SCATTERSTONE_HOWLER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f554',
+      name: 'Floor 554',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SILTFAT_BROODER],
+        back: [PLATEBOUND_HUSK, FENGORGED_WALLOWER, SLAGBLOOM_THICKET],
+      },
+    },
+    {
+      id: 't-monster-f555',
+      name: 'Floor 555',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f556',
+      name: 'Floor 556',
+      enemies: {
+        front: [OVERBURDEN_HULK, SILTFAT_BROODER],
+        back: [MUSTER_PIKE, FENGORGED_WALLOWER, SHALEBED_CRAWLER],
+      },
+    },
+    {
+      id: 't-monster-f557',
+      name: 'Floor 557',
+      enemies: {
+        front: [GANTRY_WARDEN, BENCHLINE_LURKER],
+        back: [WALKED_GROUND_DEAD, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f558',
+      name: 'Floor 558',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SILTFAT_BROODER],
+        back: [PANOPLY_BEARER, FENGORGED_WALLOWER, SPENTRANK_HAND],
+      },
+    },
+    {
+      id: 't-monster-f559',
+      name: 'Floor 559',
+      enemies: {
+        front: [SHATTERJAW_MAULER, PLATEBOUND_HUSK],
+        back: [SCATTERSTONE_HOWLER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f560',
+      name: 'Floor 560 — The Deep Fen',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SILTFAT_BROODER],
+        back: [PLATEBOUND_HUSK, FENGORGED_WALLOWER, SLAGBLOOM_THICKET],
+      },
+    },
+    {
+      id: 't-monster-f561',
+      name: 'Floor 561',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f562',
+      name: 'Floor 562',
+      enemies: {
+        front: [OVERBURDEN_HULK, SILTFAT_BROODER],
+        back: [MUSTER_PIKE, FENGORGED_WALLOWER, SHALEBED_CRAWLER],
+      },
+    },
+    {
+      id: 't-monster-f563',
+      name: 'Floor 563',
+      enemies: {
+        front: [GANTRY_WARDEN, BENCHLINE_LURKER],
+        back: [WALKED_GROUND_DEAD, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f564',
+      name: 'Floor 564',
+      enemies: {
+        front: [GOREHIDE_MATRIARCH, SILTFAT_BROODER],
+        back: [PANOPLY_BEARER, FENGORGED_WALLOWER, SPENTRANK_HAND],
+      },
+    },
+    {
+      id: 't-monster-f565',
+      name: 'Floor 565',
+      enemies: {
+        front: [SHATTERJAW_MAULER, PLATEBOUND_HUSK],
+        back: [SCATTERSTONE_HOWLER, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    {
+      id: 't-monster-f566',
+      name: 'Floor 566',
+      enemies: {
+        front: [DUSTPLATE_GRINDER, SILTFAT_BROODER],
+        back: [PLATEBOUND_HUSK, FENGORGED_WALLOWER, SLAGBLOOM_THICKET],
+      },
+    },
+    {
+      id: 't-monster-f567',
+      name: 'Floor 567',
+      enemies: {
+        front: [CENTURYBOUGH_WARDEN, SCARWEAVE_TRAMPLER],
+        back: [CLOSEWARD_SERAPH, FENGORGED_WALLOWER, SILTFAT_BROODER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Slow Quarry — Floors 568–585, levels 268–276, Relic 81–91 — the lieutenant arrives at 568 and leads every board it stands on. Three or four a board, and the boards come down in weight as the count goes up — the escalation rather than a discount on it.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f568',
+      name: 'Floor 568',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SHALEBED_CRAWLER, FENGORGED_WALLOWER, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f569',
+      name: 'Floor 569',
+      enemies: {
+        front: [TIDELESS_MAW, PLATEBOUND_HUSK],
+        back: [SILTFAT_BROODER, FENGORGED_WALLOWER, WEARWAY_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f570',
+      name: 'Floor 570 — The Slow Quarry',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SHALEBED_CRAWLER, FENGORGED_WALLOWER, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-monster-f571',
+      name: 'Floor 571',
+      enemies: {
+        front: [TIDELESS_MAW, CENTURYBOUGH_WARDEN],
+        back: [SILTFAT_BROODER, FENGORGED_WALLOWER, SLOWGROWTH_BOLE],
+      },
+    },
+    {
+      id: 't-monster-f572',
+      name: 'Floor 572',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [WALKED_GROUND_DEAD, FENGORGED_WALLOWER, ILLFALL_SKULKER],
+      },
+    },
+    {
+      id: 't-monster-f573',
+      name: 'Floor 573',
+      enemies: {
+        front: [TIDELESS_MAW, FENGORGED_WALLOWER],
+        back: [SILTFAT_BROODER, WEARWAY_GAUNT, ROUGHCAST_GNAWER],
+      },
+    },
+    {
+      id: 't-monster-f574',
+      name: 'Floor 574',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SHALEBED_CRAWLER, FENGORGED_WALLOWER, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f575',
+      name: 'Floor 575',
+      enemies: {
+        front: [TIDELESS_MAW, PLATEBOUND_HUSK],
+        back: [SILTFAT_BROODER, FENGORGED_WALLOWER, WEARWAY_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f576',
+      name: 'Floor 576',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SHALEBED_CRAWLER, FENGORGED_WALLOWER, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-monster-f577',
+      name: 'Floor 577',
+      enemies: {
+        front: [TIDELESS_MAW, CENTURYBOUGH_WARDEN],
+        back: [SILTFAT_BROODER, FENGORGED_WALLOWER, SLOWGROWTH_BOLE],
+      },
+    },
+    {
+      id: 't-monster-f578',
+      name: 'Floor 578',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [WALKED_GROUND_DEAD, FENGORGED_WALLOWER, ILLFALL_SKULKER],
+      },
+    },
+    {
+      id: 't-monster-f579',
+      name: 'Floor 579',
+      enemies: {
+        front: [TIDELESS_MAW, FENGORGED_WALLOWER],
+        back: [SILTFAT_BROODER, WEARWAY_GAUNT, ROUGHCAST_GNAWER],
+      },
+    },
+    {
+      id: 't-monster-f580',
+      name: 'Floor 580 — The Standing Weight',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SHALEBED_CRAWLER, FENGORGED_WALLOWER, PANOPLY_BEARER],
+      },
+    },
+    {
+      id: 't-monster-f581',
+      name: 'Floor 581',
+      enemies: {
+        front: [TIDELESS_MAW, PLATEBOUND_HUSK],
+        back: [SILTFAT_BROODER, FENGORGED_WALLOWER, WEARWAY_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f582',
+      name: 'Floor 582',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SHALEBED_CRAWLER, FENGORGED_WALLOWER, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-monster-f583',
+      name: 'Floor 583',
+      enemies: {
+        front: [TIDELESS_MAW, CENTURYBOUGH_WARDEN],
+        back: [SILTFAT_BROODER, FENGORGED_WALLOWER, SLOWGROWTH_BOLE],
+      },
+    },
+    {
+      id: 't-monster-f584',
+      name: 'Floor 584',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [WALKED_GROUND_DEAD, FENGORGED_WALLOWER, ILLFALL_SKULKER],
+      },
+    },
+    {
+      id: 't-monster-f585',
+      name: 'Floor 585',
+      enemies: {
+        front: [TIDELESS_MAW, FENGORGED_WALLOWER],
+        back: [SILTFAT_BROODER, WEARWAY_GAUNT, ROUGHCAST_GNAWER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Overmatch — Floors 586–595, levels 276–281, Relic 92–97 — three or four a board and nothing anywhere in the band under seven hundred of health. The reference five reads a flat 4.00 across the whole band and the alternate carries the decline, which is the survivors metric saturating — the seconds are what separate these floors, 14.2s to 22.8s.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f586',
+      name: 'Floor 586',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, SHALEBED_CRAWLER, WEARWAY_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f587',
+      name: 'Floor 587',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, SCATTERSTONE_HOWLER, SLOWGROWTH_BOLE],
+      },
+    },
+    {
+      id: 't-monster-f588',
+      name: 'Floor 588',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SILTFAT_BROODER, SHALEBED_CRAWLER, SLAGBLOOM_THICKET],
+      },
+    },
+    {
+      id: 't-monster-f589',
+      name: 'Floor 589',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, WEARWAY_GAUNT, SCALEPLATE_BRAMBLE],
+      },
+    },
+    {
+      id: 't-monster-f590',
+      name: 'Floor 590 — The Overmatch',
+      enemies: {
+        front: [TIDELESS_MAW, FENGORGED_WALLOWER],
+        back: [SILTFAT_BROODER, SHALEBED_CRAWLER, MUSTER_PIKE],
+      },
+    },
+    {
+      id: 't-monster-f591',
+      name: 'Floor 591',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, SHALEBED_CRAWLER, WEARWAY_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f592',
+      name: 'Floor 592',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, SCATTERSTONE_HOWLER, SLOWGROWTH_BOLE],
+      },
+    },
+    {
+      id: 't-monster-f593',
+      name: 'Floor 593',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SILTFAT_BROODER, SHALEBED_CRAWLER, SLAGBLOOM_THICKET],
+      },
+    },
+    {
+      id: 't-monster-f594',
+      name: 'Floor 594',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, WEARWAY_GAUNT, SCALEPLATE_BRAMBLE],
+      },
+    },
+    {
+      id: 't-monster-f595',
+      name: 'Floor 595',
+      enemies: {
+        front: [TIDELESS_MAW, FENGORGED_WALLOWER],
+        back: [SILTFAT_BROODER, SHALEBED_CRAWLER, MUSTER_PIKE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Unswallowed — Floors 596–600, levels 281–283, Relic 98–100 — five floors, each measured on its own, and at the top of them the one thing six hundred floors of jaws could not start on.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-monster-f596',
+      name: 'Floor 596',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, SHALEBED_CRAWLER, WEARWAY_GAUNT],
+      },
+    },
+    {
+      id: 't-monster-f597',
+      name: 'Floor 597',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SILTFAT_BROODER, SHALEBED_CRAWLER, SLOWGROWTH_BOLE],
+      },
+    },
+    {
+      id: 't-monster-f598',
+      name: 'Floor 598',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, SHALEBED_CRAWLER, SCATTERSTONE_HOWLER],
+      },
+    },
+    {
+      id: 't-monster-f599',
+      name: 'Floor 599',
+      enemies: {
+        front: [TIDELESS_MAW, SILTFAT_BROODER],
+        back: [SILTFAT_BROODER, WEARWAY_GAUNT, SHALEBED_CRAWLER],
+      },
+    },
+    {
+      id: 't-monster-f600',
+      name: 'Floor 600 — The Unswallowed',
+      enemies: {
+        front: [THE_UNSWALLOWED, SILTFAT_BROODER],
+        back: [FENGORGED_WALLOWER, ROUGHCAST_GNAWER, ILLFALL_SKULKER],
       },
     },
   ],

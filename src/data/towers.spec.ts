@@ -161,7 +161,7 @@ const TOWER_UNIT = 100;
  * wore and the extension is a new segment past it. **All 200 shipped geared floors are byte-identical
  * on every tower, pending or not** — see `core/towers.ts`.
  */
-const PENDING: readonly string[] = ['tower-monster', 'tower-angel', 'tower-demon'];
+const PENDING: readonly string[] = ['tower-angel', 'tower-demon'];
 
 /** The height a tower is actually authored at: the rules' height, or the band below for a pending one. */
 const authoredHeight = (tower: TowerData): number =>

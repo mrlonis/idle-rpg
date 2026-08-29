@@ -1,7 +1,8 @@
 # Faction towers
 
 Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — the Human, Dwarf,
-Elf and Undead Towers complete and the other three at five hundred while a fifth round is in flight.** The system shipped in
+Elf, Undead and Monster Towers complete and the other two at five hundred while a fifth round is in
+flight.** The system shipped in
 milestone 15b with a single tower, the other six in 15c, the second hundred floors across 21e–21k, the
 third across 21l–21r, the fourth across 21s–21y and the fifth across 21z and after — the Demon Tower
 last in both of the last two rounds, which is what closed them. Read
@@ -2357,7 +2358,7 @@ critDamageResist, 0)`, and a crew sustaining on `lifeLeech` off damage dealt (Σ
   carriers standing on almost every board cost the lean nothing. It ships at **53.2% Elf** and takes
   the tower to **59.03%**, _down_ from 60.2%. **Decide the carrier density and the carriers' factions
   together.**
-- The hundred fields **38** distinct archetypes, four of them new (10.5%), carries **no** sustain,
+- The hundred fields **36** distinct archetypes, four of them new (11.1%), carries **no** sustain,
   taunt, link or reflect anywhere, and runs a **mean of 0.08 board-wide voices per board with a maximum
   of one** against the Thicket's 0.58 and this tower's third and fourth hundreds at 1.08 and 0.86. Band
   6 opens at floor 501 in 8.6s with all five alive, costs the reference five its first member at floor
@@ -2420,6 +2421,94 @@ critDamageResist, 0)`, and a crew sustaining on `lifeLeech` off damage dealt (Σ
   nothing left to take out. The claim worth keeping is the one underneath: this tower buys its
   difficulty as far from the clock as it can, and 25.0s against a 67.5s bar is what that looks like once
   the weight has gone.
+
+### The sixth hundred — the Monster Tower's Glut
+
+Floors 501–600, levels 236–283, Relic 41 → Relic 100. Six hundred floors of bringing things down, and
+the field stops being quarry: the fatted ground, the long feed, the thickening, the slow quarry, the
+overmatch, and at the top the one thing the jaws could not start on.
+
+- ⚠️ **"Is it ours" came back _no_ for every candidate, and this time the tower's own exception went
+  with it.** Forty candidates — seventeen stats, twelve statuses and mechanics, a burst cadence at held
+  damage per second, a second `ascended` anchor and the damage _type_ the board deals — priced across
+  all fourteen shipped arrangements at band 6, each crew calibrated in 2.5% steps to the heaviest
+  control it still reads ≥3.60 on. **The Monster fives rank tenth to fourteenth of fourteen on every
+  one of them** but `physicalResist`, where they are fifth and seventh — down from **second and third**
+  at band 5, and now behind elf-alt 1.89 and dwarf-ref 1.71, which is the Deepworks, shipped one
+  session earlier. ⚠️ **The residual does not rescue it**: fitting each candidate's cost against how
+  long a crew's fights already run moves them by at most one place. That is the Ironpace's finding
+  arriving a third time on one tower, and the first time with nothing left over.
+- ⚠️ **The axis is enemy _health at held attack_, and the licence is affordability.** Every hundred
+  below attacks the trade at its **input** — the count of questions, armour, evasion, a poison billing
+  the seconds the armour bought — and all of them starve `lifeLeech` off damage dealt. This one attacks
+  the trade's **duration**. Against a control of 3.85 / 3.70 at 13.3s / 15.5s at floor 600 in Relic
+  100, escort health at held attack grades **3.95 / 3.13 / 3.00 / 2.95 / 2.27 / 2.00 / 1.93 / 1.85 /
+  1.25** and **3.70 / 3.17 / 3.00 / 2.70 / 2.23 / 2.00 / 2.00 / 1.88 / 1.18** across ×1.0 → ×3.4 — nine
+  monotone steps at a 100% win rate with **zero timeouts on every row** — and in carrier count as well,
+  **3.83 / 3.00 / 2.98 / 2.65 / 2.23** and **3.73 / 3.00 / 2.98 / 2.50 / 2.02** across zero to four.
+- ⚠️ **The seconds are the price and they are the whole licence.** Of the ten arrangements above the
+  Monster fives on this axis, **dwarf-alt runs 58.1s, angel-alt 54.5s, dwarf-ref 53.1s and angel-ref
+  39.4s** at the same grade, against a 60-second mean bar and a 67.5-second longest-cleared one. The
+  Monster fives pay 27.6s and 30.9s. **The crews the axis belongs to are the crews whose towers cannot
+  author it** — the Processional's affordability licence, and the first time it has licensed a _weight_
+  axis, which is this tower's own fourth-hundred warning ("weight axes belong to whichever crew is
+  slowest") answered rather than ignored.
+- ⚠️ **On a health axis the `tank` archetype switches the axis off.** Held at an identical stat line on
+  one board, all-`tank` reads **3.00 of five** and all-`support` 2.90 against all-`brawler` 2.10,
+  all-`mage` 2.10 and all-`ranger` **2.00** — `GEAR_PROFILES` pays a tank +46% attack at Relic 100 and a
+  ranger +112%, and a pool with nothing billing it is a long fight rather than a hard one. Not one
+  carrier in the hundred wears `tank`. **Three hundreds running have now found the archetype worth more
+  than a step of their own axis, and the sign differs each time.**
+- ⚠️ **A health carrier bills what is _aimed at_, which is a fourth distinct answer to the rank
+  question in four hundreds.** Carried on one body with the escort held, a fat escort is worth **3.02
+  of five in front against 3.63 behind** at ×1.8, 3.00 against 3.40 at ×2.4 and 2.98 against 3.05 at
+  ×3.0 — a spread of 0.61 → 0.40 → **0.07 that shrinks as the pool grows**, where the Processional's
+  `dodge` spread grew 0.45 → 1.00 with its value. A dodge bills what is aimed at, an `attackSpeed` what
+  is left alive, a resist every blow that reaches the body — and a pool big enough to soak the whole
+  fight soaks it from either rank.
+- ⚠️ **Disqualified rather than merely weak.** `magicResist` 0.60 is worth **−0.04 / −0.12** (this crew
+  deals nine physical damage effects and zero magical, the third hundred's reading a third time);
+  `tenacity` 0.80 worth 0.15 / **0.01**, complete crit denial 0.10 / 0.05 and `accuracy` **−0.05 /
+  −0.07**, all against Σ0.00 registers; `physicalPierce` 0.75 worth 0.61 / 0.67 against the third- and
+  fourth-lowest `def` of the fourteen; `magicPierce` **−0.06 / −0.03**, because a pierce never touches a
+  resist; `THORNMAIL` **−0.12 / −0.10** and a taunt **−0.20 / −0.10**, both the wrong sign. ⚠️ **The
+  damage _type_ the board deals is the one candidate that is nearly theirs and still is not**: a wholly
+  magical board costs monster-alt **0.60, third of fourteen** behind angel-ref 0.77 and dwarf-alt 0.65,
+  but the walk across zero to five casters spans only **0.52** — texture rather than an axis. It is the
+  first time in thirty-three hundreds that anything other than a stat, a status, a composition or a
+  cadence has been priced, and the answer was no.
+- ⚠️ **The retirement check retired the whole `ascended` roster, and the escort is what makes it
+  checkable.** All seven of the fourth and fifth hundreds' anchors read **0% for both arrangements** at
+  floor 600 behind four 300/18 commons — except that {@link THE_UNQUENCHED} reads 100% / 1.02 and The
+  Turnaway 100% / 1.80 for the **reference** five while both fail the alternate. Behind four 520/44
+  legendaries all seven read 0% for both. The floor-500 board carried to floor 600 reads **0% / 0%**,
+  the Crownworks collapse a seventh time. ⚠️ **"Retires" needs its floors**: the Tyrant still anchors
+  floors 502–520 beside two fourth-hundred blocks, and **no board above floor 520 carries an `ascended`
+  block at all** until the roof.
+- ⚠️ **The flat-spread ceiling is what a tower with no lean overshoots, and it did again.** Authored the
+  obvious way the hundred came out at **78.8% Monster** and took the tower to **22.69%** against a 25%
+  bound; converting texture one slot at a time across every band leaves it at **60.0%** and the tower at
+  **19.50%**, with all seven factions between 9.97% and 19.50%. ⚠️ **Why it cannot go lower is the
+  finding**: the coldest bodies in the game are Monster (`SHALEBED_CRAWLER` 45.8, `SCATTERSTONE_HOWLER`
+  35.7, `ROUGHCAST_GNAWER` 34.6 on health-to-attack) where the next faction's coldest heavy body reads
+  23.9, so the closing bands' texture is nearly forced. **When the axis's own texture belongs to one
+  faction, the spread is decided in the opening bands.**
+- The register was measured **before** the four new blocks joined it: health-to-attack median **13.2**,
+  p90 **21.8**, ceiling **55.0** over 434 blocks. The three carriers run 19.1, 24.2 and 29.2, every one
+  inside it, and the roof lands at **55.0** — exactly the ceiling rather than a step past it, which is
+  the Elf third hundred's shape rather than the Monster third's. Bodies at a ratio of 20 or above run **0–1 / 0–2 / 1–3 / 3–4 / 3–4 / 4–5** across the six
+  bands, stated as counts because the ratio is on every block in the game.
+- The hundred fields **36** distinct archetypes, four of them new (11.1%), and carries **no** heal,
+  drain, shield, `regen`, taunt, link, reflect or point of `lifeLeech`, `recovery` or `healthRegen` —
+  the absolute the Censing was first able to make, held for a second hundred and checked **before** the
+  boards were authored, which screened eight otherwise obvious returning blocks out. Band 6 opens at
+  floor 501 in 8.5s with all five of the reference crew alive and the alternate already down one, and
+  closes at **100% / 2.33 / 20.2s against 85% / 0.88 / 35.2s**. Worst reading anywhere 100% and 85%,
+  **no timeouts**, longest single attempt **38.3s** against the 67.5s bar and slowest mean **35.2s**
+  against the 60s bar. ⚠️ **Its longest fight is four seconds longer than the Censing's 33.9s, ending
+  three consecutive hundreds of closing faster than the one below** — and the mechanism rather than the
+  trend is that this is the first hundred here whose axis is weight, so the boards stop getting lighter:
+  floor 600 weighs **5,246** common-equivalent where floor 500 weighs 3,848 and floor 400 weighs 4,378.
 
 ### The fifth hundred — the Monster Tower's Censing
 

@@ -1967,9 +1967,63 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Thirty-two hundreds gave thirty-two answers — every second, third, fourth and fifth hundred of
-all seven towers, and the sixth of the Human, Dwarf, Elf and Undead — and no two escalate the same way. Read the crew's failure mode before choosing;
-do not copy the last session's shape.** [towers](towers.md)
+⚠️ **Thirty-three hundreds gave thirty-three answers — every second, third, fourth and fifth hundred of
+all seven towers, and the sixth of the Human, Dwarf, Elf, Undead and Monster — and no two escalate the
+same way. Read the crew's failure mode before choosing; do not copy the last session's shape.**
+[towers](towers.md)
+
+⚠️ **Thirty-three hundreds gave thirty-three answers.** The Monster sixth hundred is the first to
+price something that is not a stat, a status, a composition or a cadence — **the damage _type_ the
+board deals** — and the answer was no: a wholly magical board costs monster-alt 0.60, third of
+fourteen, but the walk across zero to five casters spans only **0.52**, which is texture rather than an
+axis. **A new dimension is worth one measurement; it is not worth a hundred floors on its own.**
+[towers](towers.md)
+
+⚠️ **"Is it ours" can come back _no_ for every candidate _including the tower's own_, and then the only
+licence left is affordability.** The Monster fives rank tenth to fourteenth of fourteen on forty
+candidates at band 6 — and `physicalResist`, second and third for them at band 5, has fallen to fifth
+and seventh behind the crew whose own sixth hundred took it one session earlier. Fitting the
+fight-length confound moves them at most one place, so neither exclusivity, margin nor the residual is
+available. What was left is the clock: of the ten arrangements above them on enemy **health**,
+**dwarf-alt runs 58.1s, angel-alt 54.5s, dwarf-ref 53.1s and angel-ref 39.4s** at the same grade
+against a 60s mean bar, where the Monster fives pay 27.6s and 30.9s. ⚠️ **That is the first time
+affordability has licensed a _weight_ axis**, which is the same tower's fourth-hundred warning —
+"weight axes belong to whichever crew is slowest" — answered rather than ignored. **A recorded warning
+is a claim about a curve too.** [towers](towers.md)
+
+⚠️ **On a _health_ axis the `tank` archetype switches the axis off, which is the third hundred running
+to find the gear allocation worth more than a step of its own axis and the third distinct sign.** Held
+at an identical stat line on one board, all-`tank` reads **3.00 of five** against all-`ranger`'s
+**2.00** — `GEAR_PROFILES` pays a tank +46% attack at Relic 100 and a ranger +112%, and a pool with
+nothing billing it is a long fight rather than a hard one. The Dwarf sixth found a tank set switching a
+**refusal** axis off, the Undead sixth found a hot set switching an **amplification** axis on, and this
+one is a weight axis wanting the hot set for the opposite reason to the amplifier's. **Check which kind
+of axis you have before allocating archetypes, every time.** [towers](towers.md)
+
+⚠️ **A health carrier bills what is _aimed at_ and its rank spread _shrinks_ with its size, which is a
+fourth distinct answer to the rank question in four hundreds.** Carried on one body with the escort
+held, a fat escort is worth **3.02 of five in front against 3.63 behind** at ×1.8, 3.00 against 3.40 at
+×2.4 and 2.98 against **3.05** at ×3.0 — 0.61 → 0.40 → 0.07 — where the Demon fifth hundred's `dodge`
+spread _grew_ 0.45 → 1.00 with its value. A dodge bills what is aimed at, an `attackSpeed` what is left
+alive, a resist every blow that reaches the body, and a pool big enough to soak the whole fight soaks
+it from either rank. **Measure the spread at the size you intend to author, not at one size.**
+[towers](towers.md)
+
+⚠️ **When the axis's own texture belongs to one faction, a tower with _no lean_ has its spread decided
+in the opening bands.** The Monster sixth hundred's first pass came out at 78.8% Monster and took the
+tower to **22.69%** against a 25% bound; the named fix took it to 60.0% and **19.50%**. What stops it
+going lower is that the coldest bodies in the game are Monster (45.8, 35.7 and 34.6 on
+health-to-attack) where the next faction's coldest heavy body reads **23.9** — so the closing bands are
+nearly forced and every slot of margin has to be found in bands 1 to 3. **Decide the substitution
+budget against the bands that can actually carry it.** [towers](towers.md)
+
+⚠️ **Run the sustain check _before_ authoring the boards, not after — it is a roster screen rather than
+a prose check.** The Monster sixth hundred had to hold its predecessor's absolute (no heal, drain,
+shield, `regen`, taunt, link, reflect or point of `lifeLeech`, `recovery` or `healthRegen` anywhere),
+and screening the candidate roster first removed **eight otherwise obvious returning blocks** — two on
+`recovery`, four on `lifeLeech` and two on their kits. The Angel fourth hundred found the same thing
+after tuning fourteen boards with them on. **Screening costs a script; retuning costs the hundred.**
+[authoring](authoring.md)
 
 ⚠️ **The cross-crew table has now failed to choose the axis four fifth hundreds running, for four
 different reasons, and the fourth is below.** The Humans ranked mid-table on

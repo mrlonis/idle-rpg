@@ -959,6 +959,34 @@ critDamageResist, 0)`, so the Angel fourth hundred took `critChance` — the fre
   five in front against **1.00 behind** at floor 570 and 0.02–0.08 against **1.80–1.85** at floor 590,
   reproduced on all three carriers at both levels. **Carry the measurement, never the precedent — not
   even the same tower's.** [towers](../../docs/towers.md)
+- ⚠️ **"Is it ours" can come back _no_ for every candidate _including the tower's own_, and then the
+  only licence left is affordability.** At band 6 the Monster fives rank tenth to fourteenth of fourteen
+  on **forty** candidates, and `physicalResist` — second and third for them at band 5 — has fallen to
+  fifth and seventh behind the crew whose own sixth hundred took it one session earlier; fitting the
+  fight-length confound moves them at most one place. What licensed the axis was the clock: of the ten
+  arrangements above them on enemy **health**, dwarf-alt runs **58.1s**, angel-alt 54.5s, dwarf-ref
+  53.1s and angel-ref 39.4s at the same grade against a 60s mean bar, where the Monster fives pay 27.6s
+  and 30.9s. ⚠️ **That is the first time affordability has licensed a _weight_ axis**, which is the same
+  tower's fourth-hundred warning — "weight axes belong to whichever crew is slowest" — answered rather
+  than ignored. [towers](../../docs/towers.md)
+- ⚠️ **On a _health_ axis the `tank` archetype switches the axis off, and that is a third distinct sign
+  in three hundreds.** Held at an identical stat line, all-`tank` reads **3.00 of five** against
+  all-`ranger`'s **2.00**, because a pool with nothing billing it is a long fight rather than a hard
+  one. The Dwarf sixth found a tank set switching a **refusal** axis off, the Undead sixth found a hot
+  set switching an **amplification** axis on, and this is a weight axis wanting the hot set for the
+  opposite reason to the amplifier's. **Check which kind of axis you have before allocating
+  archetypes, every time.** [towers](../../docs/towers.md)
+- ⚠️ **A health carrier bills what is _aimed at_ and its rank spread _shrinks_ with its size** — 3.02 of
+  five in front against 3.63 behind at ×1.8 and 2.98 against 3.05 at ×3.0, where a `dodge` carrier's
+  spread grew 0.45 → 1.00 with its value. That is a fourth distinct answer to the rank question in four
+  hundreds. **Measure the spread at the size you intend to author, not at one size.**
+  [towers](../../docs/towers.md)
+- ⚠️ **Run the sustain screen over the candidate _roster_ before authoring boards, not over the prose
+  after.** The Monster sixth hundred had to hold its predecessor's absolute and the screen removed
+  **eight** otherwise obvious returning blocks up front — and the prose check still caught a ninth
+  afterwards, `CAIRNWARD_HUSK`, carrying a `THORNMAIL` reflect as an **`opening` passive** rather than
+  in its kit or its stats. ⚠️ **Screen `opening` as well as `skills` and the stat block**; it is the one
+  of the three that reads as a field rather than as behaviour. [authoring](../../docs/authoring.md)
 - ⚠️ **A licence expires in both directions, and "is it ours" can come back _no_ for a crew that had
   every axis one band earlier.** At band 5 the Undead Tower's whole vocabulary collapsed to one curve and
   **every** throughput candidate ranked undead-alt first of the twelve non-Angel arrangements; one rung

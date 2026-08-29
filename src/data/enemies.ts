@@ -379,6 +379,10 @@ import {
   DRAW_THE_TEMPER,
   THE_LONG_SOAK,
   NOTHING_MARKS_IT,
+  IT_DOES_NOT_THIN,
+  THE_SEASON_IT_ATE,
+  AND_STILL_MORE_OF_IT,
+  IT_WILL_NOT_GO_DOWN,
   DRIVE_THE_WEDGE,
   ALONG_THE_GRAIN,
   THE_FROE_AND_THE_MALLET,
@@ -16013,7 +16017,250 @@ export const THE_HEARTSHAKE = {
   skills: [IT_OPENS_TO_THE_HEART, THE_FROE_AND_THE_MALLET, ALONG_THE_GRAIN],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Monster Tower's sixth hundred — the Glut, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **Four blocks, which is 11.1% of the 36 distinct archetypes this hundred fields rather than a
+// quarter of them.** The quota is a count with ten hundreds of precedent behind it, not a fraction
+// to solve for. ⚠️ **And all four are *Monster*, on the one tower that has no lean** — chosen by the
+// spread's thinnest row (monster at 11.2% of 2,439 slots, against angel's 20.2%) exactly as that
+// tower's fourth hundred chose Dwarf at 11.12%, and landing on the matrix's one **self-edge**: a
+// Monster board is the only board a Monster five takes ×1.10 from in both directions, which is why
+// `towers.balance.ts` cannot use a mirror as this tower's control at all.
+//
+// ## ⚠️ The axis is enemy **health at held attack**, and nothing else in the game is this crew's
+//
+// Six hundred floors ago this tower's premise was written down as *two currencies a leech crew cannot
+// pay in: damage it cannot return, and turns.* Its second hundred charged the count of questions, its
+// third armour the jaws do not open, its fourth that armour with evasion on top, its fifth the armour
+// again with a poison billing the seconds the plate bought. All four attack the trade at its
+// **input** — every one of them reduces the damage this crew deals, and `lifeLeech` off damage dealt
+// is starved by all of them. This one attacks the trade's **duration**: a pool the jaws cannot finish.
+//
+// ⚠️ **"Is it ours" came back _no_ for every candidate, for the third consecutive hundred on this
+// tower, and this time its own exception went too.** Forty candidates — seventeen stats, twelve
+// statuses and mechanics, a burst cadence, a second `ascended` anchor, and the damage *type* the board
+// deals — were priced across all fourteen shipped arrangements at band 6, each crew calibrated to the
+// heaviest control it still reads ≥3.60 on (monster-ref **×0.725** and monster-alt **×0.650**, the
+// third-lowest and joint-lowest of the fourteen). **The Monster fives rank tenth to fourteenth on
+// every one of them** but `physicalResist`, where they are **fifth and seventh** — down from second
+// and third at band 5, and behind elf-alt 1.89 and dwarf-ref 1.71, which is the Dwarf Tower's own
+// sixth hundred, shipped one session earlier. ⚠️ **The residual does not rescue it either**: fitting
+// each candidate's cost against how long a crew's fights already run moves monster-ref and
+// monster-alt by at most one place.
+//
+// So the licence is neither exclusivity nor margin. It is **affordability**, the Demon fifth
+// hundred's, and the check is the clock. Against a control of 3.85 / 3.70 at 13.3s / 15.5s, enemy
+// health at held attack grades:
+//
+// | escort health | monster-ref | monster-alt | alt fight |
+// | ------------- | ----------- | ----------- | --------- |
+// | ×1.0 — control| 3.95        | 3.70        | 16s       |
+// | ×1.3          | 3.13        | 3.17        | 18s       |
+// | ×1.6          | 3.00        | 3.00        | 21s       |
+// | ×1.9          | 2.95        | 2.70        | 24s       |
+// | ×2.2          | 2.27        | 2.23        | 28s       |
+// | ×2.5          | 2.00        | 2.00        | 33s       |
+// | ×2.8          | 1.93        | 2.00        | 37s       |
+// | ×3.1          | 1.85        | 1.88        | 42s       |
+// | ×3.4          | 1.25        | 1.18        | 49s       |
+//
+// 1. ⚠️ **Nine monotone steps at a 100% win rate with zero timeouts on every row**, which is what
+//    tells difficulty from the ninety-second clock wearing a stat block — a wipe and a timeout are the
+//    same `defeat`, so the count has to be read rather than inferred. ⚠️ **And it grades in carrier
+//    count as well**, which is what a six-band hundred needs: at ×2.2 the walk across zero to four
+//    carriers reads **3.83 / 3.00 / 2.98 / 2.65 / 2.23** and **3.73 / 3.00 / 2.98 / 2.50 / 2.02**.
+// 2. ⚠️ **The seconds are the price, and they are the whole licence.** Of the ten arrangements that
+//    out-rank the Monster fives on this axis, **dwarf-alt runs 58.1s, angel-alt 54.5s, dwarf-ref 53.1s
+//    and angel-ref 39.4s** at the same grade against a 60s mean bar and a 67.5s longest-cleared one —
+//    so the crews the axis belongs to are the crews whose towers cannot author it. The Monster fives
+//    pay 27.6s and 30.9s. **Fight length licenses an axis as well as vetoing one**, and this is the
+//    first time it has licensed a *weight* axis, which is the Monster Tower's own fourth-hundred
+//    warning ("weight axes belong to whichever crew is slowest") answered rather than ignored.
+// 3. ⚠️ **On a health axis the `tank` archetype switches the axis off**, which is the third hundred
+//    running to find the gear allocation worth more than a step of its own axis and the second to find
+//    it with the sign reversed. Held at an identical stat line on one board, all-`tank` reads **3.00
+//    of five** and all-`support` 2.90 against all-`brawler` 2.10, all-`mage` 2.10 and all-`ranger`
+//    **2.00** — a tank set pays its grade into the pool rather than into the blow, and a pool nothing
+//    is billing is a long fight rather than a hard one. **Every carrier below wears `ranger`, `mage`
+//    or `brawler`, and not one wears `tank`.**
+// 4. ⚠️ **A health carrier bills what is _aimed at_, so the carriers lead.** Carried on one body with
+//    the escort held, a fat escort is worth **3.02 of five in front against 3.63 behind** at ×1.8,
+//    3.00 against 3.40 at ×2.4 and 2.98 against 3.05 at ×3.0 — a spread of 0.61 → 0.40 → 0.07 that
+//    **shrinks** as the pool grows, where the Demon fifth hundred's `dodge` spread grew 0.45 → 1.00
+//    with its value. That is a fourth distinct answer to the rank question in four hundreds, and the
+//    reason is that a body big enough to soak the whole fight soaks it from either rank.
+// 5. ⚠️ **Disqualified rather than merely weak, each for a stated reason.** `physicalResist` 0.60 is
+//    worth 1.01 / 0.96 and ranks fifth and seventh — this tower's own third and fifth hundreds, and
+//    the Dwarf Tower's sixth, one session old. `dodge` 0.40 is worth 0.73 / 0.55 and is this tower's
+//    fourth hundred. `magicResist` 0.60 is worth **−0.04 / −0.12**, because this crew deals nine
+//    physical damage effects and **zero** magical ones, which reproduces the third and fifth hundreds'
+//    reading a third time. `tenacity` 0.80 is worth 0.15 / **0.01** against a crew carrying Σ0.00.
+//    Complete crit **denial** is worth 0.10 / 0.05 and `accuracy` **−0.05 / −0.07**, both against
+//    Σ0.00 registers — a stat the crew has none of is a stat there is nothing to refuse.
+//    `physicalPierce` 0.75 is worth 0.61 / 0.67, because Σ47,712 and Σ43,668 of `def` are the
+//    fourth- and third-lowest of the fourteen and there is nothing to open. `magicPierce` is worth
+//    **−0.06 / −0.03**, because a pierce never touches a resist. A `THORNMAIL` on all five is worth
+//    **−0.12 / −0.10** and an `OATHSHIELD` taunt **−0.20 / −0.10**, both the wrong sign. A board-wide
+//    `STUN` at three carriers ranks fourteenth and twelfth, `BLOODRISEN` fourteenth and thirteenth, a
+//    `RALLY` thirteenth and fourteenth, a burst cadence at held damage per second fourteenth and
+//    twelfth, and a second `ascended` anchor tenth and eleventh. ⚠️ **The damage _type_ the board
+//    deals was measured too, and it is the one candidate that is nearly theirs**: a wholly magical
+//    board costs monster-alt **0.60, third of fourteen** behind angel-ref 0.77 and dwarf-alt 0.65 —
+//    but the span across zero to five casters is only 0.52, which is texture rather than an axis.
+//
+// ⚠️ **The register, measured before these four joined the pool.** Health-to-attack ratio over the
+// **434** shipped blocks reads a median of **13.2**, a p90 of **21.8** and a ceiling of **55.0**
+// ({@link THE_NEVERMARK}); 60 blocks sit at 20 or above and 21 at 30 or above, and the Monster
+// faction's own ceiling is {@link SHALEBED_CRAWLER} at **45.8**. The three carriers below run **19.1,
+// 24.2 and 29.2**, so the band is authored **inside** the register on every one of them, and the roof
+// lands at **55.0** — exactly the game's own ceiling rather than a step past it, which is the Elf third
+// hundred's shape rather than the Monster third's. Bodies at a ratio of 20 or above run
+// **0–1 / 0–2 / 1–3 / 3–4 / 3–4 / 4–5** across the six bands, stated as counts because the ratio is on
+// every block in the game rather than absent from it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It has been eating since the horn, and the horn was four hundred floors ago.
+ *
+ * The light carrier, and the first of the four. ⚠️ **420 of health against 22 of attack is a ratio of
+ * 19.1, under the shipped p90 of 21.8** — the lightest expression of the axis, and the one that has to
+ * stand on band-1 boards beside a returning `ascended` anchor without spending the whole budget.
+ *
+ * ⚠️ **`ranger` rather than `tank`, and that is the measurement rather than a flourish.** On a health
+ * axis a `tank` set reads 3.00 of five against a `ranger` set's 2.00 at an identical stat line,
+ * because `GEAR_PROFILES` pays a tank +46% attack at Relic 100 and a ranger +112% — and a pool with no
+ * blow behind it is the ninety-second clock rather than a lock. See the block comment above.
+ */
+export const FENGORGED_WALLOWER = {
+  id: 'fengorged-wallower',
+  name: 'Fengorged Wallower',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 420,
+    atk: 22,
+    def: 20,
+    haste: 100,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.14,
+  },
+  skills: [IT_DOES_NOT_THIN],
+} as const;
+
+/**
+ * The fen keeps what it takes, and this is a season of it walking about.
+ *
+ * The middle carrier, arriving in band 2 and standing on more boards than anything else in the
+ * hundred. **580 of health against 24 of attack is a ratio of 24.2**, inside the shipped register and
+ * over its p90 — one step past the Wallower and the body the band table's counts are mostly about.
+ *
+ * ⚠️ **Nothing here restores anything**, which is the rule this tower has held above floor 160 and the
+ * absolute its fifth hundred was the first able to make: no heal, no drain, no shield, no `regen`,
+ * `barrier` or `aegis`, and no point of `lifeLeech`, `recovery` or `healthRegen` anywhere over the
+ * hundred. A pool is not sustain — it depletes exactly once, which is the same argument that makes a
+ * shield safe where a heal is not.
+ */
+export const SILTFAT_BROODER = {
+  id: 'siltfat-brooder',
+  name: 'Siltfat Brooder',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 580,
+    atk: 24,
+    def: 22,
+    haste: 96,
+    critChance: 0.11,
+    critDamageAmp: 0.72,
+    physicalPierce: 0.16,
+  },
+  skills: [THE_SEASON_IT_ATE],
+} as const;
+
+/**
+ * Two hundred floors of the field learning to be plate, and then it simply grew.
+ *
+ * The lieutenant, arriving at floor 568 and leading every board it stands on. **760 of health against
+ * 26 of attack is a ratio of 29.2** — the heaviest of the three carriers, and the one that makes band
+ * 4 a different band rather than band 3 with an extra body.
+ *
+ * ⚠️ **It leads because a health carrier bills what is _aimed at_**, at 3.02 of five in front against
+ * 3.63 behind — the opposite sign to an `attackSpeed` carrier, which bills what is left alive, and a
+ * shrinking spread where a `dodge` carrier's grows. **Carry the measurement, never the precedent.**
+ */
+export const TIDELESS_MAW = {
+  id: 'tideless-maw',
+  name: 'Tideless Maw',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 760,
+    atk: 26,
+    def: 26,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.7,
+    physicalPierce: 0.18,
+  },
+  skills: [AND_STILL_MORE_OF_IT],
+} as const;
+
+/**
+ * Every hundred floors of this tower has ended with something the jaws could not finish. This is the
+ * one they could not start.
+ *
+ * The roof. ⚠️ **880 of health against 16 of attack is a ratio of 55.0, which does not step _past_ the
+ * register — it lands exactly _on_ it**, tying {@link THE_NEVERMARK}'s 55.0, the coldest block the game
+ * ships. That is the Elf third hundred's shape rather than the Monster third's: the band is authored
+ * inside the register (19.1, 24.2 and 29.2 on the three carriers, against a p90 of 21.8) and only the
+ * roof reaches its ceiling — well past its own faction's previous ceiling of
+ * {@link SHALEBED_CRAWLER}'s 45.8, and past the band table it closes.
+ * ⚠️ **Lighter than the anchor it succeeds — 880 against {@link THE_UNQUENCHED}'s 900 — and that is
+ * arithmetic rather than timidity**: an `ascended` block climbs at `perLevel.ascended` 1.024 where a
+ * mono-faction Monster five is mostly `common` at 1.021, so across the forty-seven levels this hundred
+ * spans an anchor gains about ×1.15 on the crew.
+ *
+ * ⚠️ **The seven towers' last-floor anchors, as a list rather than a superlative, because the claim has
+ * gone stale four times**: The Heartshake 560/16, The Undermost 580/36, The Casehardened 780/24,
+ * **The Unswallowed 880/16** (this), The Unlacing 950/48, The Headlong 1050/25, The Unstruck 1250/44 —
+ * the last two of which are still *fifth*-hundred roofs while the round is in flight. **The weight a
+ * roof is allowed is what is left after the grade**, and this one is wearing Relic 100. ⚠️ **It ties
+ * the Heartshake's 16 for the lightest roof on attack in the game and is the heaviest of the five
+ * sixth hundreds on health** — read the list rather than the sentence once the round closes.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. It restores
+ * nothing, carries no taunt, and the board it stands on carries no heal, drain, shield, `regen`,
+ * `lifeLeech`, `recovery` or `healthRegen` — the roof rule this tower has kept since floor 291.
+ */
+export const THE_UNSWALLOWED = {
+  id: 'the-unswallowed',
+  name: 'The Unswallowed',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 880,
+    atk: 16,
+    def: 34,
+    haste: 88,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.2,
+  },
+  skills: [IT_WILL_NOT_GO_DOWN],
+} as const;
+
 export const ENEMIES = [
+  FENGORGED_WALLOWER,
+  SILTFAT_BROODER,
+  TIDELESS_MAW,
+  THE_UNSWALLOWED,
   SLIME,
   WISP,
   BOAR,

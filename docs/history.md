@@ -363,6 +363,44 @@ boundary is only a reprieve on a hundred whose gear is flat.** The tower:campaig
 recomputed by hand rather than carried, is **2.804** with three towers extended (1,178,900 against
 420,500); a completed round is 3.101. Full findings in [towers](towers.md).
 
+⚠️ **The Glut — the Monster Tower's sixth hundred — is the fifth of the fifth round, and it is the
+first hundred in the project taken on _nothing but_ affordability.** Forty candidates were priced
+across all fourteen shipped arrangements at band 6 — seventeen stats, twelve statuses and mechanics, a
+burst cadence at held damage per second, a second `ascended` anchor and, for the first time in
+thirty-three hundreds, the damage **type** the board deals. **The Monster fives rank tenth to
+fourteenth of fourteen on every one of them** but `physicalResist`, where they are fifth and seventh —
+down from second and third at band 5, and now behind the crew whose own sixth hundred took that stat
+one session earlier. Fitting the fight-length confound moves them at most one place. **Neither
+exclusivity, margin nor the residual was available**, which is the Ironpace's finding arriving a third
+time on one tower and the first time with nothing left over.
+
+⚠️ **What was left is the clock.** The axis is enemy **health at held attack** — the trade's
+_duration_, where the five hundreds below all attack its _input_ — and it grades nine monotone steps in
+value (3.95 → 1.25 and 3.70 → 1.18 across ×1.0 → ×3.4) and five in carrier count, at a 100% win rate
+with **zero timeouts on every row**. Of the ten arrangements above the Monster fives on it, **dwarf-alt
+runs 58.1s, angel-alt 54.5s, dwarf-ref 53.1s and angel-ref 39.4s** against a 60-second mean bar, where
+the Monster fives pay 27.6s and 30.9s: **the crews the axis belongs to are the crews whose towers
+cannot author it.** ⚠️ **That is the first time affordability has licensed a _weight_ axis**, which is
+this tower's own fourth-hundred warning — "weight axes belong to whichever crew is slowest" — answered
+rather than ignored.
+
+⚠️ **On a health axis the `tank` archetype switches the axis _off_** — all-`tank` 3.00 of five against
+all-`ranger` 2.00 at an identical stat line, because a pool with nothing billing it is a long fight
+rather than a hard one, so not one carrier wears `tank`. ⚠️ **And a health carrier bills what is
+_aimed at_ with a spread that _shrinks_ as the pool grows**: 3.02 in front against 3.63 behind at ×1.8,
+2.98 against 3.05 at ×3.0 — a fourth distinct answer to the rank question in four hundreds, and the
+opposite direction to the Processional's dodge, whose spread grew. ⚠️ **The retirement check took the
+whole `ascended` roster**: all seven of the fourth and fifth hundreds' anchors read 0% for both
+arrangements at floor 600 behind four light commons, and the floor-500 board carried there reads 0% /
+0%. The Tyrant still anchors floors 502–520, and **no board above 520 carries an `ascended` block at
+all** until the roof. ⚠️ **The flat-spread ceiling bit again on the one tower with no lean** — a first
+pass at 78.8% Monster took it to 22.69% against a 25% bound, corrected to 60.0% and **19.50%** — and
+what stops it going lower is that the coldest bodies in the game are all Monster. `THE_UNSWALLOWED`
+ships at **880/16**, a health-to-attack ratio of exactly **55.0** — tying `THE_NEVERMARK` for the
+coldest block the game has, with the band below it authored inside a p90 of 21.8. The tower:campaign crystal ratio, recomputed by hand rather than carried, is **2.952** with
+five towers extended (1,241,500 against 420,500); a completed round is 3.101. Full findings in
+[towers](towers.md).
+
 ⚠️ **The Riving — the Undead Tower's sixth hundred — is the fourth of the fifth round, and its axis
 is the half of crit a neighbouring tower separated out and declined.** Enemy `critDamageAmp` — the
 **size** of a blow rather than how often one lands — authored **above** its shipped ceiling of 1.15 on
