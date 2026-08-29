@@ -1,7 +1,9 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twenty-three chapters and one thousand
-and ninety stages** — 10, 20, 30, 40, then fifteen of fifty and four of sixty. Read [`core/ladder.ts`](../src/core/ladder.ts) before
+The campaign, and how a run's position in it is expressed. **Twenty-nine chapters and one thousand
+four hundred and fifty stages** — 10, 20, 30, 40, then fifteen of fifty and ten of sixty. ⚠️ **That
+count was wrong here by three chapters and a hundred and eighty stages when chapter 26 read it**, so
+recompute it rather than quoting it. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
 
 The first six chapters are the two hundred stages the four-chapter cut carried, re-cut in milestone
@@ -30,7 +32,45 @@ returning blocks' **attack** rather than their weight. Chapter 24 is **The Never
 on it again, and which found that **a filter on weight and attack is not a pool count**: screening
 the 302 shipped blocks the way chapter 23 described leaves 15, all Monster, where _fielding_ them
 leaves 121 across all seven factions. It is also the chapter that inverted chapter 21's `tenacity`
-reading — declined there as flat, and the only six-step dial available here.
+reading — declined there as flat, and the only six-step dial available here. Chapter 25 is **The
+Thinground**, the campaign's **third override**, moving the rung to **`ascended`** — and the first
+where the two halves of the override licence disagreed: its seam _below_ is 1.0711, **above** 1.00,
+so what licenses it is the pool alone (4 of 312 blocks stand at level 605 against a `mythic-plus`
+five, 282 against an `ascended` one). It is also the first chapter to choose its axis on **fight
+length** rather than on survivors. Chapter 26 is **The Roughcast**, which **stays** on `ascended` —
+and is the first chapter for which the rung question has no tuning answer left at all, because
+`ascended` is the last rung whose cap the ladder has not already climbed past. Its axis is enemy
+`critChance`: the same stat chapter 23 built a chapter on, measured from the **other side of the
+board**, and licensed by the party's own register (`critBlock` Σ0.05, `critDamageResist` Σ0.15,
+`tenacity` Σ0.00 across five) rather than by the enemy pool's. Chapter 27 is **The Looseline**, which
+stays on `ascended` for the same reason and takes the degenerate stretch to **three links** — the
+first stretch in the campaign's history that no rung move can end, because there is no rung left to
+move to. Its axis is enemy `dodge`, and it is the first chapter whose **lean carries none of its own
+axis**: 0 of the 54 shipped Human blocks carried a point of it. It is also the first chapter that has
+to author a stat **below** its shipped ceiling — `dodge` runs to 0.55 in the pool and to 0.34 here —
+because that ceiling was set at enemy levels 15 to 236 against parties that could still buy accuracy.
+Chapter 28 is **The Windthrow**, which stays on `ascended` for the third chapter running and takes the
+degenerate stretch to **four links**, level with the deepest the campaign has ever had. Its axis is
+enemy `attackSpeed` — swing speed rather than casting frequency, because it accrues only after a basic
+attack — and it is the **first axis in the campaign to grade in both value and carrier count**, which
+is what a six-band chapter wants. ⚠️ **It is also the exact inverse of The Looseline's register
+finding**: all four shipped `attackSpeed` carriers are Elf, the chapter leans Elf, and **not one of
+them is light enough to stand on a single board in it** — owning a register and being able to field
+it are different things.
+
+Chapter 29 is **The Overburden**, which stays on `ascended` for the fourth chapter running and takes
+the degenerate stretch to **five links**. ⚠️ **It is the chapter where the stat vocabulary ran out.**
+Its axis is enemy `def` — the last stat in the block that had never been a chapter's premise, after
+chapter 23 took all four mitigation stats at once and 24 through 28 took `tenacity`,
+`physicalPierce`, `critChance`, `dodge` and `attackSpeed`. Everything else either belongs to a
+shipped chapter, reads 0.00 against the calibrated five (`accuracy`, `magicPierce`), is a forbidden
+shape (sustain) or is a design reversal (an enemy `ultimate`). What it found: **a defensive stat
+grades in value and an offensive one grades in carrier count**, so this cannot be the two-dimensional
+dial chapter 28 had; **armour on a heavy body is the ninety-second clock**, so a Dwarven chapter
+about armour has to put it on the light bodies; and **a lone `def` carrier is rank-neutral** — the
+third chapter running to price a lone carrier's rank and the first to get no answer at all. ⚠️ **It
+is also the chapter that retired `levels.spec.ts`'s rung-headroom guard and answered the roadmap
+question behind it: the campaign's ceiling is chapter 38**, unless the ascension ladder grows.
 See [authoring](authoring.md).
 
 ## The shape
@@ -342,13 +382,44 @@ buys about two and a half chapters — and `mythic` was projected to buy three a
 and a half. **Measure the pool before re-deriving the seam.** The next rung, `ascended`, caps at 500
 and is the last the campaign can spend.
 
-⚠️ **Chapters 22, 23 and 24 all clamp to `mythic-plus`'s cap of 420, so the degenerate chain is two
-links deep and a third is due at chapter 25.** The Nevermark's last board stands **a hundred and
-fifty-five levels** above the cap — ×24.63 — and its seam of **1.0711** is the first this rung has
-produced within a tenth of 1.00. **Chapter 25 reads 0.5733, below 1.00, which is the first half of
-an override licence.** The second half is the pool, and chapter 21 declined an override on exactly
-that reading because its chapter was still authorable — so **measure the pool by fielding it, not by
-filtering it**, which is the mistake chapter 24 caught itself making.
+⚠️ **Chapters 22, 23 and 24 all clamped to `mythic-plus`'s cap of 420, so the degenerate chain
+reached two links, and chapter 25's rung move ended it.** The Nevermark's last board stands **a
+hundred and fifty-five levels** above that cap — ×24.63 — and its seam of **1.0711** is the first
+this rung produced within a tenth of 1.00.
+
+⚠️ **Chapter 25 moved to `ascended`, and it is the case where the two halves of the override licence
+came apart.** Its own seam on `mythic-plus` reads **0.5740**, under 1.00 — but the seam _below_ it is
+**1.0711, above** 1.00, so the arithmetic half of the licence was **not** met, and chapter 21 declined
+an override on exactly that shape. What settles it is the pool, measured by **fielding** all 312
+shipped blocks beside four light escorts at level 605: **4 stand against a `mythic-plus` five, every
+one of them a Monster, and 282 against an `ascended` one**, across all seven factions. Chapter 24's
+own opening board, mid board and final all read **0%** refielded at 605. **There is no chapter 25 on
+`mythic-plus`, and the pool has now settled all three of the campaign's overrides.**
+
+⚠️ **`ascended` is the last rung whose cap the ladder has not already climbed past, so the rung
+question stops having a tuning answer here.** ⚠️ **Chapter 26 is the first chapter to live in that,
+and what it means in practice is that every chapter from here is pure squeeze** — thirty levels of
+board against a party frozen at cap 500, ×1.8654 a chapter, with the seam degenerate and **no rung
+move able to end it**, unlike the four degenerate stretches before it. The Roughcast reads 2.5971
+against `ascended-1`'s 33.2031, a preference for staying put of **1.30 nats**, the widest any chapter
+has had. `ascended` caps at 500 against chapter 25's close of
+605; `ascended-1` caps at **600**, five levels under that close, and reads a seam of **61.94** — a
+walkover by two orders of magnitude, by construction rather than by tuning. Chapter 26 inherits
+**4.8443**, 27 reads **1.3922** and 28 **0.7463** — both landed as projected. A chapter that cannot be
+authored on `ascended` is a `data/` question about `LEVEL_CURVE.caps` rather than a chapter.
+
+⚠️ **Three chapters have now read the same 1.30-nat preference for staying put, so it has stopped
+being a finding and become a constant.** Chapter 26 read 2.5971 against `ascended-1`'s 33.2031,
+chapter 27 1.3922 against 17.7995 and chapter 28 **0.7463 against 9.5419** — the ratio is exactly
+`1.6 / perLevel.common ** 100`, fixed by the hundred levels between `ascended`'s cap and
+`ascended-1`'s, so it will read 1.30 for every chapter from here. **Compute it once and quote it;
+re-deriving it a fourth time is not learning anything.** The seam itself keeps halving on the old
+arithmetic: chapter 29 projects **0.4001** and chapter 30 **0.2145**.
+
+⚠️ **The degenerate stretch reached four links at chapter 28** — `THINGROUND`, `ROUGHCAST`,
+`LOOSELINE` and `INVESTED` are one set of five — level with the deepest the campaign has ever had, on
+`mythic` at chapters 18 through 21. The difference is that that one was closed by a rung move and this
+one cannot be. **Expect a fifth link at chapter 29 and one more every chapter after that.**
 
 ## ⚠️ Two guards that measured "the ladder must not consume the curve" were retired
 

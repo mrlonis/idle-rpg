@@ -1034,11 +1034,17 @@ export interface StageEncounterData {
    *
    * ⚠️ **A stage that declares this must field only archetypes that declare a
    * {@link EnemyData.gearArchetype}**, or the bodies that do not silently fight naked on a board
-   * tuned as though they were not. `chapters.spec.ts` is what catches it.
+   * tuned as though they were not. `chapters.spec.ts` catches it on the campaign and
+   * `towers.spec.ts` on the towers.
    *
-   * Campaign only, deliberately. Towers, the Descent and Expeditions never author it, so they are
-   * untouched by construction — the tower sweep crews two thousand one hundred floors with
-   * ungeared parties at pinned rungs, and putting gear on that side is its own retune.
+   * ⚠️ **No longer campaign-only, and the Human Tower's fourth hundred is the exception.** The
+   * Descent and Expeditions still never author it. A tower does not author it *here* either — it
+   * authors a **ramp** in `TowerRulesData.gear` and `floorGear` derives the pair per floor, because a
+   * hundred grade-and-level pairs following a curve is the retyping
+   * [testing](../../../docs/testing.md) forbids. The ramp is keyed to a **floor** rather than a level
+   * so the 2,200 floors that were tuned naked stay naked; see [towers](../../../docs/towers.md) for
+   * why a tower's ramp cannot be read off the campaign at matched level, and why a full grade ramp is
+   * escalation there where the campaign measured it as texture.
    */
   readonly gear?: EnemyGearData;
 }

@@ -1,13 +1,12 @@
 @if (crew(); as crew) {
   <header class="head">
     <!--
-      The back link names its destination rather than saying "Back". Where it goes depends on why
-      the screen was opened: preparing for a fight came from Home, and arranging a crew came from
-      the formations index. Both are real places the player was, so neither is history-dependent.
+      The back link names its destination rather than saying "Back". Preparing for a fight came
+      from Home; arranging a crew came from whichever screen the `from` parameter names — the
+      formations index, the Descent, or an expedition map. All are real places the player was, so
+      none of them is history-dependent.
     -->
-    <a class="head__back" [routerLink]="prepare() ? '/' : '/formations'">
-      ← {{ prepare() ? 'Home' : 'Formations' }}
-    </a>
+    <a class="head__back" [routerLink]="back().path">← {{ back().label }}</a>
     <h1 class="head__title">{{ prepare() ? 'Before you fight' : crew.activity.name }}</h1>
     <p class="head__summary">
       @if (prepare()) {
@@ -194,7 +193,9 @@
   }
 } @else {
   <header class="head">
-    <a class="head__back" routerLink="/formations">← Formations</a>
+    <!-- The same origin-aware exit as the editor's: a stale activity id that arrived from the
+         Descent should still send the player back to the Descent. -->
+    <a class="head__back" [routerLink]="back().path">← {{ back().label }}</a>
     <h1 class="head__title">No such activity</h1>
   </header>
   <p class="empty" role="status">

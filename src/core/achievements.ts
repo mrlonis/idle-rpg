@@ -177,10 +177,16 @@ function wholeCount(value: number): number {
  * The counter a track is paid against, as a whole value plus its sub-unit progress.
  *
  * ⚠️ **A chapter is not an interval of stages, and that is why this exists rather than a track
- * authored `every: 50`.** Chapter length is a band function — fifty stages through chapter 10,
- * sixty from chapter 11, up to the two hundred `CHAPTER_CURVE` caps at — so a fixed interval over
+ * authored `every: 50`.** Chapter length is a band function — ten, twenty, thirty and forty stages
+ * for chapters 1 to 4, then fifty for chapters 5 through 19, then sixty from chapter 20, because the
+ * cap `CHAPTER_CURVE` applies is a **schedule** rather than a constant — so a fixed interval over
  * `clearedStages` is correct only for the band it was written in and then drifts off the chapter
- * boundary silently, paying a "chapter" award ten stages into the next one. Counting the chapters
+ * boundary silently, paying a "chapter" award ten stages into the next one.
+ *
+ * ⚠️ **This paragraph named the wrong boundaries and the wrong cap until chapter 25's prose check**
+ * — "fifty through chapter 10, sixty from chapter 11, up to two hundred" — and the identical wrong
+ * sentence sat in `data/achievements.ts` beside it. Nothing was ever red, because the argument the
+ * sentence supports is sound at any chapter length. **Check the claims a file already makes.** Counting the chapters
  * the run has actually finished is right at every size, and it costs no stored field: chapter
  * lengths are content the ladder already carries.
  *

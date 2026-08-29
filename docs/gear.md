@@ -303,9 +303,11 @@ The Slowgrowth at eight hundred — **20.3%** — taking it to **400**; The Back
 fifty, taking it to **425**; The Commonage at nine hundred and ten, taking it to **455**; and The
 Longebb at nine hundred and seventy — **20.3%** — taking it to **485**; The Downstroke at one
 thousand and thirty, taking it to **515**; The Evenfall at one thousand and ninety, taking it to
-**545**; and **The Nevermark at one thousand one hundred and fifty — 20.0% — taking it to 575**.
-Every one restores 18.7% over the ladder that actually ships. Same move, longer ladder, seventeen
-times now.
+**545**; **The Nevermark at one thousand one hundred and fifty — 20.0% — taking it to 575**; and **The
+Thinground at one thousand two hundred and ten — 20.1% — taking it to 605**; and **The Roughcast at
+one thousand two hundred and seventy — 20.1% — taking it to 635**.
+Every one restores 18.7% over the ladder that actually ships. Same move, longer ladder, **twenty
+times now**.
 
 ⚠️ **A chapter-24 session nearly retired the guard instead of making the move, and the near-miss is
 the most useful thing that chapter learned about this file.** `git log -S` over `gear.spec.ts` shows
@@ -314,18 +316,20 @@ threshold nobody maintains, and the conclusion drawn from it was that both its a
 ladder length and should be replaced with assertions about shape. **That is the wrong way round.**
 The bound has never moved _because it is not supposed to_; `gradeSoftness` moves to meet it, by hand,
 once a chapter, precisely so this bug stays visible. Retiring it would have deleted the only thing
-that has kept the saturating tilt on the record for seventeen chapters — and it would have looked
+that has kept the saturating tilt on the record for twenty-two chapters — and it would have looked
 like tidying up. ⚠️ **Check both sides of a guard before calling it stale: the half that moves may
 not be the half the guard is written in.**
 
-⚠️ **Fifteen re-derivations landing on the same 18.7% is the tell that the number is being solved for
+⚠️ **Twenty-two re-derivations landing on the same 18.7% is the tell that the number is being solved for
 and the shape is not.** ⚠️ **Chapter 19's landing is the first that was _predicted in writing_ a
 chapter ahead** — `data/gear.ts` said "Chapter 19 lands on it again and will want 425" and it wanted
 425 — which retires the last reading under which this might have been noise. ⚠️ **Chapter 20's
 prediction of 450 was the first _wrong_ one, and only because it assumed a fifty-stage chapter**: The
 Commonage is sixty, so the ladder reached 910 and the answer was 455. The rule held and the
 arithmetic behind the guess did not. **Predict from `CHAPTER_CURVE`, not from the last chapter's
-length** — chapter 21's prediction of 485 was made that way and was right, and chapter 22 wanted 515, chapter 23 545 and chapter 24 575; **chapter 25 will want 605.** The solution is always `gradeSoftness = stages / 2` — the value at which the
+length** — chapter 21's prediction of 485 was made that way and was right, and chapter 22 wanted 515, chapter 23 545, chapter 24 575, chapter 25 605, chapter 26 635, chapter 27 665
+and chapter 28 695 and chapter 29 725 — **nine correct predictions
+running since chapter 20's miss, each checked a chapter ahead; chapter 30 will want 755.** The solution is always `gradeSoftness = stages / 2` — the value at which the
 tilt equals exactly 3.0 — so this is not a tuning constant at all, it is the ladder's length halved
 and written down by hand once a chapter. A tilt linear in the stage index has no ceiling, so the top
 grade's share climbs without bound and no constant is right for more than one chapter. What this eventually wants is a tilt that **saturates** — a share that approaches a
@@ -534,8 +538,34 @@ and a refusal would mean "your bag is full" blocking a purchase whose fix is a c
 ## Enemies and gear
 
 **Enemies wore none until chapter 12, and from The Rustwood on a campaign stage may author a set.**
-Below chapter 12, and on every tower floor, every Descent board and every Expedition, difficulty on
-that side of the board is still purely the stage's `level` against the archetype's tier.
+Below chapter 12, and on every Descent board and every Expedition, difficulty on that side of the board
+is still purely the stage's `level` against the archetype's tier.
+
+⚠️ **The towers left that list at the Human Tower's fourth hundred, and it is the first geared content
+outside the campaign.** A tower does not author a set per floor — it authors a **ramp** in
+`TOWER_RULES.gear` (a first floor and two endpoints) and `floorGear` derives the pair, for the reason a
+floor's _level_ is derived. Floors 301–400 run **Worn 1 → Fine 60**; every other floor of every tower is
+still naked, which is what the ramp being keyed to a **floor** rather than a level guarantees.
+
+⚠️ **The ramp is one rule for all seven towers, and that has a consequence for authoring: only the
+_first_ geared hundred may spend it as its escalation axis.** Every hundred after inherits it for free and
+owes an axis of its own on top — the Dwarf Tower's fourth hundred is the second to land and its axis is
+`physicalPierce` against the deepest armour in the game, with the ramp as texture underneath. ⚠️ **What a
+geared hundred does get that a naked one does not is the _archetype allocation_**: `GEAR_PROFILES` splits
+each archetype's budget differently, so the same authored stat line in `mage` or `ranger` gear is a
+different board from one in `tank` gear once the grade prices it. Measured on a Dwarf board at the roof's
+level in Fine 60, identical stat lines all-`tank` / `support` / `brawler` / `ranger` / `mage` read
+4.00 / 4.00 / 3.98 / **3.67** / 3.75 for the binding crew, and the attack-and-haste profiles take **7.2
+seconds** off the fight — worth a third of a survivor, so it is texture rather than an axis, but it is the
+one lever that lets a clock-bound crew be pressured without being slowed. See [towers](towers.md).
+
+⚠️ **The "gear is texture" figures below do not transfer to a tower, and the reason is the board
+underneath them.** Every measurement in this section was taken while the campaign's board budget was
+falling 0.595 a chapter _underneath_ the ramp. A tower's budget does not fall like that, and holding a
+board still while adding the same gear is enormous: at the Human Tower's roof level, Worn 1 costs the
+binding crew **0.82 of five**, Sturdy 20 takes it to 93% with 1.05, and Fine 60 on an unlightened board
+reads **0%**. **State whether the board under a gear figure was being lightened.** See
+[towers](towers.md).
 
 ⚠️ **A chapter picks up the grade ladder where the last one left it, and the level does not restart
 at 1.** The Rustwood closed on Worn 20, worth `1.00 × (1 + 0.055 × 19)` = **2.045**; Sturdy at level 1

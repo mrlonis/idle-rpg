@@ -177,7 +177,9 @@
       <span class="party__count">{{ standing() }} of {{ partySize }}</span>
     </h2>
     @if (run() === null) {
-      <a class="party__link" [routerLink]="crewLink">Arrange your crew →</a>
+      <a class="party__link" [routerLink]="crewLink" [queryParams]="{ from: crewFrom() }">
+        Arrange your crew →
+      </a>
     }
     @if (members().length === 0) {
       <p class="empty">Nobody is standing. Arrange a crew above.</p>

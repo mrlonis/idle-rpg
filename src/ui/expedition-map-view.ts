@@ -6,6 +6,7 @@ import { characterById } from './content';
 import { type DescentCardView } from './descent.service';
 import { ExpeditionService, type ExpeditionTileView } from './expedition.service';
 import { FormationService } from './formation.service';
+import { expeditionOrigin } from './navigation';
 
 /** Expeditions' crew key, which is also the activity id and the formation-book key. */
 const EXPEDITION_ACTIVITY = 'expedition';
@@ -88,6 +89,12 @@ export class ExpeditionMapView {
 
   /** Where the crew is arranged. The editor, never duplicated here — the Descent's rule. */
   protected readonly crewLink = ['/formations', EXPEDITION_ACTIVITY];
+
+  /**
+   * This map's screen, named as the editor's origin so its back link returns *here* — every map
+   * shares one crew, but the player left from a particular map and goes back to it.
+   */
+  protected readonly crewFrom = computed(() => expeditionOrigin(this.mapId()));
 
   /**
    * The party, named, with how much health each still carries — the run's own copy once one

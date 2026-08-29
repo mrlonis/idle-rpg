@@ -5,6 +5,7 @@ import { BattleService } from './battle.service';
 import { characterById, factionList, factionName } from './content';
 import { DescentService, type DescentCardView, type DescentFightView } from './descent.service';
 import { FormationService } from './formation.service';
+import { type ScreenId } from './navigation';
 
 /** The Descent's crew key, which is also its activity id and its formation-book key. */
 const DESCENT_ACTIVITY = 'descent';
@@ -63,6 +64,9 @@ export class DescentView {
 
   /** Where the crew is arranged. The editor, never the pre-battle route — see the class note. */
   protected readonly crewLink = ['/formations', DESCENT_ACTIVITY];
+
+  /** Named so the editor's back link returns here rather than to the formations index. */
+  protected readonly crewFrom: ScreenId = 'descent';
 
   /** Today's three factions, spelled out. */
   protected readonly lockNote = computed(() => factionList(this.descent.lock()));

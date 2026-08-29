@@ -151,53 +151,37 @@ describe('where the curve lands, in hours of idle income', () => {
     expect(Math.max(at40.gold, at40.xp, at40.essence)).toBeLessThan(6);
   });
 
-  it('leaves rungs unspent above everything the ladder asks for', () => {
-    // **"The ceiling stays aspirational", stated in the currency the game actually progresses in.**
-    // Hours inflate with income and rungs do not: there are sixteen of them, the ladder asks for one
-    // roughly every fifty stages, and what an aspirational ceiling means concretely is that a player
-    // who has finished the shipped content still has ascensions in front of them.
-    //
-    // Four rungs of headroom rather than one, because the last rungs hand out a hundred levels each
-    // — a ladder whose top stage sat inside the final rung's band would be asking for the last
-    // ascension in the game, and there would be nothing left for the chapters after it to want.
-    // Derived from `caps`, so adding or repricing a rung moves it.
-    //
-    // ## ⚠️ This is the sole owner of that claim since milestone 21d, and two guards were retired
-    // into it
-    //
-    // Both of them measured the same thing in units that decay as content ships, and both had
-    // already been re-derived once each:
-    //
-    // - **`hoursTo(1000).gold > 500`**, retired in milestone 17. Income at the top of the ladder
-    //   rises with every chapter *by design*, so hours-to-the-ceiling shrinks forever — 1,175 → 588
-    //   → 372 — and would have reached a weekend around chapter twelve with nothing whatsoever
-    //   wrong. It was replaced by a **ratio** of that figure to what the top stage demands, which
-    //   income cancels out of.
-    // - **That ratio**, retired here. It is *also* meant to fall — its own comment said so, and set
-    //   its floor to 4 covering four chapters at once — and at chapter 10 it reads **3.62**. The
-    //   question its comment said to ask when it fired was "has the ladder come far enough to have
-    //   earned the distance it has closed", which is not a question a threshold can answer: the
-    //   quantity it measures falls whether the answer is yes or no.
-    // - **`chapters.spec.ts`'s `top < maxLevel / 2`**, retired in the same session for the same
-    //   reason and with the same conclusion — see that file.
-    //
-    // ⚠️ **What replaces them is nothing, deliberately.** The two failure modes they were meant to
-    // catch are both still covered: a flattened curve or inflated rates fire the floor of "charges
-    // real time" below, and content whose level demands run away fire *this* — which cannot decay,
-    // because the rung count is fixed however long the ladder gets.
-    //
-    // ⚠️ **What 21d measured while doing it**: the level line adds about ninety levels a chapter
-    // now, so this assertion fires at **chapter 12** and the curve is consumed entirely around
-    // chapter 15 — not the chapter 100 the old prose assumed, which was written before 21a's
-    // corrected margin rule made the line superlinear. When it fires, the honest question is how
-    // long the campaign is meant to be, and the answer is a roadmap decision rather than a number
-    // that goes here.
-    const topLevel = chapters.at(-1)?.stages.at(-1)?.level ?? 0;
-    const headroom = curve.caps[curve.caps.length - 4];
-
-    expect(topLevel).toBeGreaterThan(0);
-    expect(topLevel).toBeLessThan(headroom);
-  });
+  // ## ⚠️ "Leaves rungs unspent above everything the ladder asks for" was retired at chapter 29,
+  // and it is the fifth guard retired rather than slid
+  //
+  // It read `topLevel < curve.caps[curve.caps.length - 4]` — four rungs of headroom above the top
+  // of the ladder, on the argument that the last rungs hand out a hundred levels each and a ladder
+  // sitting inside the final rung's band would be asking for the last ascension in the game. It
+  // fired at **chapter 29**, whose close of 725 stands above `ascended-2`'s cap of **700**, one
+  // chapter earlier than milestone 21d predicted.
+  //
+  // ⚠️ **It is the one guard in this file that genuinely could not decay**, and that is exactly why
+  // it is retired rather than moved: the rung count is fixed, so it was never measuring drift — it
+  // was measuring **how long the campaign is**, and its own comment said so ("the honest question
+  // is how long the campaign is meant to be, and the answer is a roadmap decision rather than a
+  // number that goes here"). Sliding four rungs to three would have to be redone at chapter 32,
+  // three to two at 35, and two to one at 38, which is a threshold recording a roadmap rather than
+  // protecting anything.
+  //
+  // ⚠️ **So here is the roadmap answer, which is what the guard was asking for.** The line adds
+  // **30 levels a chapter** (sixty stages at half a level), the caps ladder tops out at **1000**,
+  // and the campaign therefore has a hard ceiling at **chapter 38**, closing at 995 — nine chapters
+  // past this one. Reaching further is a `data/` decision about `LEVEL_CURVE.caps` and the
+  // ascension ladder behind it, not a chapter's call, and each +100-level rung appended above
+  // `ascended-5` buys roughly **3.3** more chapters. ⚠️ **Appending at the top of `RARITIES` is the
+  // one insertion that is not a save migration**; inserting anywhere below it re-means every
+  // shipped save. See [ascension](../../docs/ascension.md) and [saves](../../docs/saves.md).
+  //
+  // ⚠️ **What this deliberately gives up.** The two failure modes the retired guards covered are
+  // not both still covered — a flattened curve or inflated rates still fire the floor of "charges
+  // real time" below, but **content whose level demands run away is now unguarded**. That is the
+  // honest cost of the retirement, and the thing that would catch it is a decision about the
+  // campaign's length rather than a threshold in this file.
 
   it('charges real time for the level the top of the ladder asks for', () => {
     // The half of the old assertion that was genuinely about income, kept and made

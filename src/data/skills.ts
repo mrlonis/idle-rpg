@@ -7992,7 +7992,2751 @@ export const LEAVE_NO_MARK = {
   priority: 3,
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Thinground — chapter 25
+//
+// Ten turns for ten Undead blocks, and the chapter's axis is a **stat** rather than a status:
+// `physicalPierce` is the one reading at level 605 that grades in ten monotone steps *and* in
+// carrier counts, with the fight length flat across the whole range. So these turns are
+// deliberately plain — a scope, a reach, and eight single-target blows — and the escalation lives
+// in the stat line each one is attached to.
+//
+// ⚠️ **One board-wide turn per board**, which is chapter 17's rule: {@link THE_ROAD_TAKES_ITS_SHARE}
+// is the chapter's only scope and it sits at the wide cap of 1.2, because `skills.spec.ts` refuses
+// anything heavier on `enemy-all` and chapter 22 priced a whole first pass on a skill the game does
+// not allow.
+//
+// ⚠️ **Exactly two `enemy-back` turns exist here** — {@link COUNT_THE_HOLLOW} and the lieutenant's
+// {@link NONE_COME_BACK} — and no board fields both, which is chapter 19's "two `enemy-back` turns
+// on one board is the party's back rank deleted" applied at the board rather than at the stat line.
+// ⚠️ Chapter 24 shipped that claim **false** because it checked only its own new blocks and missed a
+// returning body carrying one; the returning Undead blocks fielded here were screened for it.
+
+/** Band 1's habit. The one turn in the chapter attached to a body with no pierce at all. */
+export const GROUND_ALREADY_WALKED = {
+  id: 'ground-already-walked',
+  name: 'Ground Already Walked',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+export const SPEND_THE_RANK = {
+  id: 'spend-the-rank',
+  name: 'Spend The Rank',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+export const WEAR_IT_THROUGH = {
+  id: 'wear-it-through',
+  name: 'Wear It Through',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** The wall's turn: slow, heavy, and the body carrying it is the one the party has to dig out. */
+export const NO_NUMBER_HOLDS = {
+  id: 'no-number-holds',
+  name: 'No Number Holds',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The fast body's turn, and the reason the closing bands read as a step up on the probe.
+ *
+ * ⚠️ **The difficulty probe reads throughput and a refusal stat is invisible to it**, which is
+ * chapter 24's finding arriving on a different lock. A first draft of the late bands let `atk` and
+ * `haste` fall as `physicalPierce` rose; this turn and the body under it are what keep the spine
+ * climbing where the probe can see it.
+ */
+export const THIN_THE_RANK = {
+  id: 'thin-the-rank',
+  name: 'Thin The Rank',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** One of the chapter's two `enemy-back` turns. No board fields it beside {@link NONE_COME_BACK}. */
+export const COUNT_THE_HOLLOW = {
+  id: 'count-the-hollow',
+  name: 'Count The Hollow',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_ROAD_TAKES_ITS_SHARE = {
+  id: 'the-road-takes-its-share',
+  name: 'The Road Takes Its Share',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+export const WHAT_FEW_REMAIN = {
+  id: 'what-few-remain',
+  name: 'What Few Remain',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const FEWER_EVERY_MILE = {
+  id: 'fewer-every-mile',
+  name: 'Fewer Every Mile',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's reach, and the second of the chapter's two `enemy-back` turns.
+ *
+ * ⚠️ **Not conditioned, and that is a departure from the shape [authoring](../../docs/authoring.md)
+ * recommends for a lieutenant.** Chapter 24 measured all six condition kinds at **±0.08 of its
+ * control** and a condition on the payload axis at **−2.42** — a condition is a restriction on the
+ * board and the party is the beneficiary. Four appearances at rising levels are four different
+ * fights here because the *party* is thinner each time, not because the turn checks anything.
+ */
+export const NONE_COME_BACK = {
+  id: 'none-come-back',
+  name: 'None Come Back',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const CALL_THE_ROLL = {
+  id: 'call-the-roll',
+  name: 'Call The Roll',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.8 }],
+  cooldown: 70,
+  priority: 3,
+} as const;
+
+/** The boss's second turn, aimed where the chapter's question is: at whoever is nearly gone. */
+export const NOBODY_ANSWERS = {
+  id: 'nobody-answers',
+  name: 'Nobody Answers',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.3 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Roughcast — chapter 26
+//
+// Twelve turns for ten Monster blocks — one each for the eight ordinary blocks and two apiece for
+// the lieutenant and the boss — and the chapter's axis is a **stat** again: enemy `critChance` is
+// the one reading at level 620 that grades in nine monotone steps *and* in carrier counts, with zero
+// timeouts on every row. So these turns are deliberately plain — one scope, two reaches, one
+// selection and eight single-target blows — and the escalation lives in the stat line each one is
+// attached to.
+//
+// ⚠️ **The chapter is authored on the enemy's crit rather than on refusing the party's, and the
+// register check on _both_ sides is what licensed it.** Chapter 23 priced crit *denial* at 0.88 of
+// one member because only two of the calibrated five carry crit worth denying. Read from the other
+// side the same party carries `critBlock` **Σ0.05** and `critDamageResist` **Σ0.15** across five,
+// and `tenacity` **Σ0.00** — it has staked essentially nothing on refusing a crit, which is why the
+// identical stat that saturated as a lock grades as a threat.
+//
+// ⚠️ **One board-wide turn per board**, which is chapter 17's rule: {@link THE_WAY_IT_FALLS} is the
+// chapter's only scope and it sits at the wide cap of 1.2, because `skills.spec.ts` refuses anything
+// heavier on `enemy-all`.
+//
+// ⚠️ **Exactly two `enemy-back` turns exist here** — {@link FROM_WHERE_IT_FELL} and the lieutenant's
+// {@link NOTHING_TO_PLAN_FOR} — and no board fields both. Chapter 24 shipped that claim false by
+// checking only its own new blocks; the check here was run over the **fielded** bodies, which is
+// what catches a returning body carrying one.
+
+/** Band 1's habit. The one turn in the chapter attached to a body at the shipped crit median. */
+export const GROUND_THAT_GIVES = {
+  id: 'ground-that-gives',
+  name: 'Ground That Gives',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/** The wall's turn: slow and heavy, on the body the party has to dig out of the scree. */
+export const NOTHING_SETS_TRUE = {
+  id: 'nothing-sets-true',
+  name: 'Nothing Sets True',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const ILL_MET_AND_ILL_FALLEN = {
+  id: 'ill-met-and-ill-fallen',
+  name: 'Ill Met And Ill Fallen',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+export const THE_STONE_TURNS = {
+  id: 'the-stone-turns',
+  name: 'The Stone Turns',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * The fast body's turn, and the reason the closing bands read as a step up on the probe.
+ *
+ * ⚠️ **The difficulty probe reads throughput**, so a late band that pays for its lock by dropping
+ * `atk` and `haste` reads as a step *backwards* — chapter 24's `c24-s31` measured 0.792 against the
+ * 0.85 bar for exactly that reason. Enemy crit is the rare axis the probe **can** see, because it is
+ * throughput rather than refusal; this body is the margin on top of that rather than the whole
+ * repair, and it is what keeps the band openers clear of the bar.
+ */
+export const SHARP_AND_SUDDEN = {
+  id: 'sharp-and-sudden',
+  name: 'Sharp And Sudden',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** One of the chapter's two `enemy-back` turns. No board fields it beside {@link NOTHING_TO_PLAN_FOR}. */
+export const FROM_WHERE_IT_FELL = {
+  id: 'from-where-it-fell',
+  name: 'From Where It Fell',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_WAY_IT_FALLS = {
+  id: 'the-way-it-falls',
+  name: 'The Way It Falls',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+export const BREAK_WHERE_IT_WILL = {
+  id: 'break-where-it-will',
+  name: 'Break Where It Will',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const NO_TWO_THE_SAME = {
+  id: 'no-two-the-same',
+  name: 'No Two The Same',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's reach, and the second of the chapter's two `enemy-back` turns.
+ *
+ * ⚠️ **Not conditioned, which is a deliberate departure from the shape
+ * [authoring](../../docs/authoring.md) recommends for a lieutenant.** Chapter 24 measured all six
+ * condition kinds at **±0.08 of its control** and a condition on the payload axis at **−2.42** — a
+ * condition is a restriction on the board and the party is the beneficiary. Five appearances at
+ * rising levels are five different fights here because the board around it changes, not because the
+ * turn checks anything.
+ */
+export const NOTHING_TO_PLAN_FOR = {
+  id: 'nothing-to-plan-for',
+  name: 'Nothing To Plan For',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+export const COUNT_ON_NOTHING = {
+  id: 'count-on-nothing',
+  name: 'Count On Nothing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.7 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The boss's second turn, aimed where the chapter's question is: at whatever the party leaned on. */
+export const THE_WAY_IT_LANDS = {
+  id: 'the-way-it-lands',
+  name: 'The Way It Lands',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.2 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Human Tower's fourth hundred floors — the Panoply
+//
+// Four skills for four blocks, and **every one of them is a plain hit at the front rank**, which is
+// the same finding the third hundred recorded and the fifth tower to reproduce it. Measured against
+// both Human arrangements at the band-4 crew, one carrier on the geared roof control (1150/64 behind
+// four 700/46 at level 189 wearing Fine 60, reading **4.00 / 3.33**, and it moves), forty seeds:
+//
+// - **Aim past the front rank is inert or negative, again.** A reach on `enemy-back` at power 1.2
+//   reads 4.00 / 3.38 and wide damage at the cap reads 3.98 / **3.52** from the back rank against
+//   3.98 / 3.20 from the front — so the widest, furthest-reaching turn available leaves the board
+//   *easier* than the control. This is now the fifth tower to find it and the second time on this one:
+//   `NIGHT_RIDE`'s doc claim was corrected for exactly this reason.
+// - **Instance size is a weak dial here**, unlike on the Angel Tower where it was the whole axis:
+//   single-target power 1.35 / 2.20 / 3.10 at cooldowns 40 / 60 / 80 reads 3.38 / 3.27 / 2.70 against
+//   3.33 — worth −0.05, 0.06 and 0.63.
+// - **A selection is worth 0.23** (`enemy-lowest` at power 2.2, 3.10) where a **scope** `STUN` is
+//   worth **1.31** (2.02) — the scope-versus-selection gap holding at this weight, and the one
+//   mechanic on the list big enough to be load-bearing. It is spent on peaks and nowhere else.
+//
+// ⚠️ **So the turns are deliberately plain and the *gear* is the mechanic.** A status riding one of
+// these is texture; nothing here may carry a band. See `data/towers.ts` for the ramp and
+// `tower-human.ts` for what the floors do with it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They were buried with their kit. Somebody has been going back for it.
+ *
+ * The Worn band's turn, and the plainest in the hundred. ⚠️ **`enemy-front` rather than past it**, the
+ * correction the third hundred was built on and this one re-measured: reaching for `enemy-back` here
+ * is worth **−0.05 of five** and a wide turn from the back rank **−0.19**, because the weaker Human
+ * arrangement fields no tank and damage taken off its front row is time it did not have to buy.
+ */
+export const HARNESS_DRILL = {
+  id: 'harness-drill',
+  name: 'Harness Drill',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 42,
+  priority: 2,
+} as const;
+
+/**
+ * The weight is the argument. Everything else it does is incidental to the weight.
+ *
+ * The Sturdy band's turn, with a `SUNDER` rider that is **texture and priced as texture** — the whole
+ * status vocabulary measured within 0.14 survivors on this tower one hundred floors ago and nothing
+ * here re-opens that. What is actually escalating underneath it is the grade the board is wearing.
+ */
+export const PANOPLY_WEIGHT = {
+  id: 'panoply-weight',
+  name: 'Panoply Weight',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * A marshal in plate is still a marshal. The plate is the part that lasted.
+ *
+ * The Fine band's lieutenant turn. ⚠️ **Heavier than the two above it and still single-target**,
+ * because instance size grades **0.63 of five at power 3.10** here against the Angel Tower's 2.38 —
+ * the burst axis belongs to that tower and is nearly inert on this crew. The step up is the block's
+ * `def` and the grade it is wearing, not the swing.
+ */
+export const GRAVEPLATE_CRUSH = {
+  id: 'graveplate-crush',
+  name: 'Graveplate Crush',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: BLEED, chance: 0.5 },
+  ],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * The muster was called four hundred floors ago. This is everyone who came.
+ *
+ * The roof's own turn. ⚠️ **Conditioned on the party still being whole**, the shape
+ * {@link THE_HOUR_UNKEPT} uses one hundred floors below and for the identical reason — it front-loads
+ * the board's damage, and a fight decided early is a fight that *ends*. On a body wearing a full Fine
+ * set an unconditioned version is the ninety-second clock rather than a roof.
+ *
+ * ⚠️ **No healer, no regeneration and no drain on the roof**, the rule every roof in the game has kept
+ * since 15c measured what sustain on a last floor costs a party that cannot burst. The Reliquary
+ * Bearer's *shield* remains the deliberate exception on the floors below, because a pool banked once
+ * depletes where a heal refills.
+ */
+export const THE_PANOPLY_CLOSES = {
+  id: 'the-panoply-closes',
+  name: 'The Panoply Closes',
+  target: 'enemy-row-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.2 },
+    { kind: 'status', status: SUNDER, chance: 0.7 },
+  ],
+  cooldown: 55,
+  condition: { kind: 'enemies-at-least', count: 4 },
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's fourth hundred floors — the Proof House
+//
+// Four skills for four blocks, and **every one of them is a single-target hit at the front rank**,
+// for a reason that is stronger on this tower than on any of the other six. The third hundred
+// measured every scope and every aim against a 4.38 / 4.00 control and found the whole set at or
+// *above* it — `enemy-row-back` 5.00 / 4.28, `enemy-back` 5.00 / 4.17, `enemy-highest` 5.00 / 4.25,
+// `enemy-all` 4.95 / 4.00, `enemy-lowest` 4.92 / 4.00 — because a Dwarf five heals, shields and
+// guards `ally-all`, so spreading damage across it is feeding the one thing it is built to do.
+// ⚠️ **Re-measured on the shipped roof board and the sign has not changed — it has sharpened.** With
+// {@link THE_PROOF_HOUSE} and its four escorts held exactly as floor 400 ships them, only the roof's
+// own turn varied, forty seeds, every row clearing at 100%:
+//
+// | the roof's turn                            | reference | alternate | worth to the alternate |
+// | ------------------------------------------ | --------- | --------- | ---------------------- |
+// | `enemy-front`, power 2.30 (shipped)        | 2.80      | 2.35      | —                      |
+// | `enemy-row-front`, power 1.20 — the cap    | 3.65      | 3.27      | **−0.92**              |
+// | `enemy-all`, power 1.20 — the cap          | 3.73      | 3.27      | **−0.92**              |
+// | `enemy-back`, power 1.20                   | 4.00      | 3.95      | **−1.60**              |
+// | `enemy-front` 2.30 behind `enemies-at-least 4` | 2.92  | 2.58      | −0.23                  |
+//
+// ⚠️ **`enemy-back` at −1.60 is the sharpest instance of the aim finding any tower has recorded**, and
+// this is the sixth tower to reproduce it. ⚠️ **`skills.spec.ts` caps a wide turn at power 1.2**, so
+// the middle two rows are the widest turns the game permits at all rather than an under-powered
+// version of the first — the comparison is the shipped turn against its only legal alternatives, which
+// is the check chapter 22 paid a whole pass to learn.
+//
+// ⚠️ **Instance size is a weak dial here and it is deliberately not the axis.** At damage per second
+// held constant on the geared control — power 1.35 / 2.20 / 3.10 at cooldowns 55 / 90 / 126 — the
+// binding arrangement reads 3.95 / 3.67 / 3.25 against a 4.00 / 4.00 control, worth 0.05, 0.33 and
+// 0.70. That is the **Angel Tower's** axis measured on this crew and found to be a third of what it
+// is worth there (−2.38). The turns therefore climb gently in power across the hundred and the block
+// carrying them climbs in `physicalPierce`.
+//
+// ⚠️ **A condition on the roof's turn was measured and declined.** `enemies-at-least 4` front-loads a
+// board's damage, which is what the Human Tower's roof spends it on — and on this crew it is worth
+// **−0.23 of five**: a restriction on the board that the party is the beneficiary of, which is chapter
+// 24's finding arriving on a roof. The mechanism is that a Dwarf five loses nobody until late, so the
+// condition is still true through the whole stretch that decides the fight and the only thing it can
+// do is switch off afterwards.
+//
+// The riders are texture and priced as texture: the status vocabulary measured inert on this crew at
+// the third hundred (a 50% stun 4.13 / 4.00, a poison 4.08 / 4.00, a bomb 4.08 / 4.00) and nothing
+// here re-opens it. See `data/towers.ts` for the gear ramp and `tower-dwarf.ts` for the floors.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The racks were still full. Nobody down here had been using them.
+ *
+ * The Worn band's turn and the plainest in the hundred, on the body that has taken one war-pick off
+ * the hold's own wall. ⚠️ **`enemy-front` rather than past it** — see the section note above; on this
+ * tower reaching past the front rank has measured *easier than saying nothing* twice, one hundred
+ * floors apart.
+ */
+export const RACK_PICK = {
+  id: 'rack-pick',
+  name: 'Rack Pick',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 44,
+  priority: 2,
+} as const;
+
+/**
+ * The mark on the plate says the hold tested it. It does not say against what.
+ *
+ * The Sturdy band's turn, with a `SUNDER` rider that is **texture and priced as texture**. What is
+ * escalating underneath it is the `physicalPierce` on the block carrying it and the grade the whole
+ * board is wearing — not this power number, which is a fifth of a survivor at this weight.
+ */
+export const PROOF_MARK = {
+  id: 'proof-mark',
+  name: 'Proof Mark',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * A pick is a bad weapon against a man and the only good one against a hold.
+ *
+ * The Fine band's lieutenant turn. ⚠️ **Heavier than the two above it and still single-target**, for
+ * the reason the section note gives: at held damage per second an instance three times this size is
+ * worth 0.70 of five here against 2.38 on the Angel Tower, so the step up between bands is the
+ * block's pierce rather than its swing.
+ */
+export const WARPICK_FALL = {
+  id: 'warpick-fall',
+  name: 'Warpick Fall',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: BLEED, chance: 0.5 },
+  ],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * Four hundred floors of hold, and the last thing standing in it is wearing the hold.
+ *
+ * The roof's own turn. ⚠️ **Unconditioned, single-target, and both halves of that were measured on the
+ * shipped board** — see the section note. Either legal wide scope is worth **−0.92** of the binding
+ * arrangement and a condition **−0.23**, so the plainest turn available is also the hardest one. What
+ * makes this a roof rather than a large number is the `physicalPierce` on {@link THE_PROOF_HOUSE}
+ * standing behind it. ⚠️ **The axis carries the last floor rather than riding along**: the same five
+ * bodies with the roof's pierce stripped to zero read **100% / 3.80 against 100% / 3.00** where the
+ * shipped board reads 2.67 and 2.35, so the refusal is worth 1.13 and 0.65 of five on floor 400 — and
+ * six seconds of clock as well.
+ *
+ * ⚠️ **No heal, no drain, no regeneration and no `lifeLeech` on this floor or the fourteen under
+ * it** — the rule 15c set on this tower's own roof, where an `Oathbreaker + Warden` behind a Marsh
+ * Acolyte could not be closed inside ninety seconds by any Dwarf five while the identical board six
+ * levels lower cleared cleanly.
+ */
+export const THE_PROOF_HOLDS = {
+  id: 'the-proof-holds',
+  name: 'The Proof Holds',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.3 },
+    { kind: 'status', status: SUNDER, chance: 0.7 },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Plating Floor — the Elf Tower's fourth hundred, floors 301–400.
+//
+// ⚠️ **Four plain single-target swings, and the plainness is the measurement rather than a
+// shortage of ideas.** Against the calibrated geared control at level 189 in Fine 60 — an anchor at
+// 1000/58 behind four bodies at 520/36, reading **4.00 / 3.95** — the entire shape vocabulary is
+// inert on an Elf five. Twelve hostile statuses riding the swing across all four bodies span
+// **±0.22** and four of them (`savaged`, `doombrand`, `ember-seed`, `bloodrisen`) leave the board
+// *easier*; `enemy-all` at the wide cap reads **4.05**, `enemy-row-back` 4.38, `enemy-back` 4.45,
+// `enemy-lowest` 4.38 and `enemy-highest` 4.47 — the sixth tower to find that aiming past the front
+// rank is a gift; and board-wide voice **count** is flat at 3.98 / 3.98 / 3.98 / 4.05 across one to
+// four. So every turn here names `enemy-front` and carries at most a rider, and what escalates is the
+// `atk` of the body taking it and the health standing under that body.
+//
+// ⚠️ **Instance size is a real dial and deliberately not the axis, because it is the Angel Tower's.**
+// At held damage per second it reads 3.95 / 3.75 / 3.48 / **2.73** across power 1.35 / 2.10 / 2.80 /
+// 3.60 — worth 1.22 of the binding arrangement, against the attack-and-health product's 3.70. The
+// swings below therefore climb gently (1.45 → 1.60 → 1.75 → 2.20) and the block carrying them climbs
+// in the pair.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Rivet, set, strike, move along. The line does not stop because somebody is standing on it.
+ *
+ * The hundred's opening turn and the one every carrier keeps: fast, cheap, and single-target because
+ * every alternative measured as a gift. ⚠️ **It rides on {@link RIVETLINE_HAND}, which is the *light*
+ * end of the pair** — 720 health at 70 attack, which the party removes before the third swing. A
+ * carrier is worth almost nothing on its own (3.88 against a 3.95 control at four carriers' worth of
+ * weight), which is the point of an opening band.
+ */
+export const RIVET_LINE = {
+  id: 'rivet-line',
+  name: 'Rivet Line',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 44,
+  priority: 2,
+} as const;
+
+/**
+ * The anvil does not swing. It waits, and everything that meets it is the thing that moved.
+ *
+ * The Sturdy band's turn, on {@link ANVILBACK_SMITH} — the `tank` of the three, so the grade it wears
+ * goes into the health that lets it keep taking this turn rather than into the turn itself. That is
+ * the hundred's whole thesis in one block: **attack is worth what the body carrying it survives to
+ * spend.** Measured, one body at `atk` 70 reads 3.98 of five on 340 health and **3.08** on 1100.
+ */
+export const SET_THE_PLATE = {
+  id: 'set-the-plate',
+  name: 'Set the Plate',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.6 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * Plate is not worn. It is carried, and what carries it learns to swing it.
+ *
+ * The Fine band's lieutenant turn, on {@link PLATESHOD_HAMMERER}. ⚠️ **Heavier than the two above it
+ * and still single-target**, for the reason the section note gives: the step between bands here is
+ * the pair the block stands on rather than the size of its blow.
+ */
+export const DEADWEIGHT_FALL = {
+  id: 'deadweight-fall',
+  name: 'Deadweight Fall',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.75 },
+    { kind: 'status', status: BLEED, chance: 0.5 },
+  ],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * Three hundred floors of works, and the last thing standing in them is wearing what they made.
+ *
+ * The roof's own turn, and the `slow` rider is the one status in the vocabulary aimed at what an Elf
+ * five actually is — Σ580 and Σ620 of `haste` across the two swept arrangements, the highest in the
+ * game, against Σ0.00 of `tenacity` to refuse the debuff that takes it away. ⚠️ **It is a rider and
+ * not the axis**, because a rider is worth ±0.22 here and the attack under it is worth 3.70.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** The shipped roof board with the
+ * attack stripped out of {@link THE_PLATEWRIGHT} and its escort reads **100% / 4.00 and 100% / 4.08**
+ * where the shipped board reads 3.77 and 2.48 — worth 0.23 and **1.60** of five on floor 400.
+ *
+ * ⚠️ **No heal, no drain, no regeneration and no `lifeLeech` on this floor**, which is the rule 15c
+ * set on a tower roof. ⚠️ **It is also the one rule this tower could have broken and did not**: enemy
+ * sustain is worth **0.07 of a survivor** across the whole vocabulary here — `lifeLeech` 0.45 on all
+ * four, `recovery` 30, `healthRegen` 22, a back-rank healer and a board-wide regeneration all land
+ * between 3.88 and 4.00 against a 3.95 control — because an Elf five out-damages any of it. The rule
+ * stands anyway; a hundred does not get to relax a termination argument because its own crew happens
+ * to be fast.
+ */
+export const THE_PLATE_HOLDS = {
+  id: 'the-plate-holds',
+  name: 'The Plate Holds',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.2 },
+    { kind: 'status', status: SLOW, chance: 0.6 },
+  ],
+  cooldown: 55,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Coppice — the Undead Tower's fourth hundred.
+//
+// ⚠️ **Every one of these is `enemy-front` on a short cooldown, and both halves are the axis.**
+// Aim past the front rank measured *at or above* the control for the seventh time across the seven
+// towers (`enemy-all` at the wide cap reads −0.11 / −0.08), so there is nothing to buy by reaching;
+// and the hundred escalates on `atk` and `haste` **as a product**, which on the skill side means
+// the cooldowns come down as the attack goes up rather than the power going up.
+//
+// ⚠️ **The riders are {@link SUNDER} and {@link BLEED}, and the choice is a termination argument
+// rather than flavour.** An Undead five is the crew this project's clock rules were written for —
+// its own shipped floor 100 is the longest fight in the tower at 51.2s against a 67.5s bar. A
+// `WEAKEN` rider takes damage off the party and a `SLOW` rider takes turns off it, and **both make
+// every fight longer**: measured on this hundred's control, `SLOW` ×0.40 costs 0.72 / 0.84 of five
+// and adds 2.2 seconds, and board-wide `WEAKEN` adds six. `SUNDER` and `BLEED` are the two riders
+// in the vocabulary that make the party die *sooner*, which is the only direction this hundred may
+// spend seconds in.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Cut a wood to the ground and what comes back is thinner, straighter and in a hurry.
+ *
+ * The opening band's turn, on {@link COPPICE_LASHER}. **Power 1.30 on a 38-tick cooldown** — under
+ * the shipped median power of 1.35 and well under the median cooldown, which is the hundred's whole
+ * thesis stated on one skill: nothing here hits harder than what came before, it hits *more often*,
+ * on a body carrying more `atk` to hit with.
+ *
+ * ⚠️ **The instance size is deliberately small, and that is measured rather than modest.** Holding
+ * damage per second constant and making each blow bigger and rarer — the Angel third hundred's axis
+ * — is worth **0.77 / 0.94 of five** here at power 3.10 on a 126-tick cooldown, against the
+ * pairing's 2.00 / 2.95 at the same weight. A crew that sustains on `lifeLeech` off damage *dealt*
+ * does not care how the damage arriving at it is packaged; it cares how fast it has to trade.
+ */
+export const COPPICE_LASH = {
+  id: 'coppice-lash',
+  name: 'Coppice Lash',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 38,
+  priority: 2,
+} as const;
+
+/**
+ * A withy is a shoot cut green and bent without breaking. It goes round you before it goes through.
+ *
+ * The Sapwood band's turn, on {@link WITHYBIND_RUNNER}, and the first of the three to carry a rider.
+ * {@link BLEED} rather than anything that slows the party down: a bleed is priced against the
+ * applier's `atk`, so it is the *same* stat the band is escalating rather than a second question,
+ * and it shortens the fight instead of stretching it.
+ */
+export const WITHY_SNAP = {
+  id: 'withy-snap',
+  name: 'Withy Snap',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.4 },
+    { kind: 'status', status: BLEED, chance: 0.55 },
+  ],
+  cooldown: 36,
+  priority: 3,
+} as const;
+
+/**
+ * Thin wood does not stop anything. It is not trying to.
+ *
+ * The closing bands' turn, on {@link THINWOOD_HARRIER} — **power 1.50 on a 34-tick cooldown**, the
+ * shortest in the hundred, on the lightest body carrying the highest `atk`. {@link SUNDER} is the
+ * rider for the same reason {@link WITHY_SNAP} takes a bleed: shredding the party's `def` makes
+ * everything already on the board land harder, which converts the hundred's own axis into deaths
+ * rather than into seconds.
+ *
+ * ⚠️ **`SUNDER` is worth 0.77 / 0.34 of five as a lone mechanic here and is not the axis.** It is
+ * on this block because of which direction it moves the clock, not because of its size.
+ */
+export const THINWOOD_RUSH = {
+  id: 'thinwood-rush',
+  name: 'Thinwood Rush',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 34,
+  priority: 3,
+} as const;
+
+/**
+ * Springwood is the fast growth — the wide, light, thin-walled ring a tree lays down in a hurry.
+ * Three hundred floors of wood that would not fall over, and the last of it weighs almost nothing.
+ *
+ * The roof's own turn, and the only skill in the hundred above power 1.5. ⚠️ **The cooldown is 40
+ * rather than the 55 a turn this size usually carries**, because the roof is the axis at its purest
+ * and a roof that hits hard and slowly is the Angel Tower's hammer rather than this one's.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** Floor 400 with the roof and its
+ * escort dropped back to the hundred's opening `atk` and `haste` reads a different fight entirely —
+ * see {@link THE_SPRINGWOOD}, where the figure is recorded.
+ */
+export const THE_YEAR_TURNS = {
+  id: 'the-year-turns',
+  name: 'The Year Turns',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.9 },
+    { kind: 'status', status: SUNDER, chance: 0.65 },
+  ],
+  cooldown: 40,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Monster Tower's fourth hundred — the Turning, and its four turns
+//
+// ⚠️ **Every one of these is `enemy-front` or `enemy-row-front`, and that is measured rather than
+// stylistic.** Aim past a front rank is inert or negative on all seven towers, and this one has
+// found it twice already — `enemy-back` 4.08, `enemy-row-back` 4.42 and `enemy-highest` 4.25
+// against a 4.00 control at the third hundred, every one of them leaving the board *easier* than
+// saying nothing. The Turning spends its budget on the two stats and none of it on reach.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A plate that gives when it is struck has already taken the blow somewhere else.
+ *
+ * The opening band's turn. Power 1.45 on a 58-tick cooldown, which is deliberately the least
+ * interesting thing on the body — {@link SPRUNGPLATE_HAND} is priced on what it wears rather than on
+ * what it swings, and the band that fields one of these prices the pairing once before the hundred
+ * asks for two.
+ */
+export const SPRUNG_TURN = {
+  id: 'sprung-turn',
+  name: 'Sprung Turn',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 58,
+  priority: 2,
+} as const;
+
+/** Glancework is the trade's word for a face angled so nothing meets it square. */
+export const ANGLED_FACE = {
+  id: 'angled-face',
+  name: 'Angled Face',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 2,
+} as const;
+
+/** The jaw closes on the place the shoulder was. */
+export const SLIP_THE_JAW = {
+  id: 'slip-the-jaw',
+  name: 'Slip the Jaw',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn.
+ *
+ * ⚠️ **Power 1.8 on a 62-tick cooldown, which is a *smaller* blow than the third hundred's roof
+ * carries** — {@link NOTHING_GETS_A_GRIP} is 1.95. Burst was measured on this crew at the fourth
+ * hundred's weight and came back **thirteenth of fourteen arrangements**: holding damage per second
+ * and making each blow bigger and rarer costs monster-ref 0.48 where it costs angel-ref 3.40. It is
+ * the Angel Tower's axis and it is not this one's, so the roof does not reach for it.
+ */
+export const NOTHING_LANDS = {
+  id: 'nothing-lands',
+  name: 'Nothing Lands',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/** What a hold means by a turn: the blow arrives, and goes somewhere that is not through you. */
+export const THE_BLOW_TURNS = {
+  id: 'the-blow-turns',
+  name: 'The Blow Turns',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 74,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's fourth hundred — milestone 21x's four turns
+//
+// ⚠️ **The stat is the whole of the hundred and these four turns are deliberately ordinary.** The
+// Unmending escalated through the *size* of one blow; this hundred escalates through how often a
+// blow lands on the seam, which is `critChance` rather than anything a skill can say. Every turn
+// below sits inside the shipped power register and none of them carries a status.
+//
+// ⚠️ **The blow and the frequency are a product and the pair is past the edge**, exactly as the
+// third hundred found of the blow and the aim. Measured at level 189 in Fine 60 against a
+// 4.00 / 3.79 control, four carriers at `critChance` 0.30 read 3.93 / 2.49 and four swinging
+// 2.10 on a 45-tick cooldown read 3.94 / 1.73 — **together they read 3.38 / 0.13**. So no board
+// in this hundred pairs a register-topping crit load with a burst turn, and the roof's own blow
+// is 1.80 rather than the Unmending's 2.60.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A prover does not strike harder. It strikes until the plate says where it is thin.
+ *
+ * The opening band's turn, and the least of the four. Power 1.5 on a 50-tick cooldown is the
+ * shipped register's own middle — {@link CINDERFLAW_PROVER} is priced on how often it crits rather
+ * than on what it swings, which is the whole hundred in one body.
+ */
+export const PROVE_THE_PLATE = {
+  id: 'prove-the-plate',
+  name: 'Prove the Plate',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** Flensing is not cutting. It is taking the seam apart along the line it was already going to open. */
+export const FLENSE_THE_SEAM = {
+  id: 'flense-the-seam',
+  name: 'Flense the Seam',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * The same note, held, until something in the kiln answers it.
+ *
+ * The heaviest of the three legendary turns at 1.55, on the body that stands longest — a frequency
+ * only counts for as long as the thing carrying it is alive, which is the argument
+ * {@link EVENSONG} makes on the Demon Tower and it holds here for the same reason.
+ */
+export const THE_SAME_NOTE_AGAIN = {
+  id: 'the-same-note-again',
+  name: 'The Same Note Again',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn, and it is **smaller than the hundred below's roof carries**.
+ *
+ * {@link THE_SINGLE_STROKE} is 2.30 and the Unmending's closing turn 2.60; this is 1.80. The
+ * Hairline is the one body in the hundred carrying `critChance` past the shipped ceiling, and the
+ * pairing of a register-topping crit load with a burst turn measured **0.13 survivors of five** for
+ * the arrangement every board here is sized against. A roof that reached for both would not be a
+ * roof, it would be a wall.
+ */
+export const IT_WAS_ALWAYS_THERE = {
+  id: 'it-was-always-there',
+  name: 'It Was Always There',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** The crack does not have to be made. It has to be widened. */
+export const WIDEN_IT = {
+  id: 'widen-it',
+  name: 'Widen It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's fourth hundred — milestone 21y's five turns
+//
+// ⚠️ **The stat is the whole of the hundred and these five turns are deliberately ordinary.** The
+// hundred escalates through `magicResist` — a *defensive* stat on the bodies a Demon five has to get
+// through — so nothing a skill says is doing the work. Every turn below sits inside the shipped
+// magical power register, none carries a status, and none aims past the front rank.
+//
+// ⚠️ **Aim is inert or negative on all seven towers and it stays inert here**, which is why every one
+// of these names `enemy-front`. The reach the Angel bench already carries ({@link ZENITH_CHORISTER}'s
+// `enemy-row-back`, {@link LITANY_BEARER}'s `enemy-all`) is texture this hundred inherits rather than
+// escalation it authors.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A ward is not a shield. It is the choir deciding that the word does not arrive.
+ *
+ * {@link HUSHGLASS_WARDEN}'s turn, and the least of the five. Power 1.45 on a 50-tick cooldown is the
+ * shipped magical register's own middle — the block is priced on the ward it carries rather than on
+ * what it swings, which is the whole hundred in one body.
+ */
+export const NOTHING_IS_HEARD = {
+  id: 'nothing-is-heard',
+  name: 'Nothing Is Heard',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.45 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The vault does not argue. It outlasts the argument.
+ *
+ * {@link SILENTVAULT_KEEPER}'s turn, and the softest of the five at 1.3 on the longest cooldown. **A
+ * ward is only worth what the body carrying it lives to spend**, so the block that has to stand
+ * longest is the one that swings least — {@link EVENSONG}'s argument on this tower's second hundred,
+ * and {@link THE_SAME_NOTE_AGAIN}'s on the Angel Tower's fourth.
+ */
+export const THE_VAULT_HOLDS = {
+  id: 'the-vault-holds',
+  name: 'The Vault Holds',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.3 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/** Nothing new is said. The same verse is said again, to somebody who has stopped hearing it. */
+export const SAY_IT_AGAIN = {
+  id: 'say-it-again',
+  name: 'Say It Again',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.5 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn, and it is **smaller than the hundred below's roof carries**.
+ *
+ * {@link THE_LAST_AMEN} is 2.10 and {@link NO_EDGE_FINDS_IT} 1.90; this is 1.75. The Unhearing is the
+ * one body in the hundred carrying a ward past 0.52, and the roof was settled on its **attack**
+ * rather than on its weight — at 1340 hp the alternate arrangement reads 33% at `atk` 88, 55% at 80
+ * and **83% at 74**. A roof that reached for the blow as well as the ward would not be a roof.
+ */
+export const NO_WORD_REACHES_IT = {
+  id: 'no-word-reaches-it',
+  name: 'No Word Reaches It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.75 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/** There is an answer. It is simply not going to be given. */
+export const THE_ANSWER_WITHHELD = {
+  id: 'the-answer-withheld',
+  name: 'The Answer Withheld',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.25 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Human Tower's fifth hundred — floors 401–500, levels 189–236, Masterwork 1 → Relic 40.
+//
+// ⚠️ **The turns stay plain for the second hundred running, and this time the measurement says so
+// twice.** Priced against a control of an `ascended` 1200/66 behind four 750/48 at level 236 wearing
+// Relic 40, reading **3.95 / 3.40 of five** and moving in both directions, forty seeds, zero timeouts
+// on every row: **no status, scope, reach or selection is this hundred's axis.** Enemy `accuracy` is
+// worth **−1.05 / −1.60** — the board is *easier* for being more accurate — and `tenacity` grades
+// 0.20 / 0.38 / 0.78 / 0.83 for the reference five against 0.20 / 0.25 / 0.23 / **0.38** for the
+// alternate, which is flat on the arrangement that binds.
+//
+// ⚠️ **What the hundred is built on is a *pair of stats*, and each half of it belongs to somebody
+// else.** See [`enemies.ts`](./enemies.ts) for the whole table; the short form is that `def` alone
+// walks the fight from 19.2s to **36.1s** for 2.88 survivors, and the same difficulty carried as
+// `def` **and** `haste` together reads **26.1s**. So the turns here do not have to be the mechanic —
+// the stat line is — and a status riding one of them is texture exactly as it was one hundred floors
+// below.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * They have not stopped walking since the Marshal fell, and they are wearing his men's plate.
+ *
+ * The opening band's turn, and plain on purpose. ⚠️ **`enemy-front` for the third hundred running**,
+ * which is the aim correction this tower made twice and the seventh tower to reach it: a reach past
+ * the front rank is worth −0.05 of five here and the widest turn available **−0.19 from the back
+ * rank**, because the weaker Human arrangement fields no tank and damage taken off its front row is
+ * time it did not have to buy.
+ */
+export const IRONPACE_STEP = {
+  id: 'ironpace-step',
+  name: 'Ironpace Step',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 38,
+  priority: 2,
+} as const;
+
+/**
+ * The armour does not slow it down. That is the entire problem.
+ *
+ * The middle band's turn, with a `SUNDER` rider that is **texture and priced as texture** — this
+ * tower measured its whole status vocabulary within 0.14 survivors two hundred floors ago and
+ * re-measured the register at this weight rather than inheriting the refusal. What escalates
+ * underneath it is the `def` the body is standing behind and the `haste` it is spending.
+ */
+export const GRAVESTRIDE_CADENCE = {
+  id: 'gravestride-cadence',
+  name: 'Gravestride Cadence',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * An hour of it, and then another, at exactly the same weight and exactly the same pace.
+ *
+ * The lieutenant's turn. ⚠️ **A single-target selection rather than a scope**, because a scope is the
+ * one shape on this tower big enough to carry a band on its own (`STUN` on `enemy-all` measured 1.31
+ * at the fourth hundred against a selection's 0.23) and this hundred's axis is the stat line. Spending
+ * a scope here would make the pair unmeasurable underneath it.
+ */
+export const THE_LEADEN_HOUR_FALLS = {
+  id: 'the-leaden-hour-falls',
+  name: 'The Leaden Hour Falls',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.3 }],
+  cooldown: 52,
+  priority: 1,
+} as const;
+
+/**
+ * It has been keeping this pace since the tower was built and it has never once been out of step.
+ *
+ * The roof's turn. ⚠️ **Its escort is the question and this is not**, which is chapter 19's rule
+ * arriving on a roof for the second time on this tower: the fourth hundred's boss needed no retune
+ * across nine escort shapes, and this one was settled the same way.
+ */
+export const NOTHING_BREAKS_STEP = {
+  id: 'nothing-breaks-step',
+  name: 'Nothing Breaks Step',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.85 },
+    { kind: 'status', status: SLOW, chance: 0.55 },
+  ],
+  cooldown: 46,
+  priority: 1,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's fifth hundred — the Masterworks, floors 401–500, levels 189–236,
+// Masterwork 1 → Relic 40.
+//
+// ⚠️ **The turns stay plain because the axis is the stat line: `physicalPierce` and `atk` carried
+// together on light bodies.** Measured against a control of an `ascended` 1060/58 behind four 560/40
+// at level 236 wearing Relic 40, reading **3.92 / 4.00 of five** and moving in both directions, forty
+// seeds, zero timeouts on every row quoted: the whole status vocabulary is texture here — `SUNDER`,
+// `SLOW` and `WEAKEN` riders across four bodies are worth 0.47–0.62 of five, a board-wide `STUN` from
+// one carrier 0.22, burst at held damage per second 0.25 / 0.52 across power 2.20 / 3.10 — where the
+// pair the bands are built on is worth 0.98 → 3.88 across its six authored steps. The `SUNDER` riders
+// below are priced as texture exactly as the Proof House's were one hundred floors down; what
+// escalates underneath them is the pierce the carrier swings with and the attack behind it.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The stroke is not practised against plate any more. It is practised against you.
+ *
+ * The opening band's turn, and plain on purpose — `enemy-front` for the third Dwarf hundred running,
+ * on the tower family's own settled finding: aim past the front rank is inert or negative on all
+ * seven towers.
+ */
+export const HEWING_STROKE = {
+  id: 'hewing-stroke',
+  name: 'Hewing Stroke',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * A prentice cuts where the grain shows. A journeyman cuts where it will show.
+ *
+ * The middle bands' turn, with a `SUNDER` rider priced as texture — 0.62 of five across four
+ * carriers at this weight, against the pair's 2.48 at the same board. Its duration (45 ticks) stays
+ * under its cooldown, so the shred never becomes permanent.
+ */
+export const SPLIT_THE_GRAIN = {
+  id: 'split-the-grain',
+  name: 'Split the Grain',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * It does not check its work. It has not needed to for a long time.
+ *
+ * The lieutenant's turn. A single-target selection rather than a scope, for the reason the Leaden
+ * Hour's is: a wide turn is the one shape big enough to carry a band on its own, and this hundred's
+ * axis is the stat line — a scope would make the pair unmeasurable underneath it.
+ */
+export const THE_MASTERS_MEASURE = {
+  id: 'the-masters-measure',
+  name: "The Master's Measure",
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Every stroke on every floor below this one was a rehearsal.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its attack, not on this** — at `atk` 50 the board
+ * reads 0% for both arrangements, at 44 it reads 73% for the binding one, and at the shipped 40 it
+ * reads 100% / 1.68 — so the turn's power stays inside the shipped single-target register (ceiling
+ * 3.0, median 1.65) and the stat line is what was tuned.
+ */
+export const THE_MASTERSTROKE_FALLS = {
+  id: 'the-masterstroke-falls',
+  name: 'The Masterstroke Falls',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.1 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's fifth hundred — the Trip-Hammers, floors 401–500, levels 189–236,
+// Masterwork 1 → Relic 40.
+//
+// ⚠️ **The turns stay plain because the axis is the stat line: `atk` and `haste` carried together on
+// light bodies.** Measured against the hundred's own control at level 236 in Relic 40 — the roof's
+// escort shape with the carrier's two halves knocked out one at a time, forty seeds, zero timeouts on
+// every row — `atk` alone is worth 0.00 / 1.03 of five, `haste` alone 0.00 / **0.03**, and the two
+// together **0.20 / 2.03** against a sum of halves of 0.00 / 1.05. A rider big enough to be read
+// would make that pair unmeasurable underneath it.
+//
+// ⚠️ **`SLOW` was measured here and pulled back to the roof alone, which is the sharpest thing this
+// hundred found about its own crew.** {@link SLOW} multiplies `haste` by 0.7, and an Elf five carries
+// the highest `haste` in the game (Σ580 / Σ620 across the two swept arrangements) — so a board with
+// three carriers applying it took the binding arrangement to **0% at every roof attack from 28 down
+// to 12**, where the identical board with the rider removed clears at 83%. It is the second hundred's
+// Cairn Sentinel note — "a Cairn Sentinel slows exactly the stat an Elf five is built out of" — priced
+// at fifth-hundred weight and found to be a lock rather than texture. One carrier applies it, on the
+// last floor of the tower.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The gate comes up and the water does the rest.
+ *
+ * The opening band's turn, and plain on purpose — `enemy-front` for the fourth Dwarf-leaning hundred
+ * running, on the tower family's settled finding that aim past the front rank is inert or negative on
+ * all seven towers.
+ */
+export const TAP_THE_RACE = {
+  id: 'tap-the-race',
+  name: 'Tap the Race',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * A smith swings when he decides to. This does not decide.
+ *
+ * The middle bands' turn. Deliberately plain: the carrier it sits on is the axis, and everything the
+ * hundred charges for is in how early the blow arrives rather than in what rides on it.
+ */
+export const THE_HELVE_FALLS = {
+  id: 'the-helve-falls',
+  name: 'The Helve Falls',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * The cam is what remembers. The hammer only obeys it.
+ *
+ * The lieutenant's turn, with a {@link SUNDER} rider priced as texture rather than as the axis. A
+ * single-target selection rather than a scope, for the reason the Master's Measure is: a wide turn is
+ * the one shape big enough to carry a band on its own, and this hundred's band table is counts of
+ * carriers. Its duration stays under its cooldown, so the shred never becomes permanent.
+ */
+export const THE_CAM_COMES_ROUND = {
+  id: 'the-cam-comes-round',
+  name: 'The Cam Comes Round',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Four hundred floors of works, to make one thing that never gets tired.
+ *
+ * The roof's turn, and the **only** place in the hundred a {@link SLOW} is applied — see the note
+ * above for what three of them measured. The roof was settled on its **attack** rather than on this:
+ * at `atk` 28 the board reads 3% for the binding arrangement, at 24 it reads **83% with 2.00 of
+ * five**, and the turn's power stays inside the shipped single-target register.
+ */
+export const THE_GREAT_HELVE_FALLS = {
+  id: 'the-great-helve-falls',
+  name: 'The Great Helve Falls',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.05 },
+    { kind: 'status', status: SLOW, chance: 0.6 },
+  ],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's fifth hundred — the Thicket, and its four turns
+//
+// ⚠️ **Every cooldown here is long, and that is the axis rather than restraint.** `attackSpeed`
+// accrues **only when a combatant's last action was a basic attack** — a cast drops the body back to
+// plain `haste` for a turn — so a carrier with a short cooldown spends the stat it is built on. The
+// four turns below run 64 to 84 ticks against a shipped median of 55, which puts each carrier on
+// basics for most of the fight and is what makes the hundred's escalation land at all. The Coppice,
+// one hundred floors below, runs 34 to 40 for exactly the opposite reason.
+//
+// ⚠️ **`enemy-front` on all four, measured rather than stylistic.** Aim past a front rank is inert
+// or negative on all seven towers and this one closed that question: `enemy-all` at the wide cap
+// reads −0.11 / −0.08 against its own controls, and every selection this tower has priced —
+// `enemy-lowest`, `enemy-back`, `enemy-highest` — reads **at or above** the control.
+//
+// ⚠️ **The riders are {@link BLEED} and {@link SUNDER}, and the reason is the Coppice's.** This is
+// the crew the clock rules were written for. A `WEAKEN` rider takes damage off the party and a
+// `SLOW` rider takes turns off it, and both make every fight *longer*; a bleed prices against the
+// applier's own `atk` and a sunder makes everything already on the board land harder. Both convert
+// the hundred's budget into deaths rather than into seconds, which is the only direction this tower
+// may spend them in.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A sucker is the shoot that comes up off a cut stool. Cut it again and you get six.
+ *
+ * The opening band's turn, on {@link SUCKERWOOD_WHIP}. **Power 1.50 on a 64-tick cooldown** — the
+ * shipped median power on nearly double the median cooldown, which is this hundred's thesis on one
+ * skill: the turn is ordinary and the *basic attacks between* it are not.
+ *
+ * ⚠️ **No rider, deliberately.** The opening band has to teach what the beat is before the hundred
+ * charges for two of them, and a rider on the first carrier would price the wrong thing — the same
+ * reason the Headrace Hand one tower over is authored plain.
+ */
+export const SUCKER_LASH = {
+  id: 'sucker-lash',
+  name: 'Sucker Lash',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 64,
+  priority: 2,
+} as const;
+
+/**
+ * A brake is a thicket you do not walk through. This is the part of it that walks at you.
+ *
+ * The Suckerwood band's turn, on {@link BRAKETHORN_FLAIL}, and the first of the four to carry a
+ * rider. {@link BLEED} for the Coppice's reason: a bleed is priced against the applier's `atk`, so
+ * it asks the same question the board is already asking rather than a second one, and it shortens
+ * the fight instead of stretching it.
+ */
+export const BRAKE_FLAIL = {
+  id: 'brake-flail',
+  name: 'Brake Flail',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.6 },
+    { kind: 'status', status: BLEED, chance: 0.55 },
+  ],
+  cooldown: 72,
+  priority: 3,
+} as const;
+
+/**
+ * Covert is the old word for a thicket that hides something. Nothing is hiding in this one.
+ *
+ * The closing bands' turn, on {@link COVERT_REAVER} — **power 1.70 on a 78-tick cooldown**, the
+ * longest of the three carriers, on the lightest body carrying the most `attackSpeed`. {@link
+ * SUNDER} rather than a bleed: shredding the party's `def` makes every swing already on the board
+ * land harder, which is what a hundred built on swing *rate* wants from its one cast.
+ */
+export const COVERT_REAVE = {
+  id: 'covert-reave',
+  name: 'Covert Reave',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 78,
+  priority: 3,
+} as const;
+
+/**
+ * Blackthorn is what grows where a wood was. It fruits once, it is all edge, and nothing gets past
+ * it.
+ *
+ * The roof's own turn, and the only skill in the hundred above power 1.7 — **1.90 on an 84-tick
+ * cooldown**, which is inside the shipped ceiling of 90 and among the twelve longest in the game.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** Floor 500 with the roof's and its
+ * escort's `attackSpeed` stripped to zero reads 100% with 2.25 of five against the shipped 95% with
+ * 1.20 — worth **1.05 of the reference five and 1.77 of the alternate** on the top floor. See
+ * {@link THE_BLACKTHORN}.
+ */
+export const BLACKTHORN_CLOSE = {
+  id: 'blackthorn-close',
+  name: 'Blackthorn Close',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.9 },
+    { kind: 'status', status: SUNDER, chance: 0.65 },
+  ],
+  cooldown: 84,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Monster Tower's fifth hundred — the Censing, and its four turns
+//
+// ⚠️ **All four are magical and all four carry {@link BURN}, and both halves of that are the
+// axis.** A Monster five deals nine and ten physical damage effects out of nine and ten, carries the
+// game's only real `physicalPierce` (Σ0.56 / Σ0.70 against ≤0.15 everywhere else) — and carries
+// **Σ0.00 `magicResist`**. In [`damage.ts`](../core/battle/damage.ts) a pierce multiplies `def` and
+// `resistedShare` is applied *afterwards* with no pierce term in it, so the one defence this crew is
+// built to open is not the one these turns come through.
+//
+// ⚠️ **A `dot` is the half of this tower's founding sentence it had never spent.** The tower charges
+// a leech crew in "damage it cannot return"; its third hundred bought armour and its fourth evasion,
+// and both of those buy *less damage dealt*, which starves the leech at its input. `statusDamage` in
+// `simulate.ts` never re-enters the attack path, so `lifeLeech` — a share of damage **dealt** —
+// returns exactly nothing against a poison, and the amount is `scaled(applier.atk, power)`, which
+// **bypasses `def` entirely** and answers only `resistedShare`. It is the one thing on this ladder
+// that keeps billing after the body carrying it is dead.
+//
+// ⚠️ **The scope is measured rather than stylistic, and a dot's scope table is not a stun's.**
+// Carried by one anchor at the fifth hundred's control, {@link BURN} at its shipped 0.34 is worth
+// **−0.10 / 0.85** on `enemy-row-back`, 0.65 / 0.85 on `enemy-front`, 0.82 / 0.85 on `enemy-lowest`,
+// 0.90 / 1.18 on `enemy-row-front` and **1.02 / 1.90** on `enemy-all`. Aim past the front rank leaves
+// the board *easier* — the eighth reading of that kind on this tower — and the wide scope is worth
+// roughly twice the next best to the binding arrangement. ⚠️ **So the wide turn is rationed rather
+// than repeated**: two board-wide carriers read **0% for the alternate**, and one wide plus two
+// single-target burners reads 0% as well. See [`tower-monster.ts`](./tower-monster.ts) for the
+// per-band counts.
+//
+// ⚠️ **A cooldown above 45 is a rule rather than a preference here** — `skills.spec.ts` holds a
+// status-applying skill's cooldown above the status's own duration, and {@link BURN} runs 45.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A thurible is swung. That is the whole of the office: the vessel goes out on its chain, and the
+ * ground it passes over keeps the smoke after it has gone by.
+ *
+ * The opening band's turn, on {@link THURIBLE_ORDINAL}. ⚠️ **`enemy-lowest` deliberately, which is
+ * the *weakest* scope this hundred authors** — worth 0.82 of the reference five and 0.85 of the
+ * alternate against the wide turn's 1.02 and 1.90. An opening band has to teach that a burn is a
+ * thing that happens before the hundred charges for one that reaches everybody, and pricing it wide
+ * on floor 401 would spend the whole axis on the first twenty floors.
+ */
+export const SWING_THE_THURIBLE = {
+  id: 'swing-the-thurible',
+  name: 'Swing the Thurible',
+  target: 'enemy-lowest',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.55 },
+    { kind: 'status', status: BURN, chance: 0.7 },
+  ],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/**
+ * Oil goes down before the fire does. By the time there is anything to see, the decision was made an
+ * hour ago.
+ *
+ * The hundred's wide turn, on {@link LAMPOIL_SACRIST}, and **the only shape in the hundred that is
+ * rationed by count rather than sized by weight**. At power 1.05 it sits under the 1.2 cap
+ * `skills.spec.ts` holds on `enemy-all`, and the damage is almost beside the point: what it is for is
+ * putting {@link BURN} on all five at once, which is worth 1.02 of the reference five and **1.90 of
+ * the alternate** where the same status single-target is worth 0.82 and 0.85.
+ *
+ * ⚠️ **Never two on a board, and never beside the roof's own.** Two carriers of this turn read
+ * **0% for the alternate** at the hundred's own control, and one beside two single-target burners
+ * reads 0% as well; the last ten floors carry {@link NOTHING_PUTS_IT_OUT} instead and the censer
+ * stands down. Across the hundred the board-wide voice count is a mean of **1.24 with a hard ceiling
+ * of two**, against this tower's own third and fourth hundreds' 1.69 and 1.05.
+ */
+export const OIL_THE_GROUND = {
+  id: 'oil-the-ground',
+  name: 'Oil the Ground',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.05 },
+    { kind: 'status', status: BURN, chance: 0.65 },
+  ],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+/**
+ * A slow lamp is the one left burning when the room is empty, because somebody will want it lit at
+ * four in the morning and nobody will want to be the one who lights it.
+ *
+ * The lieutenant's turn, on {@link EMBERVAULT_KEEPER}, and the hardest single-target turn in the
+ * hundred at power 1.70. ⚠️ **`enemy-front`, which is where the plate that carries it stands** — the
+ * Keeper is the block that wears both halves of the axis at once, and a body that is being hit is a
+ * body whose burn keeps landing.
+ */
+export const LIGHT_THE_SLOW_LAMP = {
+  id: 'light-the-slow-lamp',
+  name: 'Light the Slow Lamp',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.7 },
+    { kind: 'status', status: BURN, chance: 0.75 },
+  ],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/**
+ * The jaws close. Something comes away in them. It is still burning.
+ *
+ * The roof's turn, at the wide cap of 1.2 and the highest {@link BURN} chance in the game at 0.80 —
+ * and on a 72-tick cooldown, which is what keeps it from being two board-wide voices in the time one
+ * ought to take.
+ *
+ * ⚠️ **The axis carries the last floor rather than riding along.** Floor 500 reads 100% / 2.98 / 19.5s
+ * against 80% / 0.80 / 31.2s as shipped, and with every {@link BURN} on the board stripped it reads
+ * 3.17 and **1.60** — worth 0.20 of the reference five and **0.80 of the alternate**, which is the
+ * arrangement this tower sizes every board against. See {@link THE_UNQUENCHED}.
+ */
+export const NOTHING_PUTS_IT_OUT = {
+  id: 'nothing-puts-it-out',
+  name: 'Nothing Puts It Out',
+  target: 'enemy-all',
+  effects: [
+    { kind: 'damage', damageType: 'magical', power: 1.2 },
+    { kind: 'status', status: BURN, chance: 0.8 },
+  ],
+  cooldown: 72,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's fifth hundred — milestone 21z's four turns
+//
+// ⚠️ **The stat is the whole of the hundred and these four turns are deliberately ordinary**, for
+// the third hundred running on this tower. The Hairline escalated through how *often* a blow found
+// the seam; this hundred escalates through what the plate is worth once it is found, which is
+// `physicalPierce` and not anything a skill can say.
+//
+// ⚠️ **Every one of them is physical, and that is load-bearing rather than flavour.**
+// `effectiveDefence` returns `def × (1 − physicalPierce)`, so a magical turn on a pierce carrier
+// spends the stat the body was authored for. The fourth hundred's four are physical too and for a
+// different reason — a crit is a crit either way — so this is the first band on this tower where
+// the damage type is the mechanic.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * A lace is not cut. It is found, and then it is followed.
+ *
+ * The opening band's turn and the least of the four. Power 1.45 on a 50-tick cooldown is the
+ * shipped register's own middle, exactly as {@link PROVE_THE_PLATE} was a hundred below —
+ * {@link EMBERLACE_AWL} is priced on what it takes off the plate rather than on what it swings.
+ */
+export const FIND_THE_LACE = {
+  id: 'find-the-lace',
+  name: 'Find the Lace',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/** A harrow does not dig. It opens what was already parted and leaves it open. */
+export const WORK_IT_WIDER = {
+  id: 'work-it-wider',
+  name: 'Work It Wider',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.4 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * The heaviest of the three legendary turns, on the body that stands longest.
+ *
+ * A pierce only counts for as long as the thing carrying it is alive — the argument
+ * {@link THE_SAME_NOTE_AGAIN} makes about a frequency, and it holds unchanged for an armour tax.
+ */
+export const TAKE_THE_SEAM = {
+  id: 'take-the-seam',
+  name: 'Take the Seam',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 55,
+  priority: 2,
+} as const;
+
+/**
+ * The roof's own turn, and it is **smaller than either of the two roofs below it**.
+ *
+ * {@link THE_SINGLE_STROKE} is 2.30, {@link IT_WAS_ALWAYS_THERE} 1.80, and this is 1.70. Three
+ * hundreds running, this tower's roof has swung less than the one under it, because each of the
+ * three axes multiplies the blow rather than adding to it — and {@link THE_UNLACING} carries the
+ * largest `physicalPierce` in the game against the two arrangements holding its largest `def`.
+ */
+export const IT_WAS_NEVER_SHUT = {
+  id: 'it-was-never-shut',
+  name: 'It Was Never Shut',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's fifth hundred — five turns behind a stat that decides whether they land
+//
+// ⚠️ **The stat is the whole of the hundred and these five turns are deliberately ordinary**, which
+// is the fourth hundred running on this tower and the same call the Angel Tower's fifth made. The
+// escalation is `dodge` — how often a Demon five's swing connects at all — and nothing a skill can
+// say changes that.
+//
+// ⚠️ **Every one is magical and on `enemy-front`, exactly as the fourth hundred's four are.** A
+// tower whose enemies are a choir has dealt magical damage since floor 1, and *aim past the front
+// rank is inert or negative on all seven towers* — this hundred had no reason to be the exception
+// and did not test for one.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The censer is already a pace further on than the hand that reaches for it.
+ *
+ * The opening band's turn and the least of the five. Power 1.5 on a 45-tick cooldown is the shipped
+ * register's own middle and deliberately so: {@link CENSERSTEP_ACOLYTE} is priced on the 0.16 of
+ * `dodge` it carries rather than on what it swings.
+ */
+export const A_PACE_AHEAD = {
+  id: 'a-pace-ahead',
+  name: 'A Pace Ahead',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.5 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * A verger walks ahead of the procession and the aisle is empty by the time it arrives.
+ *
+ * The second band's, and slower than the first's for the reason {@link AISLEWARD_VERGER} is heavier:
+ * the pair stand together from floor 421 and two turns on one cooldown would be two voices in the
+ * time one ought to take.
+ */
+export const CLEAR_THE_AISLE = {
+  id: 'clear-the-aisle',
+  name: 'Clear the Aisle',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.45 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The wick is turned down rather than put out, and what is left will not hold still to be aimed at.
+ *
+ * The lieutenant's, and the least powerful of the five on the heaviest of the three legendaries —
+ * {@link GUTTERLIGHT_SEXTON} anchors every board from floor 446 and carries 0.28 of `dodge`, which
+ * is where the whole of its price sits.
+ */
+export const THE_LIGHT_GUTTERS = {
+  id: 'the-light-gutters',
+  name: 'The Light Gutters',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.4 }],
+  cooldown: 50,
+  priority: 2,
+} as const;
+
+/**
+ * The blow is not turned and it is not caught. It simply finds nothing where the body was.
+ *
+ * The roof's first turn. ⚠️ **{@link THE_UNSTRUCK} is authored at 44 `atk` and the pair of turns is
+ * what makes that legible** — the last floor of the tower system was settled on its attack rather
+ * than on its weight, chapter 20's rule for the fourth time on a roof: held at 1250 hp and 0.40
+ * `dodge` the alternate arrangement reads 15% at `atk` 68, 42% at 56 and **85% at 44**, where held
+ * at `atk` 56 it reads 25% at 1440 hp and 63% at 1050.
+ */
+export const NOTHING_LANDS_AT_ALL = {
+  id: 'nothing-lands-at-all',
+  name: 'Nothing Lands At All',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.7 }],
+  cooldown: 45,
+  priority: 2,
+} as const;
+
+/**
+ * There is no answer to a blow that was never met.
+ *
+ * The roof's second, on a 60-tick cooldown so the pair cannot fire together twice in a fight. ⚠️
+ * **The axis carries the last floor rather than riding along**: floor 500 reads 100% / 3.83 and
+ * 85% / 1.95 as shipped, and with the roof's own `dodge` stripped to zero it reads 100% / 3.95 and
+ * **100% / 2.68** — worth 0.73 of the reference five and **1.96 of the alternate**, which is the
+ * arrangement this tower has sized every board against since its third hundred.
+ */
+export const THE_BLOW_UNMET = {
+  id: 'the-blow-unmet',
+  name: 'The Blow Unmet',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// Chapter 27 — The Looseline
+//
+// Ten turns for ten blocks, and **every one of them is a plain hit**. The chapter is authored on
+// enemy `dodge` and nothing else, so the vocabulary the boards spend is the stat block rather than
+// the status list — chapter 19's rule, which four chapters running have now reproduced.
+//
+// ⚠️ **The licence is the register read from the *party's* side.** `hitChance` in
+// `core/battle/damage.ts` is `clamp(attacker.accuracy - defender.dodge, minHitChance, 1)`, and the
+// five that arrive here carry `dodge` **Σ0.00** and `accuracy` **1.10 on one member and the default
+// 1.00 on the other four** — a party that has staked nothing at all on connecting. Chapter 8 built
+// the Sunless Weald on the same stat against a party that had answers; this is that stat with the
+// answer gone, which is the "same name, different argument" case chapter 26 recorded.
+//
+// ⚠️ **A dodge bills what is *aimed at*, which makes the rank each carrier stands in a dial rather
+// than a detail.** Measured on **one** body at chapter 27's control — chapter 22's rule, because a
+// rank comparison carried on two bodies measures the pair — a single carrier is worth 3.25 in the
+// front rank against 3.70 in the back at 0.22, 3.15 against 3.80 at 0.30 and **2.17 against 3.17 at
+// 0.40**: a spread that grows with the value, from 0.45 to 1.00 of a survivor. That is
+// {@link THORNMAIL}'s "only bills what is struck" finding wearing the party's aim instead of its
+// damage.
+//
+// ⚠️ **One board-wide turn per board**, which is chapter 17's rule: {@link THE_LINE_OPENS} is the
+// chapter's only scope and it sits at the wide cap of 1.2, because `skills.spec.ts` refuses anything
+// heavier on `enemy-all`.
+//
+// ⚠️ **None of these ten reaches past the front rank.** Every `enemy-back` turn the chapter fields
+// comes from a returning body, and no board fields two — checked over the **fielded** bodies rather
+// than the new ones, which is the check chapter 24 shipped false.
+
+/** Band 1's habit: the heavy body that is still trying to hold, and the one turn under the median. */
+export const GROUND_GIVEN = {
+  id: 'ground-given',
+  name: 'Ground Given',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The fast body's turn, and the reason the band openers clear the difficulty probe's bar.
+ *
+ * ⚠️ **The probe reads throughput, and a refusal stat is exactly the kind of lock it cannot see** —
+ * chapter 24 lost a band opener at 0.792 against the 0.85 bar to a `tenacity` lock the probe was
+ * blind to, and `dodge` is refusal in the same sense. This body is the margin: it is the chapter's
+ * hottest common and it stands on every band opener for that reason.
+ */
+export const BREAK_AND_GO = {
+  id: 'break-and-go',
+  name: 'Break And Go',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 38,
+  priority: 3,
+} as const;
+
+/** Band 3's identity, on the body that carries the shipped median of 0.22. */
+export const HALF_A_TURN = {
+  id: 'half-a-turn',
+  name: 'Half A Turn',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** The screening wall's turn: slow, heavy, and standing where the party has to aim through it. */
+export const OPEN_ORDER = {
+  id: 'open-order',
+  name: 'Open Order',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+export const LOOSE_AT_THE_REIN = {
+  id: 'loose-at-the-rein',
+  name: 'Loose At The Rein',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/** Band 5's identity, at the shipped p90 of 0.30 and on the chapter's fastest legendary. */
+export const NEVER_CLOSING = {
+  id: 'never-closing',
+  name: 'Never Closing',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 40,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_LINE_OPENS = {
+  id: 'the-line-opens',
+  name: 'The Line Opens',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** Band 6's ordinary wall. The pairing chapter 23 found: the axis under the register, a skin over it. */
+export const HELD_BY_HALVES = {
+  id: 'held-by-halves',
+  name: 'Held By Halves',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.0 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const A_STEP_ALREADY_TAKEN = {
+  id: 'a-step-already-taken',
+  name: 'A Step Already Taken',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.35 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's second.
+ *
+ * ⚠️ **Not conditioned**, which is the same deliberate departure chapter 26 made and for the reason
+ * chapter 24 measured: all six condition kinds land within ±0.08 of a control at one carrier and at
+ * five, and a condition on the payload axis prices **−2.42**, because it is a restriction on the
+ * board and the party is the beneficiary. Five appearances at rising levels are five different
+ * fights because the board around it changes.
+ */
+export const NOTHING_TO_MEET_IT = {
+  id: 'nothing-to-meet-it',
+  name: 'Nothing To Meet It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.85 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+export const NO_LINE_TO_BREAK = {
+  id: 'no-line-to-break',
+  name: 'No Line To Break',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.6 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The boss's second, aimed where the chapter's question is: at whatever the party leaned on. */
+export const WHERE_IT_WAS_STANDING = {
+  id: 'where-it-was-standing',
+  name: 'Where It Was Standing',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 2.15 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/* ---------------------------------------------------------------------------------------------
+ * Chapter 28 — The Windthrow.
+ *
+ * The chapter is authored on enemy `attackSpeed`, which accrues **only when a combatant's last
+ * action was a basic attack**. Every one of these carries a long cooldown for that reason: a body
+ * that casts rarely spends its turns swinging, and swinging is what the axis pays for. A short
+ * cooldown would hand the same body a bigger nominal turn and quietly switch its own axis off.
+ * ------------------------------------------------------------------------------------------- */
+
+/** Band 1's habit: the slowest turn in the chapter, on the body that stands where the roots lifted. */
+export const THE_DISC_OF_ROOTS = {
+  id: 'the-disc-of-roots',
+  name: 'The Disc Of Roots',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** The chapter's coldest body, and the one that teaches the axis exists at all. */
+export const OUT_OF_THE_WIND = {
+  id: 'out-of-the-wind',
+  name: 'Out Of The Wind',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/** Band 2's identity, on the chapter's most-fielded body. */
+export const GREEN_TIMBER_SNAPPING = {
+  id: 'green-timber-snapping',
+  name: 'Green Timber Snapping',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/** The chapter's cheapest reach past a front rank. No board fields two. */
+export const OUT_OF_THE_CROWN = {
+  id: 'out-of-the-crown',
+  name: 'Out Of The Crown',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's **only** board-wide turn, at the wide cap of 1.2.
+ *
+ * `skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to 1.2 and this sits
+ * exactly there. One board-wide turn per board is chapter 17's rule; this is the block that spends
+ * it, and no board fields two.
+ */
+export const THE_WHOLE_STAND_GOES = {
+  id: 'the-whole-stand-goes',
+  name: 'The Whole Stand Goes',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+/** Band 3's identity: the first body fielded above the chapter's own opening register. */
+export const DOWN_THE_GALEWAY = {
+  id: 'down-the-galeway',
+  name: 'Down The Galeway',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/** Band 4's identity, and the block the closing bands are built around. */
+export const NOTHING_SETS = {
+  id: 'nothing-sets',
+  name: 'Nothing Sets',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 66,
+  priority: 3,
+} as const;
+
+/** Band 5's identity: the chapter's highest ordinary `attackSpeed`, on its longest cooldown. */
+export const THROUGH_THE_BLOWDOWN = {
+  id: 'through-the-blowdown',
+  name: 'Through The Blowdown',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const WHAT_THE_WIND_LIFTED = {
+  id: 'what-the-wind-lifted',
+  name: 'What The Wind Lifted',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's second.
+ *
+ * ⚠️ **Not conditioned**, for the reason chapter 24 measured and chapters 26 and 27 both followed:
+ * all six condition kinds land within ±0.08 of a control at one carrier and at five, and a
+ * condition on the payload axis prices **−2.42**, because it is a restriction on the board and the
+ * party is the beneficiary.
+ */
+export const THE_GROUND_COMES_UP = {
+  id: 'the-ground-comes-up',
+  name: 'The Ground Comes Up',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/** The boss's blow, on the longest cooldown in the chapter. */
+export const THE_WHOLE_WOOD_AT_ONCE = {
+  id: 'the-whole-wood-at-once',
+  name: 'The Whole Wood At Once',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 68,
+  priority: 3,
+} as const;
+
+/** The boss's second, aimed where the chapter's question is: at whatever the party is leaning on. */
+export const NO_GAP_IN_IT = {
+  id: 'no-gap-in-it',
+  name: 'No Gap In It',
+  target: 'enemy-highest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 64,
+  priority: 3,
+} as const;
+
+/* ---------------------------------------------------------------------------------------------
+ * Chapter 29 — The Overburden.
+ *
+ * The chapter is authored on enemy `def`, the last stat in the block that has never been a
+ * chapter's premise. `def` **diminishes and can never reach zero** — it is a toll paid on every
+ * blow that reaches a body rather than a wall in front of one — so these turns are ordinary in
+ * shape and the escalation lives entirely in the stat behind them.
+ *
+ * ⚠️ **Cooldowns run 48 to 62 deliberately, and shorter than chapter 28's.** That chapter needed
+ * long cooldowns because `attackSpeed` accrues only after a basic attack; nothing here does, and a
+ * board authored on a stat that lengthens every fight cannot also spend its budget on rare, heavy
+ * turns. See {@link THE_WHOLE_MEASURE} for the chapter's only wide turn.
+ * ------------------------------------------------------------------------------------------- */
+
+/** Band 1's habit: the chapter's coldest turn, on the body that stands where the roof was stripped. */
+export const WHAT_THE_ROOF_KEEPS = {
+  id: 'what-the-roof-keeps',
+  name: 'What The Roof Keeps',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/** The chapter's most-fielded ordinary turn. */
+export const DEAD_MEASURE = {
+  id: 'dead-measure',
+  name: 'Dead Measure',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/** Band 2's identity: the first course laid over the working. */
+export const THE_FIRST_COURSE = {
+  id: 'the-first-course',
+  name: 'The First Course',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** Band 3's identity, on the chapter's heaviest ordinary armour. */
+export const SET_AND_LEFT = {
+  id: 'set-and-left',
+  name: 'Set And Left',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 60,
+  priority: 3,
+} as const;
+
+/** One of the chapter's three `enemy-back` turns; never two on a board. */
+export const STULL_AND_STAY = {
+  id: 'stull-and-stay',
+  name: 'Stull And Stay',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/** Band 4's identity, and the reach the closing bands are built around. */
+export const THE_GOB_WALL = {
+  id: 'the-gob-wall',
+  name: 'The Gob Wall',
+  target: 'enemy-row-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.15 }],
+  cooldown: 62,
+  priority: 3,
+} as const;
+
+/** Band 5's identity: the course that carries the crown of the working. */
+export const CROWN_COURSE = {
+  id: 'crown-course',
+  name: 'Crown Course',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.8 }],
+  cooldown: 54,
+  priority: 3,
+} as const;
+
+/** The second of the chapter's `enemy-back` turns, on its coldest legendary. */
+export const SHORED_AGAINST_IT = {
+  id: 'shored-against-it',
+  name: 'Shored Against It',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.65 }],
+  cooldown: 56,
+  priority: 3,
+} as const;
+
+/** The lieutenant's blow. */
+export const THE_WEIGHT_ABOVE = {
+  id: 'the-weight-above',
+  name: 'The Weight Above',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.1 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The lieutenant's second, and the reason five appearances are five different fights.
+ *
+ * ⚠️ **A conditioned turn is worth zero to negative as an axis** — chapter 24 priced all six
+ * condition kinds within ±0.08 of its control, and a condition on a payload prices **−2.42**. It is
+ * authored here for the reason the procedure gives a lieutenant one at all: it answers what the
+ * party is already doing, so a recurring block reads as an antagonist rather than as four copies of
+ * one stat line. It is **not** part of the chapter's difficulty.
+ */
+export const WHERE_IT_LEANS = {
+  id: 'where-it-leans',
+  name: 'Where It Leans',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 62,
+  priority: 2,
+  condition: { kind: 'ally-hurt', fraction: 0.6 },
+} as const;
+
+/** The boss's blow. */
+export const NOTHING_TO_SHIFT = {
+  id: 'nothing-to-shift',
+  name: 'Nothing To Shift',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.2 }],
+  cooldown: 58,
+  priority: 3,
+} as const;
+
+/**
+ * The chapter's only turn on the scope, at the wide cap.
+ *
+ * ⚠️ **`skills.spec.ts` holds `enemy-all`, `enemy-row-front` and `enemy-row-back` to power 1.2**,
+ * and chapter 22 priced a whole premise on a target that refuses it. This and {@link THE_GOB_WALL}
+ * are the chapter's only two wide turns and no board fields both.
+ */
+export const THE_WHOLE_MEASURE = {
+  id: 'the-whole-measure',
+  name: 'The Whole Measure',
+  target: 'enemy-all',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.2 }],
+  cooldown: 70,
+  priority: 2,
+} as const;
+
+/**
+ * The Human Tower's sixth hundred — the Headlong, floors 501–600, levels 236–283, Relic 41 → 100.
+ *
+ * ⚠️ **Every one of these is authored on a long cooldown, and that is half the mechanic rather than
+ * a flavour choice.** `attackSpeed` accrues **only when a combatant's last action was a basic
+ * attack**, so a body that casts constantly never banks any of the stat its whole band is about.
+ * Measured at this hundred's control, one carrier at `attackSpeed` 45 is worth **1.08 of five behind
+ * a 20-tick cooldown, 1.40 behind a 50 and 1.66 behind an 80** — read as the *marginal* worth over
+ * the same board with the stat stripped, because the skill itself is worth more at a short cooldown
+ * and the absolute column hides the trend entirely. **Take the margin, not the column.**
+ *
+ * The Ironpace column has broken into a run. Nothing about it is faster than the hundred below in
+ * `haste` — that stat is the third hundred's and it is spent — what changed is that the step stopped
+ * being a decision.
+ */
+export const HEADLONG_RUSH = {
+  id: 'headlong-rush',
+  name: 'Headlong Rush',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 62,
+  priority: 2,
+} as const;
+
+/**
+ * Somewhere behind them a serjeant is still calling the time. Nobody is counting it any more.
+ *
+ * The middle bands' turn. ⚠️ **`enemy-front` for the fourth hundred running on this tower**, which is
+ * the aim correction it made twice and has not had to revisit: a reach past the front rank has
+ * measured inert or negative on all seven towers, and the weaker Human arrangement fields no tank, so
+ * damage taken off its front row is time it did not have to buy.
+ */
+export const THE_STEP_RUNS_AWAY = {
+  id: 'the-step-runs-away',
+  name: 'The Step Runs Away',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 68,
+  priority: 2,
+} as const;
+
+/**
+ * There was never an order to halt. There was never an order to do any of this.
+ *
+ * The lieutenant's turn, and a single-target **selection** rather than a scope, for the reason the
+ * hundred below spent none either: a scope is the one shape on this tower big enough to carry a band
+ * by itself, and this hundred's axis is a stat. Spending a scope here would make the axis
+ * unmeasurable underneath it.
+ */
+export const NO_ORDER_TO_HALT = {
+  id: 'no-order-to-halt',
+  name: 'No Order To Halt',
+  target: 'enemy-lowest',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.4 }],
+  cooldown: 74,
+  priority: 1,
+} as const;
+
+/**
+ * It could have stopped at the wall. It did not stop at the wall.
+ *
+ * The roof's turn. ⚠️ **The longest cooldown on the tower and the point of the whole hundred**: this
+ * body spends most of the fight taking basic swings, which is the only thing that banks the stat it
+ * is built on. A boss authored on a 30-tick cooldown would be a boss that switched off its own axis.
+ */
+export const IT_CANNOT_STOP = {
+  id: 'it-cannot-stop',
+  name: 'It Cannot Stop',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.95 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 78,
+  priority: 1,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Dwarf Tower's sixth hundred — the Deepworks, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **The turns stay plain, for the third Dwarf hundred running, because the axis is the stat
+// line.** `physicalResist` is a refusal, and a refusal is only legible if the thing being refused is
+// the ordinary swing — a scope or a rider on top of it would be a second question the boards would
+// then have to be tuned around. `enemy-front` for the fourth hundred running on this tower, on the
+// tower family's own settled finding: aim past the front rank measures inert or negative on all seven.
+//
+// ⚠️ **The cooldowns are short where the Headlong's are long, and that is the axis rather than
+// taste.** That hundred is built on `attackSpeed`, which banks only after a basic attack, so its
+// bodies had to be authored at 62–78 to bank any of it. Nothing here accrues, so these sit at 40–52 —
+// the same register the Masterworks used one hundred below, which is what keeps the *stat line* the
+// only thing that changed between the two.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The hold shored its galleries against the mountain. It never thought to shore them against a man.
+ *
+ * The opening band's turn, and plain on purpose. The Timberer is the lightest of the four and its
+ * whole claim is the stone it is standing behind — one carrier beside this hundred's control is worth
+ * 0.80 of five, which is the same argument the Hewstroke Prentice makes a hundred floors below: the
+ * opening band has to teach what the wall is before the hundred can charge for three of them.
+ */
+export const SET_THE_TIMBER = {
+  id: 'set-the-timber',
+  name: 'Set the Timber',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * Packed dry, no mortar, every stone bearing on the one under it. The way the hold does it.
+ *
+ * The middle bands' turn, with a `SUNDER` rider priced as texture rather than as the axis — its
+ * duration (45 ticks) stays under this cooldown, so the shred never becomes permanent. ⚠️ **The rider
+ * is the one place this hundred takes armour off rather than putting it on**, and it is deliberate:
+ * a board made entirely of refusal is a board the party cannot make progress against, which is the
+ * ninety-second clock this crew loses to.
+ */
+export const COURSE_THE_STONE = {
+  id: 'course-the-stone',
+  name: 'Course the Stone',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.55 },
+    { kind: 'status', status: SUNDER, chance: 0.5 },
+  ],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * A pioneer does not take ground. A pioneer makes ground, and then it is nobody else's.
+ *
+ * The lieutenant's turn. A single-target selection rather than a scope, for the reason the Master's
+ * Measure is: a wide turn is the one shape on this tower big enough to carry a band on its own, and
+ * spending one here would make the stat underneath it unmeasurable.
+ */
+export const DRIVE_THE_HEADING = {
+  id: 'drive-the-heading',
+  name: 'Drive the Heading',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.7 },
+    { kind: 'status', status: SUNDER, chance: 0.55 },
+  ],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Every gallery above this one was dug by somebody who meant to come back up.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this** — at 580 health the board
+ * reads 18% at attack 40, 65% at 38, 98% at 36 and 100% at 34 — so the power stays inside the shipped
+ * single-target register and the stat line is what was tuned. **Shortlist on weight, settle on
+ * attack**, the fifth tower roof running.
+ */
+export const THE_ROOF_COMES_DOWN = {
+  id: 'the-roof-comes-down',
+  name: 'The Roof Comes Down',
+  target: 'enemy-front',
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 2.1 },
+    { kind: 'status', status: SUNDER, chance: 0.6 },
+  ],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Elf Tower's sixth hundred — the Case-Hardening, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **The turns stay plain, for the third Elf hundred running, because the axis is the stat line.**
+// `def` is a refusal, and a refusal is only legible if the thing being refused is the ordinary swing.
+// ⚠️ **A rider is a worse idea here than on the Deepworks**, because the two riders this tower would
+// reach for are both locks on this crew rather than texture: {@link SLOW} multiplies `haste` and an
+// Elf five carries the highest in the game (Σ580 / Σ620) — the fifth hundred measured three carriers
+// applying it at **0% at every roof attack from 28 down to 12** — and {@link SUNDER} takes armour off,
+// which is this hundred's own axis with the sign reversed. So all four are bare damage on
+// `enemy-front`, the fifth Dwarf-leaning hundred running, on the tower family's settled finding that
+// aim past the front rank is inert or negative on all seven towers.
+//
+// The cooldowns are 40 to 52, the same register the Trip-Hammers used one hundred below, which is
+// what keeps the **stat line** the only thing that changed between the two.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * Bone, hoof and charcoal, packed round the plate and luted shut. Then you wait.
+ *
+ * The opening band's turn, and plain on purpose. The Packer is the lightest of the four and its whole
+ * claim is the skin it came out of the box with — one carrier beside this hundred's control is worth
+ * 0.10 of five, which is the same argument the Headrace Hand makes a hundred floors below: the opening
+ * band has to teach what the skin is before the hundred can charge for three of them.
+ */
+export const PACK_THE_BOX = {
+  id: 'pack-the-box',
+  name: 'Pack the Box',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.45 }],
+  cooldown: 40,
+  priority: 2,
+} as const;
+
+/**
+ * Straw, then bronze, then blue. Past blue you have thrown it away.
+ *
+ * The middle bands' turn. Deliberately plain: the carrier it sits on is the axis, and everything this
+ * hundred charges for is in what the blow lands on rather than in what rides on it.
+ */
+export const DRAW_THE_TEMPER = {
+  id: 'draw-the-temper',
+  name: 'Draw the Temper',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.55 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * A day in the pit for a skin the thickness of a fingernail. The hold thought that was a bargain.
+ *
+ * The hundred's lieutenant turn, standing on the tenth floors of its upper half. A single-target
+ * selection rather than a scope, for the reason the Cam Comes Round is: a wide turn is the one shape
+ * on this tower big enough to carry a band on its own — its third hundred measured four wide voices at
+ * **0%** — and spending one here would make the stat underneath it unmeasurable.
+ */
+export const THE_LONG_SOAK = {
+  id: 'the-long-soak',
+  name: 'The Long Soak',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 50,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of works, to make one thing an edge does not find.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this** — with weight held at 780
+ * the board reads 100% / 3.38 for the binding arrangement at attack 21, 95% / 2.98 at 22, 85% / 2.50
+ * at 23 and **80% / 2.40 at the shipped 24** — so the power stays inside the shipped single-target
+ * register and the stat line is what was tuned. **Shortlist on weight, settle on attack**, the sixth
+ * tower roof running.
+ */
+export const NOTHING_MARKS_IT = {
+  id: 'nothing-marks-it',
+  name: 'Nothing Marks It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 2.05 }],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
+// ---------------------------------------------------------------------------------------
+// The Undead Tower's sixth hundred — the Riving, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **The turns are plain single-target damage, and on this axis that is load-bearing rather than a
+// habit.** `critDamageAmp` bills whatever the carrier hits *with*, so a rider would be measuring the
+// rider — and a **wide** turn would be measuring the scope: this tower's third hundred priced a
+// board-wide voice as the most expensive shape it has and its fifth held the hundred to a mean of
+// 0.58 voices a board. All four are `enemy-front`, the tower family's settled finding that aim past
+// the front rank is inert or negative on all seven towers.
+//
+// ⚠️ **The cooldowns run 44 to 56, shorter than the Thicket's 64–84, and that is the axis changing
+// rather than drift.** `attackSpeed` accrues *only* after a basic attack, so the hundred below had to
+// buy its carriers long gaps between casts; an amplifier bills the basic attack and the cast alike,
+// so nothing about the cadence has to be paid for. **Same tower, opposite requirement.**
+// ---------------------------------------------------------------------------------------
+
+/**
+ * You do not cut it. You find where it already wants to come apart, and you disagree politely.
+ *
+ * The opening band's turn. Plain on purpose: the Driver is the lightest of the four and everything it
+ * charges for is in what a crit is worth when it lands, so a rider here would be the thing being
+ * measured. One carrier beside this hundred's control is worth **0.15 of five**, which is the Casebox
+ * Packer's argument on a different tower — the opening band has to teach what the amplifier is before
+ * the closing bands can charge for three of them.
+ */
+export const DRIVE_THE_WEDGE = {
+  id: 'drive-the-wedge',
+  name: 'Drive the Wedge',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 44,
+  priority: 2,
+} as const;
+
+/**
+ * Along it, the log is a door. Across it, the log is a log.
+ *
+ * The middle bands' turn, and the one this hundred fields most. Deliberately the same shape as the
+ * Wedge one band below it, because what changes between the two carriers is the amplifier and not the
+ * turn — which is the only way the boards can say the axis out loud.
+ */
+export const ALONG_THE_GRAIN = {
+  id: 'along-the-grain',
+  name: 'Along the Grain',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * The froe does not swing. The mallet swings, once, and the froe is only there to be believed.
+ *
+ * The hundred's lieutenant turn, standing on the tenth floors of its upper half. Single-target rather
+ * than a scope for the reason every turn on this tower is: a wide voice is the one shape big enough to
+ * carry a band by itself here, and spending one would make the stat underneath it unmeasurable.
+ */
+export const THE_FROE_AND_THE_MALLET = {
+  id: 'the-froe-and-the-mallet',
+  name: 'The Froe and the Mallet',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.75 }],
+  cooldown: 52,
+  priority: 3,
+} as const;
+
+/**
+ * It was always going to open here. Six hundred floors of weather only had to wait.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this** — with weight held at 740
+ * the board reads 100% / 2.10 for the binding arrangement at attack 24, 100% / 1.75 at 26, 98% / 1.45
+ * at 28 and 90% / 1.05 at 30 — so the power stays inside the shipped single-target register and the
+ * stat line is what was tuned. **Shortlist on weight, settle on attack**, the seventh tower roof
+ * running.
+ */
+export const IT_OPENS_TO_THE_HEART = {
+  id: 'it-opens-to-the-heart',
+  name: 'It Opens to the Heart',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.95 }],
+  cooldown: 56,
+  priority: 4,
+} as const;
+
+/**
+ * It does not run and it does not fall, and the field has run out of ways to ask it to.
+ *
+ * The light carrier of the Glut, and the first body in six hundred floors of this tower that is
+ * authored to be *hard to finish* rather than hard to survive. ⚠️ **The power is low because the axis
+ * is not the blow** — {@link FENGORGED_WALLOWER} is 420 of health against 22 of attack, a ratio of 19
+ * against a shipped median of 13.2, and what it costs the crew is the seconds its pool takes off the
+ * clock rather than the damage it deals in them.
+ *
+ * `enemy-front` and no rider, for the eighth tower running: aiming past the front rank is inert or
+ * negative on all seven towers and this one measured it at −0.10 on its own fifth hundred.
+ */
+export const IT_DOES_NOT_THIN = {
+  id: 'it-does-not-thin',
+  name: 'It Does Not Thin',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * Everything the fen has eaten this season is standing in front of you wearing it.
+ *
+ * The middle carrier. Same shape one size up — 580 of health against 24 of attack, a ratio of 24 —
+ * and the `mage` set it wears is the half of the finding that is not obvious: on a **health** axis the
+ * `tank` archetype switches the axis off, reading 3.00 of five against a hot set's 2.00 at an
+ * identical stat line, because a tank set pays its grade into the pool and not into the blow. A pool
+ * nothing is billing is a long fight rather than a hard one.
+ */
+export const THE_SEASON_IT_ATE = {
+  id: 'the-season-it-ate',
+  name: 'The Season It Ate',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * The jaws close on it and keep closing, and there is still more of it on the other side.
+ *
+ * The lieutenant's turn, arriving in band 4 and standing on every board above it. ⚠️ **A health
+ * carrier bills what is _aimed at_**, which is the fourth distinct answer the rank question has given
+ * in four hundreds: carried on one body at this hundred's control, a fat escort is worth **3.02 of
+ * five in the front rank against 3.63 behind** at ×1.8 and 3.00 against 3.05 at ×3.0 — a spread that
+ * *shrinks* as the pool grows, where the Demon fifth hundred's dodge spread grew. So this one leads.
+ */
+export const AND_STILL_MORE_OF_IT = {
+  id: 'and-still-more-of-it',
+  name: 'And Still More of It',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of bringing things down, and the last one will not go down.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this**, and the alternate five is
+ * what settled it. With weight held at 880 the shipped board reads, across attack 14 / 16 / 18 / 20 /
+ * 22 / 26: reference **100% / 2.80, 2.33, 2.13, 2.08, 2.02, 1.82** — which never falls below the bar at
+ * all — against alternate **100% / 1.10, 85% / 0.88, 70% / 0.70, 38%, 10%, 0%**. The 75% bar lands
+ * between 16 and 18. **Shortlist on weight, settle on attack**, the eighth tower roof running — and on
+ * a hundred whose whole axis is weight, the roof is the one place the attack has to come *down* to pay
+ * for it. ⚠️ **Held the other way at attack 16, health 760 / 820 / 880 / 940 / 1000 reads
+ * 100% / 100% / 85% / 75% / 38% for the alternate**, so both halves were walked and the pair is the
+ * heaviest that clears both bars.
+ */
+export const IT_WILL_NOT_GO_DOWN = {
+  id: 'it-will-not-go-down',
+  name: 'It Will Not Go Down',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 54,
+  priority: 4,
+} as const;
+
+/**
+ * The choir has a note for a wound. It does not have one for the next wound.
+ *
+ * The light carrier of the Bellows, and the first turn in six hundred floors of this tower authored
+ * to be answered by *nothing* — no seam to open, no crit to block, no status to cleanse. ⚠️ **Its
+ * power is ordinary and its `atk` is not**: {@link EMBERDRAW_FLETCHER} carries 30 against a shipped
+ * `legendary` median of 58, because at Relic 100 a `ranger` set pays **+112%** attack where a `tank`
+ * set pays +46% — and held at an identical stat line, four carriers all-`ranger` read **0.03 of five**
+ * against all-`tank`'s **4.00**. The set is the axis; the number under it has to come down to pay for
+ * it.
+ */
+export const NO_NOTE_FOR_THE_NEXT = {
+  id: 'no-note-for-the-next',
+  name: 'No Note for the Next',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 42,
+  priority: 3,
+} as const;
+
+/**
+ * Between one verse and the next there is a gap, and the gap is where this lands.
+ *
+ * The middle carrier's turn, and the tower's founding failure stated as a cadence: an Angel five
+ * survives on a heal behind a cooldown, so what removes a body between two of them is rate rather than
+ * size. ⚠️ **That is what separates this hundred from the third**, which held damage per second fixed
+ * and made each blow larger; this raises the rate and leaves the blow alone.
+ */
+export const THE_GAP_BETWEEN_VERSES = {
+  id: 'the-gap-between-verses',
+  name: 'The Gap Between Verses',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.6 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * It is not aimed at the shield. It is aimed at the time the shield takes.
+ *
+ * The lieutenant's turn, arriving in band 4. ⚠️ **A hot carrier bills what is _left alive_, so it
+ * stands behind**: carried on one body with the escort held, a hot escort is worth **4.00 of five in
+ * the front rank against 3.20 behind** at ×1.4, 3.92 against 1.05 at ×1.8 and 3.98 against **0.05** at
+ * ×2.2 — a spread that *grows* with the value, where the Monster sixth hundred's health carrier
+ * shrank. A body the party cannot aim at keeps swinging, and this crew's aim is slow.
+ */
+export const THE_TIME_IT_TAKES = {
+  id: 'the-time-it-takes',
+  name: 'The Time It Takes',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of singing over it, and it was never listening.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this**, and the alternate five is
+ * what settled it: with weight held at 800 the shipped board reads, across attack 20 / 24 / 28 / 32 /
+ * 38, reference **100% / 3.95, 100% / 4.00, 100% / 3.88, 98% / 3.65, 83% / 2.65** — which clears the
+ * 90% bar to the far end — against alternate **100% / 3.92, 78% / 2.95, 60% / 1.73, 10% / 0.28, 0%**.
+ * The 75% bar lands between 24 and 28. ⚠️ **Held the other way at attack 24, health 680 / 740 / 800 /
+ * 860 / 920 reads 90% / 88% / 78% / 75% / 75% for the alternate**, so both halves were walked and the
+ * pair is the heaviest that clears both bars with margin. **Shortlist on weight, settle on attack**,
+ * the ninth tower roof running.
+ */
+export const IT_WAS_NEVER_LISTENING = {
+  id: 'it-was-never-listening',
+  name: 'It Was Never Listening',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
+/**
+ * The blow lands. The stone is where it was.
+ *
+ * The light carrier of the Deadening, and the turn that says what the hundred is: nothing here refuses
+ * the *hit*. ⚠️ **`critDamage` is `1 + max(critDamageAmp − critDamageResist, 0)`**, so a body carrying
+ * more of the resist than the attacker carries of the amplifier takes a critical strike as an ordinary
+ * one — and a Demon five carries `critDamageAmp` **Σ4.50 and Σ5.05**, the largest in the game by a
+ * quarter, on `critChance` Σ1.21 and Σ1.43, also the largest.
+ */
+export const THE_STONE_IS_WHERE_IT_WAS = {
+  id: 'the-stone-is-where-it-was',
+  name: 'The Stone Is Where It Was',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * Struck, and it rings the same note it was already ringing.
+ *
+ * The middle carrier's turn. ⚠️ **The `mage` set it wears is the measurement rather than a flourish**:
+ * on a refusal axis the `tank` archetype switches the axis off, reading **4.00 of five** at an
+ * identical stat line against a `ranger` set's 1.82 and a `mage` set's 2.27, because a tank set pays
+ * its grade into health and health buys the party seconds rather than costing it members. The Dwarf
+ * sixth hundred's finding, on the seventh tower.
+ */
+export const THE_SAME_NOTE = {
+  id: 'the-same-note',
+  name: 'The Same Note',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * It has carried the reliquary through five hundred floors of this and never once broken step.
+ *
+ * The lieutenant's turn, arriving in band 4. ⚠️ **Rank is not a dial on this axis, which is the sixth
+ * distinct answer the question has given in six hundreds.** Carried on one body with the escort held,
+ * a carrier is worth 3.63 of five in front against 3.77 behind at 0.8, 3.42 against 3.70 at 1.4 and
+ * 3.50 against 3.77 at 2.0 — a spread of 0.14 to 0.28 that never resolves, because a resist bills
+ * every blow that reaches the body whenever it arrives. **A dodge bills what is aimed at, an
+ * `attackSpeed` what is left alive, a health pool what is aimed at with a shrinking spread, a hot body
+ * what is left alive with a growing one — and this bills everything, from anywhere.**
+ */
+export const NEVER_ONCE_BROKEN_STEP = {
+  id: 'never-once-broken-step',
+  name: 'Never Once Broken Step',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of the edge finding something. This is the floor where finding it stops paying.
+ *
+ * The roof's turn, and the last one this project's towers have. ⚠️ **The roof was settled on its `atk`
+ * and not on this** — the figures are in {@link THE_UNMOVED}. **Shortlist on weight, settle on
+ * attack**, the tenth tower roof running and the last.
+ */
+export const FINDING_IT_STOPS_PAYING = {
+  id: 'finding-it-stops-paying',
+  name: 'Finding It Stops Paying',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
+  THE_STONE_IS_WHERE_IT_WAS,
+  THE_SAME_NOTE,
+  NEVER_ONCE_BROKEN_STEP,
+  FINDING_IT_STOPS_PAYING,
+  NO_NOTE_FOR_THE_NEXT,
+  THE_GAP_BETWEEN_VERSES,
+  THE_TIME_IT_TAKES,
+  IT_WAS_NEVER_LISTENING,
+  IT_DOES_NOT_THIN,
+  THE_SEASON_IT_ATE,
+  AND_STILL_MORE_OF_IT,
+  IT_WILL_NOT_GO_DOWN,
   GUARD_BREAK,
   SECOND_WIND,
   OATH_OF_ARMS,
@@ -8398,4 +11142,140 @@ export const SKILLS = [
   THE_HOLD_REMEMBERS,
   UNMADE_AND_UNSAID,
   LEAVE_NO_MARK,
+  GROUND_ALREADY_WALKED,
+  SPEND_THE_RANK,
+  WEAR_IT_THROUGH,
+  NO_NUMBER_HOLDS,
+  THIN_THE_RANK,
+  COUNT_THE_HOLLOW,
+  THE_ROAD_TAKES_ITS_SHARE,
+  WHAT_FEW_REMAIN,
+  FEWER_EVERY_MILE,
+  NONE_COME_BACK,
+  CALL_THE_ROLL,
+  NOBODY_ANSWERS,
+  HARNESS_DRILL,
+  PANOPLY_WEIGHT,
+  GRAVEPLATE_CRUSH,
+  THE_PANOPLY_CLOSES,
+  RACK_PICK,
+  PROOF_MARK,
+  WARPICK_FALL,
+  THE_PROOF_HOLDS,
+  RIVET_LINE,
+  SET_THE_PLATE,
+  DEADWEIGHT_FALL,
+  THE_PLATE_HOLDS,
+  COPPICE_LASH,
+  WITHY_SNAP,
+  THINWOOD_RUSH,
+  THE_YEAR_TURNS,
+  SPRUNG_TURN,
+  ANGLED_FACE,
+  SLIP_THE_JAW,
+  NOTHING_LANDS,
+  THE_BLOW_TURNS,
+  PROVE_THE_PLATE,
+  FLENSE_THE_SEAM,
+  THE_SAME_NOTE_AGAIN,
+  IT_WAS_ALWAYS_THERE,
+  WIDEN_IT,
+  NOTHING_IS_HEARD,
+  THE_VAULT_HOLDS,
+  SAY_IT_AGAIN,
+  NO_WORD_REACHES_IT,
+  THE_ANSWER_WITHHELD,
+  IRONPACE_STEP,
+  GRAVESTRIDE_CADENCE,
+  THE_LEADEN_HOUR_FALLS,
+  NOTHING_BREAKS_STEP,
+  HEWING_STROKE,
+  SPLIT_THE_GRAIN,
+  THE_MASTERS_MEASURE,
+  THE_MASTERSTROKE_FALLS,
+  PACK_THE_BOX,
+  DRAW_THE_TEMPER,
+  THE_LONG_SOAK,
+  NOTHING_MARKS_IT,
+  DRIVE_THE_WEDGE,
+  ALONG_THE_GRAIN,
+  THE_FROE_AND_THE_MALLET,
+  IT_OPENS_TO_THE_HEART,
+  TAP_THE_RACE,
+  THE_HELVE_FALLS,
+  THE_CAM_COMES_ROUND,
+  THE_GREAT_HELVE_FALLS,
+  SUCKER_LASH,
+  BRAKE_FLAIL,
+  COVERT_REAVE,
+  BLACKTHORN_CLOSE,
+  SWING_THE_THURIBLE,
+  OIL_THE_GROUND,
+  LIGHT_THE_SLOW_LAMP,
+  NOTHING_PUTS_IT_OUT,
+  FIND_THE_LACE,
+  WORK_IT_WIDER,
+  TAKE_THE_SEAM,
+  IT_WAS_NEVER_SHUT,
+  A_PACE_AHEAD,
+  CLEAR_THE_AISLE,
+  THE_LIGHT_GUTTERS,
+  NOTHING_LANDS_AT_ALL,
+  THE_BLOW_UNMET,
+  GROUND_THAT_GIVES,
+  NOTHING_SETS_TRUE,
+  ILL_MET_AND_ILL_FALLEN,
+  THE_STONE_TURNS,
+  SHARP_AND_SUDDEN,
+  FROM_WHERE_IT_FELL,
+  THE_WAY_IT_FALLS,
+  BREAK_WHERE_IT_WILL,
+  NO_TWO_THE_SAME,
+  NOTHING_TO_PLAN_FOR,
+  COUNT_ON_NOTHING,
+  THE_WAY_IT_LANDS,
+  GROUND_GIVEN,
+  BREAK_AND_GO,
+  HALF_A_TURN,
+  OPEN_ORDER,
+  LOOSE_AT_THE_REIN,
+  NEVER_CLOSING,
+  THE_LINE_OPENS,
+  HELD_BY_HALVES,
+  A_STEP_ALREADY_TAKEN,
+  NOTHING_TO_MEET_IT,
+  NO_LINE_TO_BREAK,
+  WHERE_IT_WAS_STANDING,
+  THE_DISC_OF_ROOTS,
+  OUT_OF_THE_WIND,
+  GREEN_TIMBER_SNAPPING,
+  OUT_OF_THE_CROWN,
+  THE_WHOLE_STAND_GOES,
+  DOWN_THE_GALEWAY,
+  NOTHING_SETS,
+  THROUGH_THE_BLOWDOWN,
+  WHAT_THE_WIND_LIFTED,
+  THE_GROUND_COMES_UP,
+  THE_WHOLE_WOOD_AT_ONCE,
+  NO_GAP_IN_IT,
+  WHAT_THE_ROOF_KEEPS,
+  DEAD_MEASURE,
+  THE_FIRST_COURSE,
+  SET_AND_LEFT,
+  STULL_AND_STAY,
+  THE_GOB_WALL,
+  CROWN_COURSE,
+  SHORED_AGAINST_IT,
+  THE_WEIGHT_ABOVE,
+  WHERE_IT_LEANS,
+  NOTHING_TO_SHIFT,
+  THE_WHOLE_MEASURE,
+  HEADLONG_RUSH,
+  THE_STEP_RUNS_AWAY,
+  NO_ORDER_TO_HALT,
+  IT_CANNOT_STOP,
+  SET_THE_TIMBER,
+  COURSE_THE_STONE,
+  DRIVE_THE_HEADING,
+  THE_ROOF_COMES_DOWN,
 ] as const;

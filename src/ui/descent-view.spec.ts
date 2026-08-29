@@ -190,6 +190,16 @@ describe('DescentView', () => {
       expect(el.querySelector('.lock__factions')?.textContent).toContain('and');
     });
 
+    it('names itself as the crew editor’s origin, so its back link returns here', async () => {
+      // Without `from` the link still works and the editor quietly falls back to the formations
+      // index — a screen this trip never visited. The parameter is the half that fails silently.
+      const { el } = await render();
+
+      expect(el.querySelector('.lock__link')?.getAttribute('href')).toBe(
+        '/formations/descent?from=descent',
+      );
+    });
+
     it('draws every fight, including the ones still ahead', async () => {
       // The shape of the run is what a player decides against when they take a card, and a level
       // eight fights away is the reason to take the bigger one now.

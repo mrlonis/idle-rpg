@@ -12,6 +12,7 @@ import { BattleService } from './battle.service';
 import { characterById, factionList } from './content';
 import { FormationService } from './formation.service';
 import { lineupPanel } from './lineup-copy';
+import { backTo } from './navigation';
 import { type RosterEntryView } from './roster.service';
 import { TowerService } from './tower.service';
 
@@ -99,6 +100,28 @@ export class FormationView {
    * point into the battle path.
    */
   readonly prepare = input(false);
+
+  /**
+   * Which screen sent the player here, from the `from` query parameter.
+   *
+   * The editor is linked from the formations index, from the Descent, and from every expedition
+   * map — and a back link that always said "Formations" sent two of those three trips to an index
+   * the player had never visited. Absent — a bookmark, a reload, a link from the index itself —
+   * it resolves to the formations index. See {@link backTo}.
+   */
+  readonly from = input<string>();
+
+  /**
+   * Where the back link goes and what it is called.
+   *
+   * The prepare route ignores {@link from}: every fight is launched from Home — the battle screen
+   * swaps in over it — so Home is where that trip came from and where it goes back to. Honouring a
+   * query parameter there would also let a hand-typed URL relabel the one exit from the battle
+   * path, for the same reason `prepare` itself is route data rather than a parameter.
+   */
+  protected readonly back = computed(() =>
+    this.prepare() ? backTo('home') : backTo(this.from(), 'formations'),
+  );
 
   protected readonly partySize = PARTY_SIZE;
 

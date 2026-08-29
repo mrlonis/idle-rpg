@@ -5,8 +5,10 @@ import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
 import { CAMPAIGN_FORMATION, type RosterResult } from '../core';
 import { BattleService, type StageHeading } from './battle.service';
+import { EXPEDITION_LIST } from './content';
 import { FormationView } from './formation-view';
 import { type CrewView, FormationService } from './formation.service';
+import { expeditionOrigin } from './navigation';
 import { type RosterEntryView } from './roster.service';
 import { TowerService, type TowerView } from './tower.service';
 
@@ -139,7 +141,7 @@ class FakeTowers {
 
 async function render(
   configure?: (formations: FakeFormations, battles: FakeBattles, towers: FakeTowers) => void,
-  inputs: { activityId?: string; prepare?: boolean } = {},
+  inputs: { activityId?: string; prepare?: boolean; from?: string } = {},
 ) {
   const formations = new FakeFormations();
   const battles = new FakeBattles();
@@ -161,6 +163,9 @@ async function render(
   const fixture = TestBed.createComponent(FormationView);
   fixture.componentRef.setInput('activityId', inputs.activityId ?? CAMPAIGN_FORMATION);
   fixture.componentRef.setInput('prepare', inputs.prepare ?? false);
+  if (inputs.from !== undefined) {
+    fixture.componentRef.setInput('from', inputs.from);
+  }
   fixture.detectChanges();
   await fixture.whenStable();
   fixture.detectChanges();
@@ -206,6 +211,48 @@ describe('FormationView', () => {
       expect(el.querySelector('h1')?.textContent?.trim()).toBe('Before you fight');
       expect(el.querySelector('.head__back')?.getAttribute('href')).toBe('/');
       expect(el.querySelector<HTMLButtonElement>('.button--primary')?.disabled).toBe(false);
+    });
+  });
+
+  /**
+   * The editor is linked from the formations index, from the Descent, and from every expedition
+   * map, and each caller names itself in a `from` query parameter — the character sheet's
+   * mechanism, in `navigation.ts`. Before this, the back link always said "Formations", which sent
+   * a player who arrived from the Descent to an index they had never visited.
+   */
+  describe('the back link', () => {
+    it('returns to the Descent when the Descent sent the player here', async () => {
+      const { el } = await render(undefined, { from: 'descent' });
+
+      const back = el.querySelector('.head__back');
+      expect(back?.getAttribute('href')).toBe('/descent');
+      expect(back?.textContent).toContain('The Descent');
+    });
+
+    it('returns to the expedition map the player left, named after the map', async () => {
+      // Derived from the shipped maps rather than retyped: a renamed map moves this with it.
+      const map = EXPEDITION_LIST[0];
+      const { el } = await render(undefined, { from: expeditionOrigin(map.id) });
+
+      const back = el.querySelector('.head__back');
+      expect(back?.getAttribute('href')).toBe(`/expeditions/${map.id}`);
+      expect(back?.textContent).toContain(map.name);
+    });
+
+    it('ignores the origin on the pre-battle route, which always came from Home', async () => {
+      // Honouring `from` there would let a hand-typed URL relabel the one exit from the battle
+      // path — the same reason `prepare` itself is route data rather than a query parameter.
+      const { el } = await render(undefined, { prepare: true, from: 'descent' });
+
+      expect(el.querySelector('.head__back')?.getAttribute('href')).toBe('/');
+    });
+
+    it('keeps the origin-aware exit on the screen for an unknown activity', async () => {
+      // A stale activity id that arrived from the Descent should still send the player back to
+      // the Descent rather than to an index they never visited.
+      const { el } = await render((formations) => formations.view.set(null), { from: 'descent' });
+
+      expect(el.querySelector('.head__back')?.getAttribute('href')).toBe('/descent');
     });
   });
 

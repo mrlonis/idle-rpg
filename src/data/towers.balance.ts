@@ -115,6 +115,7 @@ const floorsOf = (tower: TowerData): readonly StageData[] =>
     tower,
     rules,
     (level) => stagePayout(rewards, matchedStageIndex(campaignLevels, level)).reward,
+    GEAR_RULES,
   );
 
 /**
@@ -127,7 +128,7 @@ const TRIALS = 40;
  * Every fourth floor, plus the roof.
  *
  * ⚠️ **A stride over the tower, not a smaller sample of it** — the same licence milestone 11 took on
- * the ladder, and for the same reason. A hundred floors spans levels 1 to 60, so adjacent floors sit
+ * the ladder, and for the same reason. The line is under half a level a floor, so adjacent floors sit
  * within a level of each other and a block that measures a *step* measures noise at that spacing.
  * Striding restores the per-sample gap while covering the same range at the same resolution. The
  * load-bearing assertions — zero timeouts, the timer headroom, the top floor — read every floor.
@@ -139,7 +140,7 @@ const STRIDE = 4;
  *
  * ## ⚠️ A single upgraded crew would stop this file saying anything about the low bands
  *
- * The tower is three hundred floors and two of those hundreds have already shipped. A crew built for
+ * The tower is four hundred floors and three of those hundreds have already shipped. A crew built for
  * the roof walks floor 40 without noticing, so the levels the earlier bands carry would go unmeasured
  * on content that is already in players' hands. One crew per band is what keeps all of it watched —
  * the same move `chapters.balance.ts` makes with BUILT / ARRIVED / MARCHED / INVESTED and for the
@@ -212,6 +213,25 @@ const RUNG_LEVELS = Math.round(Math.log(GROWTH.perAscension) / Math.log(GROWTH.p
 const BAND_FLOORS = TOWER_BAND_UNIT;
 const BANDS = TOWER_BAND_RUNGS.length;
 
+/**
+ * ⚠️ **The fifth round's `PENDING` list lived here and is gone, because the round has closed.**
+ *
+ * `TOWER_RULES` is one rule for all seven, so a height bump lands in a single session while the floors
+ * move in seven; a literal twin of the list in [`towers.spec.ts`](./towers.spec.ts) carried the towers
+ * still on the old height, each session deleted its own name, and the last deleted both lists and every
+ * branch that read them. **It has now run to completion five times.** A *filter* — "every band the
+ * tower has floors for" — would pass forever on a tower nobody went back for, which is why the list
+ * must be literal and must go back **in the same session as the next bump**, not in the session that
+ * authors the first tower.
+ *
+ * ⚠️ **Two shapes here read the authored height rather than the rules' height and must stay that
+ * way.** {@link topFloors} takes each tower's **last authored floor**, and the roof-versus-band-opener
+ * comparison is computed **per tower** rather than against the rules' top band. Both are no-ops while
+ * every tower is the full height, and both are what stop this file sweeping an undefined stage the day
+ * the next bump lands — which is exactly what the fourth hundred's bump proved, because both were
+ * already correct when it arrived.
+ */
+
 /** Which crew meets a floor. Band 1 takes the first hundred, band 2 the second, and so on. */
 const bandOf = (floor: number): number => Math.min(Math.ceil(floor / BAND_FLOORS), BANDS) || 1;
 
@@ -225,9 +245,15 @@ const bandTopFloor = (band: number): number => Math.min(band * BAND_FLOORS, rule
  * looks like an inconsistency and is the shipped tuning. Band 1's crew is `rare-plus` — one rung over
  * `rare`, the first rung at which a party is a fair test at all — so it has no rung to pay back and
  * `ROOF_MARGIN` does not apply to it. Every band above owes {@link ROOF_MARGIN} once, plus
- * {@link RUNG_LEVELS} for each *further* rung it has taken. The margins run 0, 20, 43 and the
- * resulting crews are `rare-plus`/48, `elite`/75 and `elite-plus`/99 — the first two exactly what the
- * shipped fourteen hundred floors were tuned against, which is the constraint this has to satisfy.
+ * {@link RUNG_LEVELS} for each *further* rung it has taken. The margins run 0, 20, 43, 66 and the
+ * resulting crews are `rare-plus`/48, `elite`/75, `elite-plus`/99 and `legendary`/123 — the first three
+ * exactly what the **two thousand one hundred** floors below the gear ramp were tuned against, which is
+ * the constraint this has to satisfy.
+ *
+ * ⚠️ **Band 4's rung is a `KIT_RULES.unlocks` rung and the two above it were not**, so that crew gains a
+ * **third skill** as well as its ×1.6 and its twenty-four levels. The derivation is unchanged and the
+ * ratio still lands at ×1.663, but the ratio cannot see a skill — so the fourth hundred's boards are
+ * tuned against measured survivors and `towers.spec.ts`'s ratio bound is only a legality check.
  *
  * Clamped to the rung's own cap, which is what "a crew that can legally hold the level its content
  * asks for" means — `towers.spec.ts` holds the same property from the data side.
@@ -251,9 +277,15 @@ const BAND_CREWS = TOWER_BAND_RUNGS.map((rung, index) => {
  * between the two bands, not the levels**: `elite` is where the second skill unlocks, and an
  * `elite` five at level 70 clears every floor of the shipped hundred with all five alive.
  *
- * **No gear, deliberately.** The tower's target is a party that has invested in *breadth*, and a
- * player crewing seven towers has one bag to equip them from. Measuring the tower against a fully
- * geared five would tune it for a party nobody with seven crews can field.
+ * **No gear on the _party_, deliberately.** The tower's target is a party that has invested in
+ * *breadth*, and a player crewing seven towers has one bag to equip thirty-five characters from.
+ * Measuring the tower against a fully geared five would tune it for a party nobody with seven crews can
+ * field.
+ *
+ * ⚠️ **The _boards_ are a different question and the answer changed at the fourth hundred.** Floors
+ * 301–400 wear a Worn 1 → Fine 60 ramp off `TOWER_RULES.gear`, which `resolveTower` prices. That is
+ * enemy-side only and it does not touch this: the crews stay bare, which is exactly what makes the ramp
+ * a difficulty axis rather than a wash.
  */
 function at(character: CharacterData, band: number): CombatantData {
   const { rarity, level } = BAND_CREWS[band - 1];
@@ -580,12 +612,11 @@ describe('tower balance', () => {
       entries.reduce((sum, entry) => sum + entry.meanSeconds, 0) / Math.max(entries.length, 1);
 
     for (const tower of towers) {
-      // ⚠️ **Every tower owes every band the rules describe, and this reads the rules rather than
-      // the content.** Deriving the band count from `tower.floors.length` would make it a filter —
-      // it would pass forever on a tower nobody went back for. While the third hundred was in
-      // flight a literal `PENDING` list of names subtracted a band from the towers still on the old
-      // height; all seven are the full height now and the list is gone. **Bring it back the same
-      // way the next time a height bump lands ahead of the floors.**
+      // ⚠️ **Every tower owes every band the rules describe, and this reads `BANDS` rather than the
+      // content.** Deriving the band count from `tower.floors.length` would make it a filter, and a
+      // filter would pass forever on a tower nobody went back for. While the fifth round was in
+      // flight this was `PENDING.includes(tower.id) ? BANDS - 1 : BANDS`; the round has closed, so
+      // every tower owes every band. **Restore the exemption with the next height bump.**
       for (let band = 1; band <= BANDS; band++) {
         const mine = sampled.filter((entry) => entry.tower === tower.id && entry.band === band);
 
