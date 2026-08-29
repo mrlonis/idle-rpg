@@ -394,9 +394,9 @@ them is how they get reversed by accident.
 **Content modes**
 
 - **[docs/towers.md](docs/towers.md)** — seven faction towers, **six hundred floors each at levels 1
-  to 283 — the Human, Dwarf, Elf and Undead Towers complete and the other three at five hundred while a
-  fifth round is in flight**. What a tower is for, the three fields a clear may never touch, the six crews,
-  and thirty-two hundreds' worth of measured escalation findings.
+  to 283, all seven complete; the fifth round closed with the Demon Tower, as the third and fourth
+  did**. What a tower is for, the three fields a clear may never touch, the six crews, and thirty-five
+  hundreds' worth of measured escalation findings.
 - **[docs/descent.md](docs/descent.md)** — the daily roguelite run: three floors of three fights,
   attrition, and one card of three after every win. **The only content that asks a question
   mid-flight.** ⚠️ **Both this and Expeditions clamp the campaign anchor** — `anchorCap`, 316 and 322
@@ -894,9 +894,10 @@ Asserted in `core/battle/simulate.spec.ts`.
   `floorKindAt` reads the rules' height, **and it stays naked**, because `floorGear` reads the rules'
   height too. Track them with a **literal `PENDING` list** in `towers.spec.ts` and
   `towers.balance.ts`; a filter ("the full height or three quarters of it") passes forever and never
-  notices a tower nobody went back for. ⚠️ **Both lists are back and a fifth round is in flight: the
-  height is 600, the Human, Dwarf, Elf and Undead Towers are there and the other three are at 500**, and they went
-  back **in the same session as the bump** for the second round running — between a bump and the first
+  notices a tower nobody went back for. ⚠️ **The fifth round has closed: the height is 600,
+  all seven towers are there, and both lists are gone along with every branch that read them** — the
+  fifth time that checklist has run to completion and the fourth time the Demon Tower deleted it. They
+  went back **in the same session as the bump** for the second round running — between a bump and the first
   authored tower there is nothing at all holding the short ones. **Put the lists back with every bump, not with
   the first authored tower**, and keep the shapes they force — `topFloors` reading the **authored**
   height and the roof-versus-band-opener comparison computed **per tower** — which stop the sweep
@@ -959,6 +960,23 @@ critDamageResist, 0)`, so the Angel fourth hundred took `critChance` — the fre
   five in front against **1.00 behind** at floor 570 and 0.02–0.08 against **1.80–1.85** at floor 590,
   reproduced on all three carriers at both levels. **Carry the measurement, never the precedent — not
   even the same tower's.** [towers](docs/towers.md)
+- ⚠️ **The gear archetype is a lever on the _escorts_ as well as the carriers, and on a closing band it
+  is what makes the boards authorable at all.** At the Demon sixth hundred a hot-set common at floor 600
+  reads the binding arrangement at **3%** where the identical board with `tank` and `support` escorts
+  reads **100%**. **On a geared hundred the escorts' archetypes are not texture.** [towers](docs/towers.md)
+- ⚠️ **Rank can be no dial at all, which is the sixth distinct answer in six hundreds.** A
+  `critDamageResist` carrier is worth 3.63 of five in front against 3.77 behind at 0.8 and 3.50 against
+  3.77 at 2.0 — a spread that never resolves. **A dodge bills what is _aimed at_, an `attackSpeed` what
+  is _left alive_, a health pool what is aimed at with a _shrinking_ spread, a hot body what is left
+  alive with a _growing_ one, and a resist bills every blow that reaches the body whenever it arrives.**
+  [towers](docs/towers.md)
+- ⚠️ **A stat can split into two halves that are two axes on the _same_ tower, and the register is what
+  licenses the second.** The Demon third hundred took `critBlock` — how _often_ a crit lands — **at**
+  the shipped register; its sixth took `critDamageResist` — how _large_ one is — at **three and a half
+  times** its ceiling of 0.52, because `critDamage` is `1 + max(critDamageAmp − critDamageResist, 0)`
+  and that crew carries the game's largest `critDamageAmp` (Σ4.50 / Σ5.05). ⚠️ **At the register the
+  second half is worth 0.35 and 0.42.** **State which side of the register a band landed on, and what
+  the axis is worth at it.** [towers](docs/towers.md)
 - ⚠️ **On a _throughput_ axis the gear archetype is worth more than the whole axis, and it is the
   largest reading that lever has had.** Held at an identical stat line at four carriers on the Angel
   sixth hundred, all-`tank` reads **4.00 of five** against all-`ranger`'s **0.03** and all-`mage`'s

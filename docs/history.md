@@ -363,6 +363,45 @@ boundary is only a reprieve on a hundred whose gear is flat.** The tower:campaig
 recomputed by hand rather than carried, is **2.804** with three towers extended (1,178,900 against
 420,500); a completed round is 3.101. Full findings in [towers](towers.md).
 
+⚠️ **The Deadening — the Demon Tower's sixth hundred — is the last of the fifth round, and it closes
+it.** The axis is enemy **`critDamageResist`**: the half of crit this tower did not take when its third
+hundred took `critBlock` _at_ the shipped register. `damage.ts` computes `critDamage` as
+`1 + max(critDamageAmp − critDamageResist, 0)` — a subtraction rather than a ratio — and a Demon five
+carries `critDamageAmp` **Σ4.50 and Σ5.05**, the largest in the game by a quarter, on `critChance`
+Σ1.21 and Σ1.43, also the largest. Every hundred before it attacked what this crew _deals_: the second
+its scope, the third how often its crits land, the fourth their damage type, the fifth whether the
+swing lands at all. This one lets the swing land, lets it crit, and takes the crit away afterwards.
+
+⚠️ **It is the Riving's argument read from the other side of the board.** The Undead sixth hundred
+authored `critDamageAmp` **above** its register precisely because a subtraction defends against a small
+amplifier and evaporates against a large one; this authors the subtraction above _its_ register against
+the largest amplifier the game ships — 0.80 / 1.10 / 1.40 / 1.80 against a shipped ceiling of **0.52**.
+⚠️ **At the register the axis is worth 0.35 and 0.42**, which is why two earlier hundreds that measured
+it were right to leave it alone.
+
+⚠️ **The licence is the widest of the thirty-five hundreds: first _and_ second of fourteen, 93% clear
+of third** (demon-alt 1.58, demon-ref 1.16, elf-alt 0.82), with eleven of the fourteen at or under
+0.57. It grades in value and in carrier count with zero timeouts, and it costs seconds — which is
+affordable only here, on the two fastest controls in the game (9.3s and 9.7s). ⚠️ **The `tank`
+archetype switches the axis off for the second tower running**, and the same lever runs the other way
+on the **escorts**: a hot-set common reads the binding arrangement at 3% where the identical board with
+cold-set escorts reads 100%. ⚠️ **Rank is not a dial at all — the sixth distinct answer in six
+hundreds.** ⚠️ **And the pairing with raw `atk` was tested and refused**, sub-additive and diluting a
+third-place licence to seventh, which is this tower's own fourth-hundred finding a second time.
+
+⚠️ **The lean overshot at 81.2% exactly as the Processional predicted** — on the tower where that
+overshoot breaks the counter-faction **inversion** guard rather than the 65% ceiling — and the same fix
+worked: the escorts moved to the Monster half of the counter-set, leaving the hundred at 57.2% Angel
+and the tower at **56.07%**. The hundred carries **no** heal, drain, shield, `regen`, taunt, link,
+reflect or point of `lifeLeech`, `recovery` or `healthRegen` — the strong absolute, and only the second
+hundred in the project able to make it. `THE_UNMOVED` ships at **820/34** carrying 1.80.
+
+⚠️ **The round is closed, and with it both `PENDING` lists and every branch that read them** — the
+fifth time that checklist has run to completion, and the fourth time the Demon Tower has been the one
+to delete it. All seven towers stand at six hundred floors. The tower:campaign crystal ratio,
+recomputed rather than carried, is **3.101** (1,304,100 against 420,500) — the figure to weigh before a
+seventh hundred. Full findings in [towers](towers.md).
+
 ⚠️ **The Bellows — the Angel Tower's sixth hundred — is the sixth of the fifth round, and its axis is
 the plainest thing in the game because it is the only one this crew can afford.** Enemy **`atk`**, on
 a tower whose alternate arrangement is the slowest in the game: a control of 4.00 of five at **41.4

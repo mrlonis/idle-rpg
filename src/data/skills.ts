@@ -10652,7 +10652,83 @@ export const IT_WAS_NEVER_LISTENING = {
   priority: 4,
 } as const;
 
+/**
+ * The blow lands. The stone is where it was.
+ *
+ * The light carrier of the Deadening, and the turn that says what the hundred is: nothing here refuses
+ * the *hit*. ⚠️ **`critDamage` is `1 + max(critDamageAmp − critDamageResist, 0)`**, so a body carrying
+ * more of the resist than the attacker carries of the amplifier takes a critical strike as an ordinary
+ * one — and a Demon five carries `critDamageAmp` **Σ4.50 and Σ5.05**, the largest in the game by a
+ * quarter, on `critChance` Σ1.21 and Σ1.43, also the largest.
+ */
+export const THE_STONE_IS_WHERE_IT_WAS = {
+  id: 'the-stone-is-where-it-was',
+  name: 'The Stone Is Where It Was',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * Struck, and it rings the same note it was already ringing.
+ *
+ * The middle carrier's turn. ⚠️ **The `mage` set it wears is the measurement rather than a flourish**:
+ * on a refusal axis the `tank` archetype switches the axis off, reading **4.00 of five** at an
+ * identical stat line against a `ranger` set's 1.82 and a `mage` set's 2.27, because a tank set pays
+ * its grade into health and health buys the party seconds rather than costing it members. The Dwarf
+ * sixth hundred's finding, on the seventh tower.
+ */
+export const THE_SAME_NOTE = {
+  id: 'the-same-note',
+  name: 'The Same Note',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * It has carried the reliquary through five hundred floors of this and never once broken step.
+ *
+ * The lieutenant's turn, arriving in band 4. ⚠️ **Rank is not a dial on this axis, which is the sixth
+ * distinct answer the question has given in six hundreds.** Carried on one body with the escort held,
+ * a carrier is worth 3.63 of five in front against 3.77 behind at 0.8, 3.42 against 3.70 at 1.4 and
+ * 3.50 against 3.77 at 2.0 — a spread of 0.14 to 0.28 that never resolves, because a resist bills
+ * every blow that reaches the body whenever it arrives. **A dodge bills what is aimed at, an
+ * `attackSpeed` what is left alive, a health pool what is aimed at with a shrinking spread, a hot body
+ * what is left alive with a growing one — and this bills everything, from anywhere.**
+ */
+export const NEVER_ONCE_BROKEN_STEP = {
+  id: 'never-once-broken-step',
+  name: 'Never Once Broken Step',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 48,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of the edge finding something. This is the floor where finding it stops paying.
+ *
+ * The roof's turn, and the last one this project's towers have. ⚠️ **The roof was settled on its `atk`
+ * and not on this** — the figures are in {@link THE_UNMOVED}. **Shortlist on weight, settle on
+ * attack**, the tenth tower roof running and the last.
+ */
+export const FINDING_IT_STOPS_PAYING = {
+  id: 'finding-it-stops-paying',
+  name: 'Finding It Stops Paying',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
+  THE_STONE_IS_WHERE_IT_WAS,
+  THE_SAME_NOTE,
+  NEVER_ONCE_BROKEN_STEP,
+  FINDING_IT_STOPS_PAYING,
   NO_NOTE_FOR_THE_NEXT,
   THE_GAP_BETWEEN_VERSES,
   THE_TIME_IT_TAKES,

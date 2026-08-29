@@ -1910,9 +1910,9 @@ never notice a tower nobody went back for. A tower on that list is not damaged, 
 **boss**: `floorKindAt` reads the rules' height, so its old top floor resolves as a mini-boss paying
 ×2 rather than ×5.
 
-**It has now run to completion three times** — 21e–21k for the second hundred, 21l–21r for the third,
-and 21s–21y for the fourth, the Demon Tower last. All three rounds ended with the last session deleting
-the constant, the branches, and the prose describing them. ⚠️ **Put the list back before the first tower
+**It has now run to completion five times** — 21e–21k for the second hundred, 21l–21r for the third,
+21s–21y for the fourth, and two rounds since, the Demon Tower last in four of the five. Every round
+ended with the last session deleting the constant, the branches, and the prose describing them. ⚠️ **Put the list back before the first tower
 of the next bump is authored, not after** — between the bump and the first name being added there is
 nothing at all holding the six short towers.
 ⚠️ **Leave the defensive shapes the list forced behind when you delete it**: `topFloors` reading the
@@ -1967,9 +1967,33 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Thirty-four hundreds gave thirty-four answers — every second, third, fourth and fifth hundred of
-all seven towers, and the sixth of all but the Demon — and no two escalate the same way. Read the
-crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
+⚠️ **Thirty-five hundreds gave thirty-five answers — every second, third, fourth, fifth and sixth
+hundred of all seven towers — and no two escalate the same way. Read the crew's failure mode before
+choosing; do not copy the last session's shape.** [towers](towers.md)
+
+⚠️ **The gear archetype is a lever on the _escorts_ as well as on the carriers, and on a closing band
+it is what makes the boards authorable at all.** At the Demon sixth hundred a hot-set common at floor
+600 reads the binding arrangement at **3%** where the identical board with `tank` and `support` escorts
+reads **100%** — the same `GEAR_PROFILES` spread (+112% attack on a ranger against +46% on a tank at
+Relic 100) applied to the bodies that are not carrying the axis. **Allocate the escorts' archetypes
+deliberately; on a geared hundred they are not texture.** [towers](towers.md)
+
+⚠️ **Rank can be no dial at all, which is the sixth distinct answer the question has given in six
+hundreds.** A `critDamageResist` carrier is worth 3.63 of five in front against 3.77 behind at 0.8, 3.42
+against 3.70 at 1.4 and 3.50 against 3.77 at 2.0 — a spread of 0.14 to 0.28 that never resolves at any
+value on either arrangement. **A dodge bills what is _aimed at_, an `attackSpeed` what is _left alive_,
+a health pool what is aimed at with a _shrinking_ spread, a hot body what is left alive with a _growing_
+one, and a resist bills every blow that reaches the body whenever it arrives.** Six hundreds, six
+answers; measure, never carry the precedent. [towers](towers.md)
+
+⚠️ **A stat can be split into two halves that are two axes on the _same_ tower, three hundreds apart —
+and what licenses the second is which side of the register it is authored on.** The Demon third hundred
+took `critBlock` — how _often_ a crit lands — **at** the shipped register; its sixth took
+`critDamageResist` — how _large_ one is — at three and a half times its ceiling, because `critDamage` is
+`1 + max(critDamageAmp − critDamageResist, 0)` and the crew carries the largest `critDamageAmp` in the
+game (Σ4.50 / Σ5.05). ⚠️ **At the register the second half is worth 0.35 and 0.42**, which is why two
+earlier hundreds that measured it were right to leave it alone. **State which side of the register the
+band landed on, and what the axis is worth at it.** [towers](towers.md)
 
 ⚠️ **On a _throughput_ axis the gear archetype is worth more than the whole axis, which is the fourth
 hundred running to find that lever decisive and the largest reading it has had.** Held at an identical

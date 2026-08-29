@@ -2794,6 +2794,76 @@ verse to finish.
   opens at floor 401 in 3.4s with all five alive and closes at **100% / 3.98 / 22.3s against
   98% / 3.15 / 42.8s**, zero timeouts anywhere, longest single attempt 57.8s against a 67.5s bar.
 
+### The sixth hundred — the Demon Tower's Deadening
+
+Floors 501–600, levels 236–283, Relic 41 → Relic 100. **The last hundred of the last tower, and the
+floors that close the fifth round** — the second time this tower has closed one. The deadening, the
+cold stone, the muffled bell, the unfelt blow, the blunted rite, and at the top the edge that opened
+everything finding nothing to open.
+
+- ⚠️ **The axis is enemy `critDamageResist`, and it is the half of crit this tower did not take.** The
+  third hundred took `critBlock` — the **frequency** — _at_ the shipped register; this takes the
+  **size**, far above one. `damage.ts` computes `critDamage` as **`1 + max(critDamageAmp −
+critDamageResist, 0)`**, a subtraction rather than a ratio, and a Demon five carries `critDamageAmp`
+  **Σ4.50 and Σ5.05** — the largest in the game by a quarter — on `critChance` **Σ1.21 and Σ1.43**,
+  also the largest. Every hundred before it attacked what this crew _deals_; this one lets the swing
+  land, lets it crit, and takes the crit away afterwards.
+- ⚠️ **It is the Riving's argument read from the other side of the board.** The Undead sixth hundred
+  authored `critDamageAmp` **above** its register precisely because a subtraction defends against a
+  small amplifier and evaporates against a large one; this authors the subtraction above _its_ register
+  against the largest amplifier the game ships. Same formula, opposite end, three sessions apart.
+- ⚠️ **The licence is the widest of the thirty-five hundreds: first _and_ second of fourteen, 93% clear
+  of third.** demon-alt costs **1.58** and demon-ref **1.16** against elf-alt's 0.82, with **eleven of
+  the fourteen at or under 0.57** and eight at or under 0.41. Measured against controls of 3.90 / 9.3s
+  and 3.77 / 9.7s, it grades **3.73 / 3.40 / 3.02 / 2.77 / 2.40 / 2.45 / 2.35** and **3.42 / 3.42 /
+  2.55 / 1.93 / 1.75 / 1.32 / 1.23** across 0.20 → 2.00 with zero timeouts, and in carrier count at
+  1.40 across zero to five: **3.90 / 3.50 / 3.35 / 3.10 / 3.00 / 2.33** and **3.60 / 3.42 / 3.13 /
+  3.02 / 2.80 / 1.55**.
+- ⚠️ **It costs seconds, and this is the one crew that can afford them** — controls of **9.3s and
+  9.7s**, the two fastest in the game, walking to 28s at the top of the grade against a 60-second mean
+  bar. The Processional's affordability licence, used a second time and honestly: the same axis on the
+  Angel arrangements starts from 35.2s and 52.8s.
+- ⚠️ **On a refusal axis the `tank` archetype switches the axis off, for the second tower running** —
+  all-`tank` **4.00 / 4.00** against all-`ranger` **2.77 / 1.82** at an identical stat line. ⚠️ **And
+  the same lever runs the other way on the _escorts_, which is what made the closing bands authorable
+  at all**: a hot-set common at these levels reads the binding arrangement at **3%** where the identical
+  board with `tank` and `support` escorts reads **100%**. The Bellows' finding, arriving on the bodies
+  that are _not_ carrying the axis.
+- ⚠️ **Rank is not a dial at all — the sixth distinct answer in six hundreds.** A carrier is worth
+  **3.63 of five in front against 3.77 behind** at 0.8, 3.42 against 3.70 at 1.4 and 3.50 against 3.77
+  at 2.0: a spread of 0.14 to 0.28 that never resolves. A dodge bills what is _aimed at_, an
+  `attackSpeed` what is _left alive_, a health pool what is aimed at with a **shrinking** spread, a hot
+  body what is left alive with a **growing** one — and a resist bills every blow that reaches the body
+  whenever it arrives.
+- ⚠️ **The pairing was tested and refused, which is this tower's own fourth-hundred finding a second
+  time.** `SUNDER` on `enemy-all` puts demon-alt **third of fourteen and first of the twelve non-Angel**
+  at 1.23 against dwarf-ref's 0.89 — a real licence alone — but walked together with raw `atk` it is
+  sub-additive on the binding arrangement (2.30 + 1.35 against **3.35**) and the licence dilutes to
+  **seventh**.
+- ⚠️ **The register, and which side of it the band landed on.** `critDamageResist` sits on **76 of 442**
+  blocks at a median of **0.20**, a p90 of **0.32** and a ceiling of **0.52** — `THE_UNFALTERING`, this
+  tower's own floor-300 roof. The four new blocks run **0.80, 1.10, 1.40 and 1.80**, so the whole band
+  is above the register and the roof at three and a half times its ceiling. **At the register the axis
+  is worth 0.35 and 0.42**, which is why the two earlier hundreds that measured this stat were right to
+  leave it alone. Bodies at 0.60 or above run **1 / 1–2 / 2 / 3 / 3 / 2–3** across the six bands.
+- ⚠️ **The lean overshot exactly as the Processional predicted, and the same fix worked.** Authored the
+  obvious way the hundred came out at **81.2% Angel** — the 81.8% that hundred recorded, on the tower
+  where the overshoot broke the counter-faction **inversion** guard rather than the 65% ceiling.
+  Converting the escorts to the Monster half of the counter-set leaves it at **57.2% Angel / 42.8%
+  Monster** and the tower at **56.07%**, against the Processional's 55.84%. **The fix is who carries the
+  board, not a lighter band.**
+- ⚠️ **The retirement check took the whole `ascended` roster.** Behind four 300/18 commons at floor 600,
+  `THE_UNSTRUCK` reads 100% / 2.52 and **45%**, `THE_UNHEARING` 3% / 0%, and `THE_UNBITTEN`,
+  `THE_UNFALTERING`, `HOLLOW_SERAPH` and `THE_UNISON` all **0% / 0%**; behind four 520/44 legendaries
+  every one of the six reads 0% for both. Four still anchor floors 501–520 and none stands above 520.
+- The hundred fields **33** distinct archetypes, four of them new (12.1%), and carries **no** heal,
+  drain, shield, `regen` status, taunt, link, reflect, or point of `lifeLeech`, `recovery` or
+  `healthRegen` — **the strong absolute, and the second hundred in the project able to make it**, the
+  first being this tower's own fourth. It opens at floor 501 in 5.3s with all five alive and closes at
+  **100% / 3.30 / 14.1s against 85% / 1.23 / 27.1s**, worst reading anywhere 100% and 85%, **no
+  timeouts**, longest single attempt **41.8s** against the 67.5s bar and slowest mean 27.1s against the
+  60s bar.
+
 ### The fifth hundred — the Demon Tower's Processional
 
 **The last hundred of the last tower.** It closes the fifth round, deletes the `PENDING` lists in

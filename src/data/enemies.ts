@@ -380,6 +380,10 @@ import {
   THE_LONG_SOAK,
   NOTHING_MARKS_IT,
   IT_DOES_NOT_THIN,
+  THE_STONE_IS_WHERE_IT_WAS,
+  THE_SAME_NOTE,
+  NEVER_ONCE_BROKEN_STEP,
+  FINDING_IT_STOPS_PAYING,
   NO_NOTE_FOR_THE_NEXT,
   THE_GAP_BETWEEN_VERSES,
   THE_TIME_IT_TAKES,
@@ -16459,7 +16463,220 @@ export const THE_UNSLAKED = {
   skills: [IT_WAS_NEVER_LISTENING],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Demon Tower's sixth hundred — the Deadening, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100. **The last hundred of the last tower, and the floors that close the fifth
+// round.**
+//
+// ⚠️ **Four blocks, three Angel and one Monster** — the split this tower's own fifth hundred arrived
+// at the hard way. That hundred authored all three carriers Angel, came out at 81.8% and took the
+// tower **over** the 65% ceiling; worse, it broke the guard that actually binds a celestial tower,
+// which is that an Angel board must cost a Demon five *fewer* members than an all-Demon mirror.
+// Putting the lieutenant in the Monster half costs the lean nothing and protects both.
+//
+// ## ⚠️ The axis is enemy `critDamageResist`, and it is the half of crit this tower did not take
+//
+// The third hundred took `critBlock` — the **frequency** — and took it *at* the shipped register. This
+// takes the **size**, and takes it far above one. `damage.ts` computes `critDamage` as
+// **`1 + max(critDamageAmp − critDamageResist, 0)`**, a subtraction rather than a ratio, and a Demon
+// five carries `critDamageAmp` **Σ4.50 and Σ5.05** — the largest in the game by a quarter — on
+// `critChance` **Σ1.21 and Σ1.43**, also the largest. Every previous hundred here attacked what this
+// crew *deals*: the second its scope, the third the frequency of its crits, the fourth the type of its
+// damage, the fifth whether the swing lands at all. This one lets the swing land, lets it crit, and
+// takes the crit away afterwards.
+//
+// ⚠️ **It is the Undead sixth hundred's argument read from the other side of the board.** That hundred
+// authored `critDamageAmp` **above** its register precisely because a subtraction defends against a
+// small amplifier and evaporates against a large one; this authors the subtraction above *its*
+// register against the largest amplifier the game ships. Same formula, opposite end.
+//
+// Measured at floor 600 in Relic 100 against controls of **3.90 / 9.3s** (reference, ×0.925) and
+// **3.77 / 9.7s** (alternate, ×0.85), each crew calibrated in 2.5% steps to the heaviest control it
+// still reads ≥3.60 on. All five carrying, forty seeds:
+//
+// | `critDamageResist` | demon-ref | demon-alt | alt fight |
+// | ------------------ | --------- | --------- | --------- |
+// | 0.20               | 3.73      | 3.42      | 11s       |
+// | 0.50               | 3.40      | 3.42      | 11s       |
+// | 0.80               | 3.02      | 2.55      | 14s       |
+// | 1.10               | 2.77      | 1.93      | 19s       |
+// | 1.40               | 2.40      | 1.75      | 22s       |
+// | 1.70               | 2.45      | 1.32      | 26s       |
+// | 2.00               | 2.35      | 1.23      | 28s       |
+//
+// 1. ⚠️ **The licence is the widest of the thirty-five hundreds: first _and_ second of fourteen, 93%
+//    clear of third.** Priced across all fourteen shipped arrangements, demon-alt costs **1.58** and
+//    demon-ref **1.16** against elf-alt's 0.82 — and **eleven of the fourteen read at or under 0.57**,
+//    eight at or under 0.41. It is aimed at a register rather than at a weakness, and the register is
+//    the largest single number this crew has.
+// 2. ⚠️ **It grades in value and in carrier count.** At 1.40 across zero to five carriers it reads
+//    **3.90 / 3.50 / 3.35 / 3.10 / 3.00 / 2.33** and **3.60 / 3.42 / 3.13 / 3.02 / 2.80 / 1.55**, with
+//    the cliff at the fifth carrier — so the bands walk the value and only the closing two walk the
+//    count.
+// 3. ⚠️ **It costs seconds, and this is the one crew that can afford them.** The alternate's control is
+//    **9.7 seconds**, the fastest in the game beside its own reference at 9.3s, and the axis walks it
+//    to 28s at the top of the grade against a 60-second mean bar. That is this tower's own
+//    fifth-hundred licence — affordability — used a second time and honestly: the same axis on the
+//    Angel arrangements would start from 35.2s and 52.8s.
+// 4. ⚠️ **On a refusal axis the `tank` archetype switches the axis off**, for the second tower running.
+//    Held at an identical stat line at four carriers, all-`tank` reads **4.00 / 4.00** and
+//    all-`support` 3.70 / 3.92 against all-`brawler` 3.08 / 2.77, all-`mage` 3.00 / 2.27 and
+//    all-`ranger` **2.77 / 1.82**. A tank set pays its grade into health, and health buys the party
+//    seconds rather than costing it members. **No carrier below wears `tank`.**
+// 5. ⚠️ **Rank is not a dial at all, which is the sixth distinct answer in six hundreds.** Carried on
+//    one body with the escort held, a carrier is worth **3.63 of five in front against 3.77 behind** at
+//    0.8, 3.42 against 3.70 at 1.4 and 3.50 against 3.77 at 2.0 — a spread of 0.14 to 0.28 that never
+//    resolves, on either arrangement. A resist bills every blow that reaches the body whenever it
+//    arrives, which is chapter 29's `def` reading and the Dwarf sixth hundred's.
+// 6. ⚠️ **The pairing was tested and refused, which is this tower's own fourth-hundred finding a second
+//    time.** `SUNDER` on `enemy-all` puts demon-alt **third of fourteen and first of the twelve
+//    non-Angel** at 1.23 against dwarf-ref's 0.89 — a real licence on its own — but walked *together*
+//    with raw `atk` it is sub-additive on the binding arrangement (2.30 + 1.35 alone against **3.35**
+//    together) and the licence dilutes to **seventh of fourteen**. **Test the pairing and accept the
+//    answer in whichever direction it arrives.**
+// 7. ⚠️ **Disqualified rather than merely weak.** `critBlock` is this tower's own third hundred.
+//    `magicResist` is its fourth and `dodge` its fifth. A board-wide scope is its second. `def` puts
+//    demon-alt seventh of fourteen, `hp` seventh, `atk` eighth (and is the Angel Tower's sixth, one
+//    session old), `haste` eighth, a board-wide `SLOW` sixth and a `STUN` fifth. `accuracy` is worth
+//    **0.00 to 0.17** against a crew carrying `dodge` Σ0.07 and Σ0.08 — there is nothing to beat — and
+//    `THORNMAIL` across all five is flat (3.75 → 3.58). `tenacity` reads 4.00 → 3.88 and 3.73 → 3.27
+//    against a crew carrying **Σ0.00**, which is the register check answering that a stat nobody
+//    carries is a stat there is nothing to refuse.
+//
+// ⚠️ **The register, measured before these four joined the pool.** `critDamageResist` sits on **76 of
+// 442** shipped blocks at a median of **0.20**, a p90 of **0.32** and a ceiling of **0.52**
+// ({@link THE_UNFALTERING} — this tower's own floor-300 roof). The four below run **0.80, 1.10, 1.40
+// and 1.80**, so the whole band is authored **above** the register and the roof at three and a half
+// times its ceiling. That is the Monster third hundred's shape — "the stat works, but only above the
+// register" — and it is stated here because at the register the axis is worth **0.35 and 0.42**, which
+// is why the two earlier hundreds that measured this stat were right to leave it alone. Bodies at
+// 0.60 or above run **1 / 1–2 / 2 / 2–3 / 3 / 3–4** across the six bands.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * It reads the psalm off the stone because the stone is what remembers it.
+ *
+ * The light carrier, and the first of the four. **0.80 of `critDamageResist`** against a shipped
+ * ceiling of 0.52 — the smallest step past the register the hundred takes, and the one that has to
+ * stand on band-1 boards beside a returning `ascended` anchor.
+ *
+ * ⚠️ **`ranger` rather than `tank`**: on a refusal axis a tank set reads 4.00 of five against a
+ * ranger set's 1.82 at an identical line, because a pool with nothing billing it is a long fight
+ * rather than a hard one. See the block comment above.
+ */
+export const PSALMSTONE_LECTOR = {
+  id: 'psalmstone-lector',
+  name: 'Psalmstone Lector',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 480,
+    atk: 34,
+    def: 20,
+    haste: 98,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    critDamageResist: 0.8,
+  },
+  skills: [THE_STONE_IS_WHERE_IT_WAS],
+} as const;
+
+/**
+ * The bell is rung and the sound does not leave the metal.
+ *
+ * The middle carrier, arriving in band 2 and standing on more boards than anything else in the
+ * hundred. **1.10 of `critDamageResist`**, which is where the axis stops being texture: against a
+ * Demon five's `critDamageAmp` of Σ4.50 to Σ5.05 across five, this is the first value at which a
+ * crit from the crew's lighter bodies lands as an ordinary blow.
+ */
+export const GRAVELIGHT_BEADLE = {
+  id: 'gravelight-beadle',
+  name: 'Gravelight Beadle',
+  faction: 'angel',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 600,
+    atk: 36,
+    def: 24,
+    haste: 96,
+    critChance: 0.11,
+    critDamageAmp: 0.68,
+    critDamageResist: 1.1,
+  },
+  skills: [THE_SAME_NOTE],
+} as const;
+
+/**
+ * It was bred in the Coppice and it has been carrying the reliquary since the Guttering.
+ *
+ * The lieutenant, arriving at floor 568. ⚠️ **Monster rather than Angel deliberately**, and this tower
+ * is where that rule was learnt: its fifth hundred put all three carriers in the lean, came out at
+ * 81.8% and broke the counter-faction inversion guard rather than the 65% ceiling. `countersOf('demon')`
+ * names both factions; the axis does not care which one carries it.
+ */
+export const CAIRNCHOIR_SEXTON = {
+  id: 'cairnchoir-sexton',
+  name: 'Cairnchoir Sexton',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'brawler',
+  stats: {
+    hp: 720,
+    atk: 40,
+    def: 28,
+    haste: 92,
+    critChance: 0.1,
+    critDamageAmp: 0.65,
+    critDamageResist: 1.4,
+  },
+  skills: [NEVER_ONCE_BROKEN_STEP],
+} as const;
+
+/**
+ * The last floor of the last tower, and the edge that opened everything finds nothing to open.
+ *
+ * The roof, and the block that closes the fifth round. **1.80 of `critDamageResist`**, three and a
+ * half times the shipped ceiling of 0.52 — the furthest past a register any roof on this ladder is
+ * authored, and stated as such rather than discovered later.
+ *
+ * ⚠️ **Lighter than the anchor it succeeds — 880 against {@link THE_UNSTRUCK}'s 1250 — and that is
+ * arithmetic rather than timidity**: an `ascended` block climbs at `perLevel.ascended` 1.024 where a
+ * mono-faction Demon five is mostly `common` at 1.021, so an anchor gains about ×1.15 on the crew
+ * across the forty-seven levels this hundred spans, on top of Relic 41 → 100.
+ *
+ * ⚠️ **The seven towers' last-floor anchors, and the list is complete now that the round has closed**:
+ * The Heartshake 560/16, The Undermost 580/36, The Casehardened 780/24, The Unslaked 800/24, The
+ * Unswallowed 880/16, **The Unmoved 880/34** (this), The Headlong 1050/25. **The weight a roof is
+ * allowed is what is left after the grade**, and every one of the seven is wearing Relic 100.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. It restores
+ * nothing and carries no taunt.
+ */
+export const THE_UNMOVED = {
+  id: 'the-unmoved',
+  name: 'The Unmoved',
+  faction: 'angel',
+  tier: 'ascended',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 820,
+    atk: 34,
+    def: 34,
+    haste: 94,
+    critChance: 0.12,
+    critDamageAmp: 0.7,
+    critDamageResist: 1.8,
+  },
+  skills: [FINDING_IT_STOPS_PAYING],
+} as const;
+
 export const ENEMIES = [
+  PSALMSTONE_LECTOR,
+  GRAVELIGHT_BEADLE,
+  CAIRNCHOIR_SEXTON,
+  THE_UNMOVED,
   EMBERDRAW_FLETCHER,
   SLAGLIGHT_CANTOR,
   KILNBREATH_HOUNDSMAN,

@@ -10,6 +10,8 @@ import {
   BENCHLINE_LURKER,
   BLOODGORGE_HOUND,
   BOAR,
+  BREAKSTONE_WARDEN,
+  CAIRNCHOIR_SEXTON,
   CARRION_SWARM,
   CENSERSTEP_ACOLYTE,
   CHALKHIDE_BROWSER,
@@ -31,6 +33,7 @@ import {
   GLASSCHOIR_ARBITER,
   GOLEM,
   GOREHIDE_MATRIARCH,
+  GRAVELIGHT_BEADLE,
   GRAVETIDE_HERALD,
   GUTTERLIGHT_SEXTON,
   HEADSMAN,
@@ -50,6 +53,7 @@ import {
   OATHSHIELD_VANGUARD,
   OVERBURDEN_HULK,
   PLAINSONG_PRECENTOR,
+  PSALMSTONE_LECTOR,
   QUENCHPIT_IRONHIDE,
   RADIANT_HERALD,
   RAVAGER,
@@ -58,14 +62,17 @@ import {
   REVENANT,
   RIMEPLATE,
   RIVEN_MARCHWARDEN,
+  ROUGHCAST_GNAWER,
   SALTBLEACH_CRIER,
   SCARBOUND_BELLOWER,
   SCARWEAVE_TRAMPLER,
+  SCATTERSTONE_HOWLER,
   SCREEBACK_DARTER,
   SEALWARD_CUSTODIAN,
   SENTINEL,
   SERAPH_ADJUDICANT,
   SHADE,
+  SHALEBED_CRAWLER,
   SHARDLIGHT_ACOLYTE,
   SHATTERJAW_MAULER,
   SILENTVAULT_KEEPER,
@@ -77,6 +84,7 @@ import {
   THE_UNFALTERING,
   THE_UNHEARING,
   THE_UNISON,
+  THE_UNMOVED,
   THE_UNSTRUCK,
   THORNBACK_GRAZER,
   UNMADE,
@@ -90,7 +98,7 @@ import {
 } from './enemies';
 
 /**
- * The Demon Tower — five hundred floors, enemy levels 1 to 236.
+ * The Demon Tower — six hundred floors, enemy levels 1 to 283.
  *
  * **The seventh tower to reach the fifth hundred and the last one to get there**, which closes the
  * bump for the fourth time and empties the `PENDING` lists in `towers.spec.ts` and
@@ -600,6 +608,128 @@ import {
  * the first in the project able to make, held for a second hundred. It is only sayable because the
  * blocks that carry sustain are the heavy Angel supports this tower stopped fielding at floor 340,
  * and it was verified with a script over the authored boards rather than asserted from memory.
+ *
+ * ## ⚠️ The sixth hundred: the half of crit this tower did not take, authored above its register
+ *
+ * **The last hundred of the last tower, and the floors that close the fifth round** — the second time
+ * this tower has closed one, and the second time it has deleted both `PENDING` lists and every branch
+ * that read them.
+ *
+ * The axis is enemy **`critDamageResist`**. The third hundred took `critBlock` — the **frequency** —
+ * and took it *at* the shipped register; this takes the **size**, and takes it far above one.
+ * [`damage.ts`](../core/battle/damage.ts) computes `critDamage` as
+ * **`1 + max(critDamageAmp − critDamageResist, 0)`**, a subtraction rather than a ratio, and a Demon
+ * five carries `critDamageAmp` **Σ4.50 and Σ5.05** — the largest in the game by a quarter — on
+ * `critChance` **Σ1.21 and Σ1.43**, also the largest. Every previous hundred here attacked what this
+ * crew *deals*: the second its scope, the third how often its crits land, the fourth the type of its
+ * damage, the fifth whether the swing lands at all. This one lets the swing land, lets it crit, and
+ * takes the crit away afterwards.
+ *
+ * ⚠️ **It is the Undead sixth hundred's argument read from the other side of the board.** The Riving
+ * authored `critDamageAmp` **above** its register precisely because a subtraction defends against a
+ * small amplifier and evaporates against a large one; this authors the subtraction above *its*
+ * register against the largest amplifier the game ships. Same formula, opposite end, and the two
+ * hundreds are three sessions apart.
+ *
+ * Measured at floor 600 in Relic 100 against controls of **3.90 / 9.3s** (reference, ×0.925) and
+ * **3.77 / 9.7s** (alternate, ×0.85) — the two fastest controls in the game — with all five carrying,
+ * forty seeds, zero timeouts on every row:
+ *
+ * ```
+ *   critDamageResist  0.20 0.50 0.80 1.10 1.40 1.70 2.00
+ *   reference         3.73 3.40 3.02 2.77 2.40 2.45 2.35
+ *   alternate         3.42 3.42 2.55 1.93 1.75 1.32 1.23
+ *   alt fight          11s  11s  14s  19s  22s  26s  28s
+ * ```
+ *
+ * ⚠️ **The licence is the widest of the thirty-five hundreds: first _and_ second of fourteen, 93%
+ * clear of third.** Priced across all fourteen shipped arrangements, each calibrated in 2.5% steps to
+ * the heaviest control it still reads ≥3.60 on, demon-alt costs **1.58** and demon-ref **1.16**
+ * against elf-alt's 0.82 — and **eleven of the fourteen read at or under 0.57**, eight at or under
+ * 0.41. It is aimed at a register rather than at a weakness, and the register is the largest single
+ * number this crew has.
+ *
+ * ⚠️ **It grades in value and in carrier count.** At 1.40 across zero to five carriers it reads
+ * **3.90 / 3.50 / 3.35 / 3.10 / 3.00 / 2.33** and **3.60 / 3.42 / 3.13 / 3.02 / 2.80 / 1.55**, with
+ * the cliff at the fifth — so the bands walk the value and the count stops at three.
+ *
+ * ⚠️ **It costs seconds, and this is the one crew that can afford them.** Their controls are **9.3s
+ * and 9.7s**, the two fastest in the game, and the axis walks the alternate to 28s at the top of the
+ * grade against a 60-second mean bar. That is this tower's own fifth-hundred licence — affordability —
+ * used a second time and honestly: the same axis on the Angel arrangements starts from 35.2s and
+ * 52.8s.
+ *
+ * ⚠️ **On a refusal axis the `tank` archetype switches the axis off, for the second tower running.**
+ * Held at an identical stat line at four carriers, all-`tank` reads **4.00 / 4.00** and all-`support`
+ * 3.70 / 3.92 against all-`brawler` 3.08 / 2.77, all-`mage` 3.00 / 2.27 and all-`ranger` **2.77 /
+ * 1.82**. No carrier here wears `tank`. ⚠️ **And the same lever runs the other way on the _escorts_,
+ * which is what made the closing bands authorable at all**: a hot-set common at these levels reads the
+ * binding arrangement at **3%** where the identical board with `tank` and `support` escorts reads
+ * **100%**. The Angel sixth hundred's finding, arriving on the bodies that are not carrying the axis.
+ *
+ * ⚠️ **Rank is not a dial at all, which is the sixth distinct answer in six hundreds.** Carried on one
+ * body with the escort held, a carrier is worth **3.63 of five in front against 3.77 behind** at 0.8,
+ * 3.42 against 3.70 at 1.4 and 3.50 against 3.77 at 2.0 — a spread of 0.14 to 0.28 that never resolves
+ * on either arrangement. A dodge bills what is *aimed at*, an `attackSpeed` what is *left alive*, a
+ * health pool what is aimed at with a *shrinking* spread, a hot body what is left alive with a
+ * *growing* one — and a resist bills every blow that reaches the body whenever it arrives.
+ *
+ * ⚠️ **The pairing was tested and refused, which is this tower's own fourth-hundred finding a second
+ * time.** `SUNDER` on `enemy-all` puts demon-alt **third of fourteen and first of the twelve
+ * non-Angel** at 1.23 against dwarf-ref's 0.89 — a real licence on its own — but walked *together*
+ * with raw `atk` it is sub-additive on the binding arrangement (2.30 + 1.35 alone against **3.35**
+ * together, and exactly additive on the reference) and the licence dilutes to **seventh of fourteen**.
+ * **Test the pairing and accept the answer in whichever direction it arrives.**
+ *
+ * ⚠️ **Disqualified rather than merely weak.** `critBlock` is this tower's own third hundred,
+ * `magicResist` its fourth, `dodge` its fifth and a board-wide scope its second. `def` puts demon-alt
+ * **seventh** of fourteen, `hp` seventh, `atk` eighth (and is the Angel Tower's sixth, one session
+ * old), `haste` eighth, a board-wide `SLOW` sixth and a `STUN` fifth. `accuracy` is worth **0.00 to
+ * 0.17** against a crew carrying `dodge` Σ0.07 and Σ0.08 — there is nothing to beat — `THORNMAIL`
+ * across all five is flat (3.75 → 3.58), and `tenacity` reads 4.00 → 3.88 and 3.73 → 3.27 against a
+ * crew carrying **Σ0.00**. **A stat nobody carries is a stat there is nothing to refuse.**
+ *
+ * ## ⚠️ The register, and which side of it the band landed on
+ *
+ * Measured **before** these four joined the pool: `critDamageResist` sits on **76 of 442** shipped
+ * blocks at a median of **0.20**, a p90 of **0.32** and a ceiling of **0.52** —
+ * {@link THE_UNFALTERING}, this tower's own floor-300 roof. The four below run **0.80, 1.10, 1.40 and
+ * 1.80**, so the whole band is authored **above** the register and the roof at three and a half times
+ * its ceiling. That is the Monster third hundred's shape — *the stat works, but only above the
+ * register* — and it is stated here because at the register the axis is worth **0.35 and 0.42**, which
+ * is why the two earlier hundreds that measured this stat were right to leave it alone. Bodies at 0.60
+ * or above run **1 / 1–2 / 2 / 3 / 3 / 2–3** across the six bands.
+ *
+ * ## ⚠️ What the hundred carries, stated as counts
+ *
+ * Of the **33 distinct blocks** it fields over floors 501–600, **zero** carry a heal, a drain, a
+ * shield, a `regen`/`barrier`/`aegis` status, a taunt, a link, a reflect, or a point of `lifeLeech`,
+ * `recovery` or `healthRegen`. ⚠️ **That is the strong absolute, and this is the second hundred in the
+ * project able to make it** — the first was this tower's own fourth. It was checked with a script over
+ * the shipped floors rather than by reading, and it screened the roster before the boards were
+ * authored rather than after.
+ *
+ * ⚠️ **The lean overshot exactly as this tower's fifth hundred predicted, and the same fix worked.**
+ * Authored the obvious way — the carriers and every cold escort drawn from the lean — the hundred came
+ * out at **81.2% Angel**, which is the 81.8% the Processional recorded, on the tower where that
+ * overshoot broke the counter-faction inversion guard rather than the 65% ceiling. Converting the
+ * escorts to the Monster half of the counter-set leaves the hundred at **57.2% Angel and 42.8%
+ * Monster** and the tower at **56.07%**, against the Processional's 55.84%. **The fix is who carries
+ * the board, not a lighter band.**
+ *
+ * ⚠️ **The retirement check took the whole `ascended` roster.** At floor 600 behind four 300/18
+ * commons, {@link THE_UNSTRUCK} — the fifth hundred's own roof — reads 100% / 2.52 for the reference
+ * and **45%** for the alternate, {@link THE_UNHEARING} 3% / 0%, and {@link THE_UNBITTEN},
+ * {@link THE_UNFALTERING}, {@link HOLLOW_SERAPH} and {@link THE_UNISON} all **0% / 0%**; behind four
+ * 520/44 legendaries every one of the six reads 0% for both. Four of them still anchor floors 501–520,
+ * where the level is forty-seven below the roof, and **no board above 520 carries an `ascended` block
+ * at all** until {@link THE_UNMOVED}.
+ *
+ * The hundred opens at floor 501 in 5.3 seconds with all five alive and closes at **100% / 3.30 /
+ * 14.1s against 85% / 1.23 / 27.1s** — zero timeouts anywhere, worst reading 100% and 85%, longest
+ * single attempt **41.8s** against the 67.5s bar and slowest mean **27.1s** against the 60s bar. The
+ * boards weigh 7,614 common-equivalent at floor 501 and 5,128 at floor 600, a fall of 1.48 under a
+ * level line that climbs forty-seven and a grade that climbs Relic 41 → 100.
  *
  * A floor authors its line-up and nothing else — see [`tower-human.ts`](./tower-human.ts).
  */
@@ -4574,6 +4704,823 @@ export const TOWER_DEMON = {
       enemies: {
         front: [THE_UNSTRUCK, CENSERSTEP_ACOLYTE],
         back: [SHARDLIGHT_ACOLYTE, ZENITH_CHORISTER, LUMEN_ACOLYTE],
+      },
+    }, // -------------------------------------------------------------------------------------
+    // The Deadening — Floors 501–520, levels 236–245, Relic 41–52 — the last four of the old anchors, and behind each of them one body the edge finds and does not open. One body a board at `critDamageResist` 0.60 or above, and the only band whose difficulty is still its weight.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f501',
+      name: 'Floor 501',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, MARROWHUNT_ALPHA, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f502',
+      name: 'Floor 502',
+      enemies: {
+        front: [THE_UNHEARING, GUTTERLIGHT_SEXTON],
+        back: [DUSTPLATE_GRINDER, REDWATER_STALKER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f503',
+      name: 'Floor 503',
+      enemies: {
+        front: [THE_UNBITTEN, AISLEWARD_VERGER],
+        back: [OVERBURDEN_HULK, GALLERY_SLIPFANG, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f504',
+      name: 'Floor 504',
+      enemies: {
+        front: [THE_UNSTRUCK, HUSHGLASS_WARDEN],
+        back: [RAVAGER, GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f505',
+      name: 'Floor 505',
+      enemies: {
+        front: [THE_UNHEARING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, DUSTPLATE_GRINDER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f506',
+      name: 'Floor 506',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, MARROWHUNT_ALPHA, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f507',
+      name: 'Floor 507',
+      enemies: {
+        front: [THE_UNHEARING, GUTTERLIGHT_SEXTON],
+        back: [DUSTPLATE_GRINDER, REDWATER_STALKER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f508',
+      name: 'Floor 508',
+      enemies: {
+        front: [THE_UNBITTEN, AISLEWARD_VERGER],
+        back: [OVERBURDEN_HULK, GALLERY_SLIPFANG, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f509',
+      name: 'Floor 509',
+      enemies: {
+        front: [THE_UNSTRUCK, HUSHGLASS_WARDEN],
+        back: [RAVAGER, GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f510',
+      name: 'Floor 510 — The Deadening',
+      enemies: {
+        front: [THE_UNHEARING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, DUSTPLATE_GRINDER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f511',
+      name: 'Floor 511',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, MARROWHUNT_ALPHA, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f512',
+      name: 'Floor 512',
+      enemies: {
+        front: [THE_UNHEARING, GUTTERLIGHT_SEXTON],
+        back: [DUSTPLATE_GRINDER, REDWATER_STALKER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f513',
+      name: 'Floor 513',
+      enemies: {
+        front: [THE_UNBITTEN, AISLEWARD_VERGER],
+        back: [OVERBURDEN_HULK, GALLERY_SLIPFANG, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f514',
+      name: 'Floor 514',
+      enemies: {
+        front: [THE_UNSTRUCK, HUSHGLASS_WARDEN],
+        back: [RAVAGER, GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f515',
+      name: 'Floor 515',
+      enemies: {
+        front: [THE_UNHEARING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, DUSTPLATE_GRINDER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f516',
+      name: 'Floor 516',
+      enemies: {
+        front: [THE_UNFALTERING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, MARROWHUNT_ALPHA, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f517',
+      name: 'Floor 517',
+      enemies: {
+        front: [THE_UNHEARING, GUTTERLIGHT_SEXTON],
+        back: [DUSTPLATE_GRINDER, REDWATER_STALKER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f518',
+      name: 'Floor 518',
+      enemies: {
+        front: [THE_UNBITTEN, AISLEWARD_VERGER],
+        back: [OVERBURDEN_HULK, GALLERY_SLIPFANG, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f519',
+      name: 'Floor 519',
+      enemies: {
+        front: [THE_UNSTRUCK, HUSHGLASS_WARDEN],
+        back: [RAVAGER, GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f520',
+      name: 'Floor 520 — The Cold Stone',
+      enemies: {
+        front: [THE_UNHEARING, EVENSONG_WARDEN],
+        back: [SHATTERJAW_MAULER, DUSTPLATE_GRINDER, PSALMSTONE_LECTOR],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Cold Stone — Floors 521–545, levels 246–257, Relic 53–67 — no board above 520 carries an `ascended` block. One or two a board, and the value steps past the shipped ceiling of 0.52 for the first time — at the register the axis is worth 0.35 and 0.42, which is why two earlier hundreds left it alone.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f521',
+      name: 'Floor 521',
+      enemies: {
+        front: [EVENSONG_WARDEN, SHATTERJAW_MAULER],
+        back: [MARROWHUNT_ALPHA, GUTTERLIGHT_SEXTON, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f522',
+      name: 'Floor 522',
+      enemies: {
+        front: [AISLEWARD_VERGER, DUSTPLATE_GRINDER],
+        back: [REDWATER_STALKER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f523',
+      name: 'Floor 523',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, OVERBURDEN_HULK],
+        back: [GALLERY_SLIPFANG, HUSHGLASS_WARDEN, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f524',
+      name: 'Floor 524',
+      enemies: {
+        front: [EVENSONG_WARDEN, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f525',
+      name: 'Floor 525',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, MARROWHUNT_ALPHA],
+        back: [SCARWEAVE_TRAMPLER, GLASSCHOIR_ARBITER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f526',
+      name: 'Floor 526',
+      enemies: {
+        front: [AISLEWARD_VERGER, SHATTERJAW_MAULER],
+        back: [DUSTPLATE_GRINDER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f527',
+      name: 'Floor 527',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, REDWATER_STALKER],
+        back: [GOLEM, UNSPOKEN_CANON, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f528',
+      name: 'Floor 528',
+      enemies: {
+        front: [EVENSONG_WARDEN, SHATTERJAW_MAULER],
+        back: [MARROWHUNT_ALPHA, GUTTERLIGHT_SEXTON, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f529',
+      name: 'Floor 529',
+      enemies: {
+        front: [AISLEWARD_VERGER, DUSTPLATE_GRINDER],
+        back: [REDWATER_STALKER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f530',
+      name: 'Floor 530 — The Slow Psalm',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, OVERBURDEN_HULK],
+        back: [GALLERY_SLIPFANG, HUSHGLASS_WARDEN, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f531',
+      name: 'Floor 531',
+      enemies: {
+        front: [EVENSONG_WARDEN, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f532',
+      name: 'Floor 532',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, MARROWHUNT_ALPHA],
+        back: [SCARWEAVE_TRAMPLER, GLASSCHOIR_ARBITER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f533',
+      name: 'Floor 533',
+      enemies: {
+        front: [AISLEWARD_VERGER, SHATTERJAW_MAULER],
+        back: [DUSTPLATE_GRINDER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f534',
+      name: 'Floor 534',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, REDWATER_STALKER],
+        back: [GOLEM, UNSPOKEN_CANON, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f535',
+      name: 'Floor 535',
+      enemies: {
+        front: [EVENSONG_WARDEN, SHATTERJAW_MAULER],
+        back: [MARROWHUNT_ALPHA, GUTTERLIGHT_SEXTON, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f536',
+      name: 'Floor 536',
+      enemies: {
+        front: [AISLEWARD_VERGER, DUSTPLATE_GRINDER],
+        back: [REDWATER_STALKER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f537',
+      name: 'Floor 537',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, OVERBURDEN_HULK],
+        back: [GALLERY_SLIPFANG, HUSHGLASS_WARDEN, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f538',
+      name: 'Floor 538',
+      enemies: {
+        front: [EVENSONG_WARDEN, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f539',
+      name: 'Floor 539',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, MARROWHUNT_ALPHA],
+        back: [SCARWEAVE_TRAMPLER, GLASSCHOIR_ARBITER, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f540',
+      name: 'Floor 540 — The Reliquary',
+      enemies: {
+        front: [AISLEWARD_VERGER, SHATTERJAW_MAULER],
+        back: [DUSTPLATE_GRINDER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f541',
+      name: 'Floor 541',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, REDWATER_STALKER],
+        back: [GOLEM, UNSPOKEN_CANON, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f542',
+      name: 'Floor 542',
+      enemies: {
+        front: [EVENSONG_WARDEN, SHATTERJAW_MAULER],
+        back: [MARROWHUNT_ALPHA, GUTTERLIGHT_SEXTON, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f543',
+      name: 'Floor 543',
+      enemies: {
+        front: [AISLEWARD_VERGER, DUSTPLATE_GRINDER],
+        back: [REDWATER_STALKER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f544',
+      name: 'Floor 544',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, OVERBURDEN_HULK],
+        back: [GALLERY_SLIPFANG, HUSHGLASS_WARDEN, PSALMSTONE_LECTOR],
+      },
+    },
+    {
+      id: 't-demon-f545',
+      name: 'Floor 545',
+      enemies: {
+        front: [EVENSONG_WARDEN, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Muffled Bell — Floors 546–567, levels 258–267, Relic 68–80 — two a board, and the weight comes down as the value goes up: floor 501 weighs 7,614 common-equivalent and floor 600 weighs 5,128.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f546',
+      name: 'Floor 546',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f547',
+      name: 'Floor 547',
+      enemies: {
+        front: [AISLEWARD_VERGER, GALLERY_SLIPFANG],
+        back: [CHALKHIDE_BROWSER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f548',
+      name: 'Floor 548',
+      enemies: {
+        front: [GLASSCHOIR_ARBITER, MARROWHUNT_ALPHA],
+        back: [GOLEM, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f549',
+      name: 'Floor 549',
+      enemies: {
+        front: [KNELL_CHANTER, REDWATER_STALKER],
+        back: [THORNBACK_GRAZER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f550',
+      name: 'Floor 550 — The Muffled Bell',
+      enemies: {
+        front: [UNSPOKEN_CANON, SCARWEAVE_TRAMPLER],
+        back: [CHALKHIDE_BROWSER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f551',
+      name: 'Floor 551',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f552',
+      name: 'Floor 552',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f553',
+      name: 'Floor 553',
+      enemies: {
+        front: [AISLEWARD_VERGER, GALLERY_SLIPFANG],
+        back: [CHALKHIDE_BROWSER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f554',
+      name: 'Floor 554',
+      enemies: {
+        front: [GLASSCHOIR_ARBITER, MARROWHUNT_ALPHA],
+        back: [GOLEM, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f555',
+      name: 'Floor 555',
+      enemies: {
+        front: [KNELL_CHANTER, REDWATER_STALKER],
+        back: [THORNBACK_GRAZER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f556',
+      name: 'Floor 556',
+      enemies: {
+        front: [UNSPOKEN_CANON, SCARWEAVE_TRAMPLER],
+        back: [CHALKHIDE_BROWSER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f557',
+      name: 'Floor 557',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f558',
+      name: 'Floor 558',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f559',
+      name: 'Floor 559',
+      enemies: {
+        front: [AISLEWARD_VERGER, GALLERY_SLIPFANG],
+        back: [CHALKHIDE_BROWSER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f560',
+      name: 'Floor 560 — The Stopped Peal',
+      enemies: {
+        front: [GLASSCHOIR_ARBITER, MARROWHUNT_ALPHA],
+        back: [GOLEM, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f561',
+      name: 'Floor 561',
+      enemies: {
+        front: [KNELL_CHANTER, REDWATER_STALKER],
+        back: [THORNBACK_GRAZER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f562',
+      name: 'Floor 562',
+      enemies: {
+        front: [UNSPOKEN_CANON, SCARWEAVE_TRAMPLER],
+        back: [CHALKHIDE_BROWSER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f563',
+      name: 'Floor 563',
+      enemies: {
+        front: [HUSHGLASS_WARDEN, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f564',
+      name: 'Floor 564',
+      enemies: {
+        front: [GUTTERLIGHT_SEXTON, RAVAGER],
+        back: [GOREHIDE_MATRIARCH, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f565',
+      name: 'Floor 565',
+      enemies: {
+        front: [AISLEWARD_VERGER, GALLERY_SLIPFANG],
+        back: [CHALKHIDE_BROWSER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f566',
+      name: 'Floor 566',
+      enemies: {
+        front: [GLASSCHOIR_ARBITER, MARROWHUNT_ALPHA],
+        back: [GOLEM, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    {
+      id: 't-demon-f567',
+      name: 'Floor 567',
+      enemies: {
+        front: [KNELL_CHANTER, REDWATER_STALKER],
+        back: [THORNBACK_GRAZER, PSALMSTONE_LECTOR, GRAVELIGHT_BEADLE],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Unfelt Blow — Floors 568–585, levels 268–276, Relic 81–91 — the lieutenant arrives at 568 carrying 1.40, and rank stops mattering — a carrier is worth 3.42 of five in front against 3.70 behind, a spread that never resolves at any value. Three a board.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f568',
+      name: 'Floor 568',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOREHIDE_MATRIARCH, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f569',
+      name: 'Floor 569',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, CHALKHIDE_BROWSER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f570',
+      name: 'Floor 570 — The Unfelt Blow',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SCATTERSTONE_HOWLER],
+      },
+    },
+    {
+      id: 't-demon-f571',
+      name: 'Floor 571',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, THORNBACK_GRAZER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f572',
+      name: 'Floor 572',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOREHIDE_MATRIARCH, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f573',
+      name: 'Floor 573',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOLEM, ROUGHCAST_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f574',
+      name: 'Floor 574',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOREHIDE_MATRIARCH, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f575',
+      name: 'Floor 575',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, CHALKHIDE_BROWSER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f576',
+      name: 'Floor 576',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SCATTERSTONE_HOWLER],
+      },
+    },
+    {
+      id: 't-demon-f577',
+      name: 'Floor 577',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, THORNBACK_GRAZER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f578',
+      name: 'Floor 578',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOREHIDE_MATRIARCH, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f579',
+      name: 'Floor 579',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOLEM, ROUGHCAST_GNAWER],
+      },
+    },
+    {
+      id: 't-demon-f580',
+      name: 'Floor 580 — The Blunted Rite',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOREHIDE_MATRIARCH, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f581',
+      name: 'Floor 581',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, CHALKHIDE_BROWSER, SCARWEAVE_TRAMPLER],
+      },
+    },
+    {
+      id: 't-demon-f582',
+      name: 'Floor 582',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SCATTERSTONE_HOWLER],
+      },
+    },
+    {
+      id: 't-demon-f583',
+      name: 'Floor 583',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, THORNBACK_GRAZER, DRIFTMOUTH_CHOKER],
+      },
+    },
+    {
+      id: 't-demon-f584',
+      name: 'Floor 584',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOREHIDE_MATRIARCH, CHALKHIDE_BROWSER],
+      },
+    },
+    {
+      id: 't-demon-f585',
+      name: 'Floor 585',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GOLEM, ROUGHCAST_GNAWER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Blunted Rite — Floors 586–595, levels 276–281, Relic 92–97 — three a board and the escorts all in `tank` or `support` sets. ⚠️ **That is the measurement rather than a flourish**: at Relic 100 a `ranger` set is worth +112% attack against a tank's +46%, and a hot-set common at these levels reads the binding arrangement at 3% where a cold-set one reads 100%.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f586',
+      name: 'Floor 586',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SCATTERSTONE_HOWLER],
+      },
+    },
+    {
+      id: 't-demon-f587',
+      name: 'Floor 587',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, BREAKSTONE_WARDEN, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f588',
+      name: 'Floor 588',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, CHALKHIDE_BROWSER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-demon-f589',
+      name: 'Floor 589',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, ROUGHCAST_GNAWER, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-demon-f590',
+      name: 'Floor 590 — The Last Verse',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SHALEBED_CRAWLER],
+      },
+    },
+    {
+      id: 't-demon-f591',
+      name: 'Floor 591',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SCATTERSTONE_HOWLER],
+      },
+    },
+    {
+      id: 't-demon-f592',
+      name: 'Floor 592',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, BREAKSTONE_WARDEN, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f593',
+      name: 'Floor 593',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, CHALKHIDE_BROWSER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-demon-f594',
+      name: 'Floor 594',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, ROUGHCAST_GNAWER, BREAKSTONE_WARDEN],
+      },
+    },
+    {
+      id: 't-demon-f595',
+      name: 'Floor 595',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SHALEBED_CRAWLER],
+      },
+    },
+    // -------------------------------------------------------------------------------------
+    // The Unmoved — Floors 596–600, levels 281–283, Relic 98–100 — five floors, each measured on its own, and at the top of them the last floor of the last tower — the edge that opened everything, finding nothing to open.
+    // -------------------------------------------------------------------------------------
+    {
+      id: 't-demon-f596',
+      name: 'Floor 596',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, SHALEBED_CRAWLER],
+      },
+    },
+    {
+      id: 't-demon-f597',
+      name: 'Floor 597',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, BREAKSTONE_WARDEN, SCATTERSTONE_HOWLER],
+      },
+    },
+    {
+      id: 't-demon-f598',
+      name: 'Floor 598',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, ROUGHCAST_GNAWER, GILDED_SENTRY],
+      },
+    },
+    {
+      id: 't-demon-f599',
+      name: 'Floor 599',
+      enemies: {
+        front: [CAIRNCHOIR_SEXTON, GRAVELIGHT_BEADLE],
+        back: [PSALMSTONE_LECTOR, GILDED_SENTRY, THORNBACK_GRAZER],
+      },
+    },
+    {
+      id: 't-demon-f600',
+      name: 'Floor 600 — The Unmoved',
+      enemies: {
+        front: [THE_UNMOVED, PSALMSTONE_LECTOR],
+        back: [GILDED_SENTRY, SHALEBED_CRAWLER, BREAKSTONE_WARDEN],
       },
     },
   ],
