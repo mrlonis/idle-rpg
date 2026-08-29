@@ -1967,9 +1967,43 @@ cannot pass stops the tower outright.
 
 ### How it escalates is a per-tower answer
 
-⚠️ **Thirty-three hundreds gave thirty-three answers — every second, third, fourth and fifth hundred of
-all seven towers, and the sixth of the Human, Dwarf, Elf, Undead and Monster — and no two escalate the
-same way. Read the crew's failure mode before choosing; do not copy the last session's shape.**
+⚠️ **Thirty-four hundreds gave thirty-four answers — every second, third, fourth and fifth hundred of
+all seven towers, and the sixth of all but the Demon — and no two escalate the same way. Read the
+crew's failure mode before choosing; do not copy the last session's shape.** [towers](towers.md)
+
+⚠️ **On a _throughput_ axis the gear archetype is worth more than the whole axis, which is the fourth
+hundred running to find that lever decisive and the largest reading it has had.** Held at an identical
+stat line at four carriers on the Angel sixth hundred, all-`tank` reads **4.00 of five** and
+all-`support` 3.88 against all-`brawler` 1.50, all-`ranger` **0.03** and all-`mage` **0.00** —
+`GEAR_PROFILES` pays a tank +46% attack at Relic 100, a ranger +112% and a mage +120%. The Dwarf fourth
+hundred measured the same lever at **0.33 of a survivor** on a pierce axis and called it texture.
+⚠️ **The consequence is that the band must be authored far _below_ its own register**: `atk` reads a
+shipped `legendary` median of 58 and that hundred's carriers run **30, 32 and 36** with its roof at 24,
+every one under the _common_ median of 42. **Chapter 17's "a stat that works only below its register"
+as a whole hundred.** [towers](towers.md)
+
+⚠️ **The residual and the affordability licence are the same number with opposite signs, and they may
+not both be applied to one axis.** A _tax_ that costs seconds (a `dodge`, a `def`) is inflated by a
+slow crew and the Demon fifth hundred is right to discount it; a _throughput_ axis bills a slow crew
+**because** it is slow, so the same correlation is the mechanism rather than an artefact. The Angel
+sixth hundred's `atk` correlates 0.571 with control fight length and the residual puts its binding
+arrangement **tenth of fourteen** — but dwarf-ref, angel-ref and dwarf-alt calibrate to controls of
+**32.01s, 32.07s and 32.07s** and `atk` costs them **3.41, 3.70 and 3.49**, so at matched length the
+Angel one is costliest. **Look for the counter-example first, and say which of the two the number is.**
+[towers](towers.md)
+
+⚠️ **The _tier_ is half of a body's heat and the authored line hides it.** `SPLITMAW_RENDER` at 340/42
+in a `mage` set and `CINDER_CULLER` at 440/50 in a `brawler` one read as the same body; at level 280
+the first is `legendary` and worth **×1.51** of the second's `common`, and swapping one for the other
+moved a shipped floor's binding arrangement from **53% to 100%**. **Convert for tier before comparing
+two hot bodies, exactly as with weight** — the premium is on attack as well as health.
+[authoring](authoring.md)
+
+⚠️ **A retirement check can have an _escort-dependent_ answer, which no earlier hundred recorded.**
+Behind four 300/18 commons at floor 600 five of the Angel Tower's six fifth-hundred anchors read
+100% / 4.00 for both crews; **behind four 520/44 legendaries every one of the six reads 0% for both.**
+Two verdicts from one check. **State the escort with the verdict**, and note which floors the survivors
+actually stand on — all four that anchor the new hundred do so in its first twenty floors.
 [towers](towers.md)
 
 ⚠️ **Thirty-three hundreds gave thirty-three answers.** The Monster sixth hundred is the first to

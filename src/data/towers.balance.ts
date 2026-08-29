@@ -237,7 +237,7 @@ const BANDS = TOWER_BAND_RUNGS.length;
  * ramp pins floor 500 to the Relic 40 it already wore, so every pending tower sweeps the boards it was
  * tuned with. Only its level line moves, and only on 21 of 500 floors by a single level.
  */
-const PENDING: readonly string[] = ['tower-angel', 'tower-demon'];
+const PENDING: readonly string[] = ['tower-demon'];
 
 /** Which crew meets a floor. Band 1 takes the first hundred, band 2 the second, and so on. */
 const bandOf = (floor: number): number => Math.min(Math.ceil(floor / BAND_FLOORS), BANDS) || 1;

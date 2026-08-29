@@ -363,6 +363,42 @@ boundary is only a reprieve on a hundred whose gear is flat.** The tower:campaig
 recomputed by hand rather than carried, is **2.804** with three towers extended (1,178,900 against
 420,500); a completed round is 3.101. Full findings in [towers](towers.md).
 
+⚠️ **The Bellows — the Angel Tower's sixth hundred — is the sixth of the fifth round, and its axis is
+the plainest thing in the game because it is the only one this crew can afford.** Enemy **`atk`**, on
+a tower whose alternate arrangement is the slowest in the game: a control of 4.00 of five at **41.4
+seconds** against a 60-second mean bar and a 67.5-second longest-cleared one. Every candidate that
+grades walks it into the bar — `def` to **67s**, a board-wide `STUN`, `SLOW` or `WEAKEN` to 56s — where
+`atk` takes it from 41s to **38s**. Five hundred floors of this tower are about out-running a choir;
+this one stops trying and out-paces it, because an Angel five survives on a heal behind a cooldown and
+what removes a body between two of them is rate.
+
+⚠️ **The gear archetype is worth more than the whole axis, and it is the largest that lever has ever
+read.** Held at an identical stat line at four carriers, all-`tank` reads **4.00 of five** against
+all-`ranger`'s **0.03** and all-`mage`'s **0.00** — `GEAR_PROFILES` pays a tank +46% attack at Relic
+100 and a mage +120%, where the Dwarf fourth hundred measured the same lever at **0.33 of a survivor**
+on a pierce axis. ⚠️ **So the band is authored far _below_ its own register**: `atk` has a shipped
+`legendary` median of 58 and the three carriers run **30, 32 and 36** with `THE_UNSLAKED` at **800/24**,
+every one under the _common_ median of 42 — chapter 17's "works only below its register" as a whole
+hundred. ⚠️ **And the tier is half of a body's heat**: swapping a `legendary` 340/42 `mage` for a
+`common` 440/50 `brawler` — the same line to the eye, ×1.51 apart at level 280 — moved a floor's
+binding arrangement from 53% to 100%.
+
+⚠️ **The licence is margin and affordability, and the counter-example is what rescues it.** Raw, `atk`
+is first and second of fourteen for the Angel arrangements — but this crew is the strongest at band 6,
+and the correlation test says the axis is a **steep curve rather than a lock** (0.671 with authored
+`def`, 0.306 with `recovery`, against pierce's 0.896). Fitting the fight-length confound puts the
+binding arrangement **tenth**; dwarf-ref, angel-ref and dwarf-alt calibrate to **32.01s, 32.07s and
+32.07s** and `atk` costs them 3.41, **3.70** and 3.49, so at matched length the Angel one is costliest.
+⚠️ **The residual and the affordability licence are the same number with opposite signs and cannot both
+be applied to one axis** — a tax is inflated by a slow crew, a throughput axis bills one _because_ it
+is slow. ⚠️ **The retirement check came back escort-dependent, which is new**: behind four light commons
+five of six anchors stand at 100% / 4.00, behind four legendaries **all six read 0%**. The hundred ships
+at 72.6% Demon with the lieutenant put in the Monster half deliberately, taking the tower to **59.45%**
+inside its 35–65% bound; the survivors metric saturates at a flat 4.00 across fifty floors, so the climb
+is the seconds — 14.7s to 21.3s. The tower:campaign crystal ratio, recomputed rather than carried, is
+**3.027** with six towers extended (1,272,800 against 420,500); a completed round is 3.101. Full
+findings in [towers](towers.md).
+
 ⚠️ **The Glut — the Monster Tower's sixth hundred — is the fifth of the fifth round, and it is the
 first hundred in the project taken on _nothing but_ affordability.** Forty candidates were priced
 across all fourteen shipped arrangements at band 6 — seventeen stats, twelve statuses and mechanics, a

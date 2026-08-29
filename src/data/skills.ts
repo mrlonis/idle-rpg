@@ -10576,7 +10576,87 @@ export const IT_WILL_NOT_GO_DOWN = {
   priority: 4,
 } as const;
 
+/**
+ * The choir has a note for a wound. It does not have one for the next wound.
+ *
+ * The light carrier of the Bellows, and the first turn in six hundred floors of this tower authored
+ * to be answered by *nothing* — no seam to open, no crit to block, no status to cleanse. ⚠️ **Its
+ * power is ordinary and its `atk` is not**: {@link EMBERDRAW_FLETCHER} carries 30 against a shipped
+ * `legendary` median of 58, because at Relic 100 a `ranger` set pays **+112%** attack where a `tank`
+ * set pays +46% — and held at an identical stat line, four carriers all-`ranger` read **0.03 of five**
+ * against all-`tank`'s **4.00**. The set is the axis; the number under it has to come down to pay for
+ * it.
+ */
+export const NO_NOTE_FOR_THE_NEXT = {
+  id: 'no-note-for-the-next',
+  name: 'No Note for the Next',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 42,
+  priority: 3,
+} as const;
+
+/**
+ * Between one verse and the next there is a gap, and the gap is where this lands.
+ *
+ * The middle carrier's turn, and the tower's founding failure stated as a cadence: an Angel five
+ * survives on a heal behind a cooldown, so what removes a body between two of them is rate rather than
+ * size. ⚠️ **That is what separates this hundred from the third**, which held damage per second fixed
+ * and made each blow larger; this raises the rate and leaves the blow alone.
+ */
+export const THE_GAP_BETWEEN_VERSES = {
+  id: 'the-gap-between-verses',
+  name: 'The Gap Between Verses',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'magical', power: 1.6 }],
+  cooldown: 44,
+  priority: 3,
+} as const;
+
+/**
+ * It is not aimed at the shield. It is aimed at the time the shield takes.
+ *
+ * The lieutenant's turn, arriving in band 4. ⚠️ **A hot carrier bills what is _left alive_, so it
+ * stands behind**: carried on one body with the escort held, a hot escort is worth **4.00 of five in
+ * the front rank against 3.20 behind** at ×1.4, 3.92 against 1.05 at ×1.8 and 3.98 against **0.05** at
+ * ×2.2 — a spread that *grows* with the value, where the Monster sixth hundred's health carrier
+ * shrank. A body the party cannot aim at keeps swinging, and this crew's aim is slow.
+ */
+export const THE_TIME_IT_TAKES = {
+  id: 'the-time-it-takes',
+  name: 'The Time It Takes',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 46,
+  priority: 3,
+} as const;
+
+/**
+ * Six hundred floors of singing over it, and it was never listening.
+ *
+ * The roof's turn. ⚠️ **The roof was settled on its `atk` and not on this**, and the alternate five is
+ * what settled it: with weight held at 800 the shipped board reads, across attack 20 / 24 / 28 / 32 /
+ * 38, reference **100% / 3.95, 100% / 4.00, 100% / 3.88, 98% / 3.65, 83% / 2.65** — which clears the
+ * 90% bar to the far end — against alternate **100% / 3.92, 78% / 2.95, 60% / 1.73, 10% / 0.28, 0%**.
+ * The 75% bar lands between 24 and 28. ⚠️ **Held the other way at attack 24, health 680 / 740 / 800 /
+ * 860 / 920 reads 90% / 88% / 78% / 75% / 75% for the alternate**, so both halves were walked and the
+ * pair is the heaviest that clears both bars with margin. **Shortlist on weight, settle on attack**,
+ * the ninth tower roof running.
+ */
+export const IT_WAS_NEVER_LISTENING = {
+  id: 'it-was-never-listening',
+  name: 'It Was Never Listening',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 52,
+  priority: 4,
+} as const;
+
 export const SKILLS = [
+  NO_NOTE_FOR_THE_NEXT,
+  THE_GAP_BETWEEN_VERSES,
+  THE_TIME_IT_TAKES,
+  IT_WAS_NEVER_LISTENING,
   IT_DOES_NOT_THIN,
   THE_SEASON_IT_ATE,
   AND_STILL_MORE_OF_IT,

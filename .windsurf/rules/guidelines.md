@@ -959,6 +959,31 @@ critDamageResist, 0)`, so the Angel fourth hundred took `critChance` — the fre
   five in front against **1.00 behind** at floor 570 and 0.02–0.08 against **1.80–1.85** at floor 590,
   reproduced on all three carriers at both levels. **Carry the measurement, never the precedent — not
   even the same tower's.** [towers](../../docs/towers.md)
+- ⚠️ **On a _throughput_ axis the gear archetype is worth more than the whole axis, and it is the
+  largest reading that lever has had.** Held at an identical stat line at four carriers on the Angel
+  sixth hundred, all-`tank` reads **4.00 of five** against all-`ranger`'s **0.03** and all-`mage`'s
+  **0.00** — `GEAR_PROFILES` pays a tank +46% attack at Relic 100 and a mage +120%, where the Dwarf
+  fourth hundred measured the same lever at **0.33** on a pierce axis. ⚠️ **The consequence is that the
+  band must be authored far _below_ its own register**: `atk` has a shipped `legendary` median of 58
+  and that hundred's carriers run 30, 32 and 36 with its roof at 24. **Fourth hundred running to find
+  the archetype decisive; check which kind of axis you have first.** [towers](../../docs/towers.md)
+- ⚠️ **The residual and the affordability licence are the same number with opposite signs, and may not
+  both be applied to one axis.** A _tax_ that costs seconds is inflated by a slow crew and must be
+  discounted; a _throughput_ axis bills a slow crew **because** it is slow, so the same correlation is
+  the mechanism. The Angel sixth hundred's `atk` correlates 0.571 with control fight length and the
+  residual puts its binding arrangement **tenth of fourteen** — but dwarf-ref, angel-ref and dwarf-alt
+  calibrate to **32.01s, 32.07s and 32.07s** and `atk` costs them 3.41, **3.70** and 3.49. **Look for
+  the counter-example first, and say which of the two the number is.** [towers](../../docs/towers.md)
+- ⚠️ **The _tier_ is half of a body's heat and the authored line hides it.** A `legendary` 340/42 in a
+  `mage` set and a `common` 440/50 in a `brawler` one read as the same body; at level 280 the first is
+  worth **×1.51** of the second, and swapping one for the other moved a shipped floor's binding
+  arrangement from **53% to 100%**. **Convert for tier before comparing two hot bodies, exactly as with
+  weight** — the premium is on attack as well as health. [authoring](../../docs/authoring.md)
+- ⚠️ **A retirement check can have an _escort-dependent_ answer.** Behind four 300/18 commons at floor
+  600 five of the Angel Tower's six fifth-hundred anchors read 100% / 4.00 for both crews; **behind
+  four 520/44 legendaries every one of the six reads 0% for both.** Two verdicts from one check.
+  **State the escort with the verdict**, and name the floors the survivors stand on.
+  [towers](../../docs/towers.md)
 - ⚠️ **"Is it ours" can come back _no_ for every candidate _including the tower's own_, and then the
   only licence left is affordability.** At band 6 the Monster fives rank tenth to fourteenth of fourteen
   on **forty** candidates, and `physicalResist` — second and third for them at band 5 — has fallen to

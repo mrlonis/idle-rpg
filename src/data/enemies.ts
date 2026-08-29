@@ -380,6 +380,10 @@ import {
   THE_LONG_SOAK,
   NOTHING_MARKS_IT,
   IT_DOES_NOT_THIN,
+  NO_NOTE_FOR_THE_NEXT,
+  THE_GAP_BETWEEN_VERSES,
+  THE_TIME_IT_TAKES,
+  IT_WAS_NEVER_LISTENING,
   THE_SEASON_IT_ATE,
   AND_STILL_MORE_OF_IT,
   IT_WILL_NOT_GO_DOWN,
@@ -16256,7 +16260,210 @@ export const THE_UNSWALLOWED = {
   skills: [IT_WILL_NOT_GO_DOWN],
 } as const;
 
+// ---------------------------------------------------------------------------------------
+// The Angel Tower's sixth hundred — the Bellows, floors 501–600, levels 236–283,
+// Relic 41 → Relic 100.
+//
+// ⚠️ **Four blocks, three Demon and one Monster** — the split the Demon fifth hundred's inversion
+// finding asks for, applied to the other celestial tower before it bites rather than after. This
+// tower's fifth hundred authored all three carriers Demon, they stood on every board, and the first
+// pass came out at **78.2% Demon**; both factions here counter Angels, so putting the lieutenant in
+// the Monster half costs the lean nothing.
+//
+// ## ⚠️ The axis is enemy `atk` — plain throughput — and the gear archetype is how it is delivered
+//
+// Five hundred floors of this tower are about out-running a choir: the second arrives before the
+// wards, the third swings too large to heal, the fourth finds the seam too often, the fifth prices the
+// plate underneath it. This one stops trying to out-run the choir and simply out-paces it. An Angel
+// five survives on a heal behind a cooldown, and what removes a body between two of them is **rate**.
+//
+// ⚠️ **It is the only candidate this crew can afford, and that is the licence.** Its alternate
+// arrangement is the slowest in the game — a control of 4.00 of five at **41.4 seconds** against a
+// 60-second mean bar and a 67.5-second longest-cleared one — so an axis that buys seconds is
+// unauthorable here. Measured at floor 600 in Relic 100 against controls of **3.88 / 30.0s** and
+// **4.00 / 41.4s**, every candidate that grades walks it into the bar and this one does not:
+//
+// | four carriers at        | angel-ref | angel-alt | alt fight |
+// | ----------------------- | --------- | --------- | --------- |
+// | `def` ×1.5 → ×5         | 3.85 → 1.68 | 4.00 → 0.60 | 47s → **67s** |
+// | `STUN` wide, 1 → 3      | 3.60 → 0.23 | 4.00 → 1.23 | 47s → **56s** |
+// | `SLOW` wide, 1 → 3      | 4.00 → 0.10 | 4.00 → 3.23 | 44s → **56s** |
+// | `WEAKEN` wide, 1 → 3    | 3.98 → 0.72 | 4.00 → 3.25 | 44s → **56s** |
+// | `POISON` wide, 1 → 3    | 3.98 → 2.67 | 4.00 → 4.00 | 43s → 47s |
+// | **`atk` ×1.00 → ×1.40** | **3.92 → 0.00** | **4.00 → 0.17** | **41s → 38s** |
+//
+// 1. ⚠️ **It grades in _both_ value and carrier count with the seconds flat and then falling.** Across
+//    ×1.00 → ×1.40 on four carriers it reads **3.92 / 3.63 / 3.65 / 3.08 / 2.48 / 1.38 / 0.65 / 0.30 /
+//    0.00** and **4.00 / 4.00 / 4.00 / 3.92 / 3.63 / 2.92 / 1.95 / 1.25 / 0.17** at 30–33s and 41–46s;
+//    across zero to five carriers at ×1.35 it reads **4.00 / 3.90 / 3.50 / 1.85 / 0.17 / 0.00** and
+//    **4.00 / 4.00 / 4.00 / 3.60 / 1.35 / 0.00**. Zero timeouts on every row.
+// 2. ⚠️ **The gear archetype is worth _more than the whole axis_, which is the largest that lever has
+//    ever measured.** Held at an identical stat line on one board at four carriers, all-`tank` reads
+//    **4.00 / 4.00** and all-`support` 3.88 / 3.90 against all-`brawler` 1.50 / 2.98, all-`ranger`
+//    **0.03 / 0.00** and all-`mage` **0.00 / 0.00** — because `GEAR_PROFILES` pays a tank +46% attack
+//    at Relic 100 and a ranger +112%. The Dwarf fourth hundred measured the same lever at **0.33 of a
+//    survivor** on a pierce axis. **On a throughput axis the archetype _is_ the axis**, and it is why
+//    every block below is authored far under its own register.
+// 3. ⚠️ **So the band works only _below_ the register, which is chapter 17's shape rather than the
+//    Monster third hundred's.** Over the 438 blocks shipped beforehand, `atk` reads a `legendary`
+//    median of **58**, a p90 of 76 and a ceiling of 84; the three carriers here run **30, 32 and 36**
+//    and the roof **24**, every one of them under the *common* median of 42. A body authored at the
+//    legendary median in a `ranger` set is a total wipe at these levels.
+// 4. ⚠️ **A hot carrier bills what is _left alive_, so the carriers stand behind — and the spread
+//    _grows_ with the value.** Carried on one body with the escort held, a hot escort is worth **4.00
+//    of five in front against 3.20 behind** at ×1.4, 3.92 against 1.05 at ×1.8 and 3.98 against
+//    **0.05** at ×2.2. That is the Undead sixth hundred's sign and the exact inverse of the Monster
+//    sixth hundred's health carrier, whose spread shrank from 0.61 to 0.07 over its own range. **Five
+//    hundreds, five different answers to the rank question.**
+// 5. ⚠️ **The licence is margin and affordability rather than exclusivity, and the correlation test is
+//    what says so.** Raw, `atk` costs angel-alt **3.75** and angel-ref 3.70, first and second of
+//    fourteen — but this crew is the strongest arrangement at band 6 and the Angel fifth hundred
+//    records that a first place is not a licence when it is. Its cost correlates **0.671** with each
+//    arrangement's authored `def` and **0.306** with its `recovery`, against `physicalPierce`'s
+//    **0.896** with `def`: it is a **steep curve rather than a lock**, and fitting the fight-length
+//    confound (corr **0.571**) puts angel-ref fourth and angel-alt **tenth**. ⚠️ **What rescues it is
+//    the counter-example rather than the residual**: dwarf-ref, angel-ref and dwarf-alt calibrate to
+//    controls of **32.01s, 32.07s and 32.07s** — the same fight length to a tenth of a second — and
+//    `atk` costs them **3.41, 3.70 and 3.49**. At matched length the Angel arrangement is the costliest,
+//    so the correlation is the mechanism rather than an artefact: a crew that spends forty seconds
+//    being hit is billed by the rate at which it is hit. **Look for the counter-example first.**
+// 6. ⚠️ **Disqualified rather than merely weak.** `critDamageAmp` grades on both arrangements with flat
+//    seconds (3.75 → 0.65 and 4.00 → 1.25) and is the **Undead Tower's sixth hundred, one session
+//    old** — and that hundred's own argument is about *this* crew's `critDamageResist`, so taking it
+//    would be the Riving shipped twice. Enemy `hp` is the Monster Tower's sixth, also one session old,
+//    and takes this crew to 54.5s. `physicalPierce` is this tower's own fifth, `critChance` its fourth,
+//    `attackSpeed` and `haste` its second wearing a new stat, and a burst cadence its third.
+//    `magicResist` has been declined on this crew three times. `BLOODRISEN` is a **total wipe from one
+//    carrier** (4.00 → 0.00 and 4.00 → 0.17), a cliff with nothing in the middle, and `RALLY` is
+//    non-monotone on both.
+// ---------------------------------------------------------------------------------------
+
+/**
+ * The lace is cut and what is behind it was never a wall.
+ *
+ * The light carrier, and the first of the four. **520 of health against 30 of attack**, which is under
+ * the shipped `common` median of 42 and barely half the `legendary` median of 58 — the whole band is
+ * authored below its own register because the `ranger` set it wears is worth +112% attack at Relic 100.
+ * See the block comment above.
+ *
+ * ⚠️ **Nothing here restores anything and nothing here is a wall**: no heal, no drain, no `regen`
+ * status, no point of `lifeLeech`, no shield, no link and no taunt anywhere over the hundred — the
+ * rule this tower has held since floor 160, and above floor 400 since its fifth hundred added the last
+ * three to the list.
+ */
+export const EMBERDRAW_FLETCHER = {
+  id: 'emberdraw-fletcher',
+  name: 'Emberdraw Fletcher',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 520,
+    atk: 30,
+    def: 15,
+    haste: 104,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    magicPierce: 0.18,
+  },
+  skills: [NO_NOTE_FOR_THE_NEXT],
+} as const;
+
+/**
+ * It does not sing over the choir. It sings in the rest.
+ *
+ * The middle carrier, arriving in band 2 and standing on more boards than anything else in the
+ * hundred. The `mage` set is the hottest `GEAR_PROFILES` ships — +120% attack at Relic 100 against a
+ * tank's +46% — and the authored 32 is what is left after paying for it.
+ */
+export const SLAGLIGHT_CANTOR = {
+  id: 'slaglight-cantor',
+  name: 'Slaglight Cantor',
+  faction: 'demon',
+  tier: 'legendary',
+  gearArchetype: 'mage',
+  stats: {
+    hp: 600,
+    atk: 32,
+    def: 17,
+    haste: 102,
+    critChance: 0.13,
+    critDamageAmp: 0.78,
+    magicPierce: 0.2,
+  },
+  skills: [THE_GAP_BETWEEN_VERSES],
+} as const;
+
+/**
+ * Bred in the kilns under the Coppice and lent to the other side of the war for exactly this.
+ *
+ * The lieutenant, arriving at floor 568 and standing **behind** on every board it appears on. ⚠️ **It
+ * is Monster rather than Demon deliberately**: `countersOf('angel')` names both, this tower's fifth
+ * hundred overshot its lean at 78.2% by making all three carriers Demon, and the Demon fifth hundred
+ * records that the fix is *who carries the axis* rather than a lighter band.
+ */
+export const KILNBREATH_HOUNDSMAN = {
+  id: 'kilnbreath-houndsman',
+  name: 'Kilnbreath Houndsman',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 700,
+    atk: 36,
+    def: 20,
+    haste: 100,
+    critChance: 0.12,
+    critDamageAmp: 0.75,
+    physicalPierce: 0.22,
+  },
+  skills: [THE_TIME_IT_TAKES],
+} as const;
+
+/**
+ * Every hundred of this tower ends with something the choir cannot finish singing over. This is the
+ * one that was never waiting for it to stop.
+ *
+ * The roof. ⚠️ **800 of health against 24 of attack** — lighter than {@link THE_UNLACING}'s 950 and
+ * *colder* than it by 24, which is the arithmetic every roof on this ladder obeys:
+ * an `ascended` block climbs at `perLevel.ascended` 1.024 where a mono-faction Angel five is mostly
+ * `common` at 1.021, so an anchor gains about ×1.15 on the crew across the forty-seven levels this
+ * hundred spans — and this one is also wearing the hottest set the roof list has.
+ *
+ * ⚠️ **The seven towers' last-floor anchors, as a list rather than a superlative**: The Heartshake
+ * 560/16, The Undermost 580/36, The Casehardened 780/24, **The Unslaked 800/24** (this), The
+ * Unswallowed 880/16, The Headlong 1050/25, The Unstruck 1250/44 — the last of which is still a
+ * fifth-hundred roof while the round is in flight. **The weight a roof is allowed is what is left after
+ * the grade**, and this one is wearing Relic 100 in a `ranger` set, which is worth more than its stat
+ * line.
+ *
+ * ⚠️ **Well under {@link UNMADE}'s 1800 and 100**, the ceiling `enemies.spec.ts` holds. It restores
+ * nothing, carries no taunt, and the board it stands on carries no heal, drain, shield, `regen`,
+ * `lifeLeech` or link.
+ */
+export const THE_UNSLAKED = {
+  id: 'the-unslaked',
+  name: 'The Unslaked',
+  faction: 'demon',
+  tier: 'ascended',
+  gearArchetype: 'ranger',
+  stats: {
+    hp: 800,
+    atk: 24,
+    def: 26,
+    haste: 100,
+    critChance: 0.14,
+    critDamageAmp: 0.82,
+    magicPierce: 0.24,
+  },
+  skills: [IT_WAS_NEVER_LISTENING],
+} as const;
+
 export const ENEMIES = [
+  EMBERDRAW_FLETCHER,
+  SLAGLIGHT_CANTOR,
+  KILNBREATH_HOUNDSMAN,
+  THE_UNSLAKED,
   FENGORGED_WALLOWER,
   SILTFAT_BROODER,
   TIDELESS_MAW,

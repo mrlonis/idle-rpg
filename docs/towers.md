@@ -1,8 +1,7 @@
 # Faction towers
 
-Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — the Human, Dwarf,
-Elf, Undead and Monster Towers complete and the other two at five hundred while a fifth round is in
-flight.** The system shipped in
+Seven towers, one per faction, **six hundred floors each at enemy levels 1 to 283 — six of the seven
+complete and only the Demon Tower still at five hundred while a fifth round is in flight.** The system shipped in
 milestone 15b with a single tower, the other six in 15c, the second hundred floors across 21e–21k, the
 third across 21l–21r, the fourth across 21s–21y and the fifth across 21z and after — the Demon Tower
 last in both of the last two rounds, which is what closed them. Read
@@ -2616,6 +2615,78 @@ overmatch, and at the top the one thing the jaws could not start on.
   which is what this tower's third hundred said it would have to be. The hundred opens at floor 401 in
   6.6s with all five alive, costs the alternate a member from floor 409 and the reference from 426,
   and closes at **100% / 2.98 / 19.5s against 80% / 0.80 / 31.2s**, zero timeouts anywhere.
+
+### The sixth hundred — the Angel Tower's Bellows
+
+Floors 501–600, levels 236–283, Relic 41 → Relic 100. Five hundred floors of out-running a choir, and
+this is the hundred that stops trying and simply out-paces it: the cold iron, the drawn fire, the
+bellows, the white heat, the running metal, and at the top the thing that was never waiting for the
+verse to finish.
+
+- ⚠️ **The axis is plain enemy `atk`, and the licence is affordability.** This tower's alternate
+  arrangement is the slowest in the game — a control of 4.00 of five at **41.4 seconds** against a
+  60-second mean bar and a 67.5-second longest-cleared one — so an axis that buys seconds is
+  unauthorable here. Every candidate that grades walks it into the bar and this one does not: at four
+  carriers, `def` ×1.5 → ×5 takes it to **67s**, a board-wide `STUN` to 56s, a `SLOW` to 56s, a
+  `WEAKEN` to 56s — where `atk` ×1.00 → ×1.40 goes **41s → 38s**. An Angel five survives on a heal
+  behind a cooldown, and what removes a body between two of them is rate.
+- ⚠️ **It grades in both dimensions with the seconds flat and then falling.** Across ×1.00 → ×1.40 on
+  four carriers: **3.92 / 3.63 / 3.65 / 3.08 / 2.48 / 1.38 / 0.65 / 0.30 / 0.00** and **4.00 / 4.00 /
+  4.00 / 3.92 / 3.63 / 2.92 / 1.95 / 1.25 / 0.17**. Across zero to five carriers at ×1.35: **4.00 /
+  3.90 / 3.50 / 1.85 / 0.17 / 0.00** and **4.00 / 4.00 / 4.00 / 3.60 / 1.35 / 0.00**. Zero timeouts on
+  every row.
+- ⚠️ **The gear archetype is worth more than the whole axis, and it is the largest that lever has ever
+  read.** Held at an identical stat line at four carriers, all-`tank` reads **4.00 / 4.00** and
+  all-`support` 3.88 / 3.90 against all-`brawler` 1.50 / 2.98, all-`ranger` **0.03 / 0.00** and
+  all-`mage` **0.00 / 0.00** — `GEAR_PROFILES` pays a tank +46% attack at Relic 100, a ranger +112% and
+  a mage +120%. The Dwarf fourth hundred measured the same lever at **0.33 of a survivor** on a pierce
+  axis and called it texture. **On a throughput axis the archetype _is_ the axis.**
+- ⚠️ **So the band is authored far _below_ its own register**, which is chapter 17's "a stat that works
+  only below its register" as a whole hundred. Over the 438 blocks shipped beforehand `atk` reads a
+  `legendary` median of **58**, a p90 of 76 and a ceiling of 84; the three carriers run **30, 32 and
+  36** and the roof **24** — every one under the _common_ median of 42. A body authored at the
+  legendary median in a `ranger` set is a total wipe at these levels.
+- ⚠️ **The tier is half of the heat and it is easy to miss.** `SPLITMAW_RENDER` at 340/42 in a `mage`
+  set and `CINDER_CULLER` at 440/50 in a `brawler` one read as the same body on the authored line; at
+  level 280 the first is `legendary` and worth **×1.51** of the second's `common`, and swapping one for
+  the other is the difference between the alternate reading 53% and 100%. **Convert for tier before
+  comparing two hot bodies, exactly as with weight.**
+- ⚠️ **A hot carrier bills what is _left alive_ and the spread grows with the value** — 4.00 of five in
+  front against 3.20 behind at ×1.4, 3.92 against 1.05 at ×1.8, 3.98 against **0.05** at ×2.2. That is
+  the exact inverse of the Glut's health carrier, whose spread _shrank_ from 0.61 to 0.07. **Five
+  hundreds, five different answers to the rank question.**
+- ⚠️ **The licence is margin and affordability, and the counter-example is what rescues it from the
+  residual.** Raw, `atk` costs angel-alt **3.75** and angel-ref 3.70, first and second of fourteen —
+  but this crew is the strongest arrangement at band 6. Its cost correlates **0.671** with authored
+  `def` and **0.306** with `recovery` against `physicalPierce`'s **0.896** with `def`, so it is a steep
+  curve rather than a lock; fitting the fight-length confound (corr **0.571**) puts angel-ref fourth
+  and angel-alt **tenth**. But dwarf-ref, angel-ref and dwarf-alt calibrate to controls of **32.01s,
+  32.07s and 32.07s** and `atk` costs them **3.41, 3.70 and 3.49** — at matched length the Angel
+  arrangement is the costliest. ⚠️ **The residual and the affordability licence are the same number
+  with opposite signs and cannot both be applied to one axis**: a tax that costs seconds is inflated by
+  a slow crew and must be discounted, where a throughput axis bills a slow crew _because_ it is slow.
+  **Say which of the two you have.**
+- ⚠️ **The retirement check has an escort-dependent answer, which is new.** Behind four 300/18 commons
+  at floor 600 **five of the six fifth-hundred anchors still stand** — `WYRDROOT_ANCIENT`, `COLOSSUS`,
+  `PALE_WARDEN` and `THE_UNLACING` at 100% / 4.00 for both crews and `OATHBREAKER` at 95% — and only
+  `THE_HAIRLINE` fails, at 83% against **0%** for the alternate. **Behind four 520/44 legendaries every
+  one of the six reads 0% for both.** The three the fourth hundred retired stay retired at 0% / 0% even
+  behind the light escort, and the floor-500 board carried to floor 600 reads **0% / 0%** — the
+  Crownworks collapse an eighth time. **State the escort with the verdict.**
+- ⚠️ **The survivors metric saturates across fifty floors on the tankiest crew in the game**: the
+  reference five reads a flat **4.00 from floor 546 to floor 596** and the alternate 3.2–4.1, so the
+  seconds are the climb — **14.7s in the lower half against 21.3s in the upper**, and the roof at 23.2s
+  against the band opener's 10.3s. Chapter 26's rule, at its most extreme.
+- The hundred fields **40** distinct archetypes, four of them new (10.0%), and carries **no** heal,
+  drain, shield, `regen` status, point of `lifeLeech`, link or taunt — the four this tower has forbidden
+  since floor 160 and the three its fifth hundred added — against **16 boards carrying `recovery` and
+  12 `healthRegen`**, both of which it has always permitted. Bodies in a `ranger` or `mage` set run
+  **2–3 / 2–4 / 3–4 / 3–4 / 3–5 / 4–5** across the six bands. The lean is **72.6% Demon** over the
+  hundred and the tower closes at **59.45%**, inside the 35–65% bound, with the lieutenant put in the
+  **Monster** half deliberately — the Processional's fix applied before the inversion guard could bite
+  rather than after. It opens at floor 501 in 10.3s with all five alive and closes at **100% / 4.00 /
+  23.2s against 78% / 2.95 / 41.0s**, worst reading anywhere 100% and 78%, **no timeouts**, longest
+  single attempt **56.0s** against the 67.5s bar and slowest mean 41.0s against the 60s bar.
 
 ### The fifth hundred — the Angel Tower's Unlacing
 
