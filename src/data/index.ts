@@ -167,3 +167,21 @@ export { TOWER_HUMAN } from './tower-human';
 export { TOWER_MONSTER } from './tower-monster';
 export { TOWER_UNDEAD } from './tower-undead';
 export { TOWER_RULES, TOWERS } from './towers';
+
+export { CHAPTER_30 } from './chapter-30';
+export {
+  FAULTDUST_WALKER,
+  SPLITGRAVE_BEARER,
+  SEAMFEELER_DEAD,
+  HOLLOWEDGE_PORTER,
+  FAULTLINE_REAVER,
+  OPENJOINT_STALKER,
+  SPLITVAULT_LURKER,
+  GRAVESEAM_LANCER,
+  DEEPFAULT_KEEPER,
+  SUNDERJOINT_DEAD,
+  FAULTHEART_BEARER,
+  LASTJOINT_WARDEN,
+  THE_JOINTFINDER,
+  THE_GRAVEFAULT,
+} from './enemies';

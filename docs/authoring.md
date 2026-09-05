@@ -79,6 +79,7 @@ section below before assuming ten more boards is ten more boards.
 | 27      | 635   | 665    | 30     |
 | 28      | 665   | 695    | 30     |
 | 29      | 695   | 725    | 30     |
+| 30      | 725   | 755    | 30     |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -1693,7 +1694,7 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped twenty-nine, with the level range each closes over:
+The shipped thirty, with the level range each closes over:
 
 | #   | Name               | Stages | Levels    | What its boards have an opinion about           |
 | --- | ------------------ | ------ | --------- | ----------------------------------------------- |
@@ -1726,6 +1727,7 @@ The shipped twenty-nine, with the level range each closes over:
 | 27  | The Looseline      | 60     | 635 → 665 | whether it can be **made to connect**           |
 | 28  | The Windthrow      | 60     | 665 → 695 | whether it ever gets **a gap to land in**       |
 | 29  | The Overburden     | 60     | 695 → 725 | whether it **counts for what it costs**         |
+| 30  | The Gravefault     | 60     | 725 → 755 | reaching **the paired critical-hit carrier**    |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -2753,7 +2755,7 @@ Measure, do not copy this table forward.
 | Fires at       | Guard                                                          | Reads now   | The answer                                                                                            |
 | -------------- | -------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------- |
 | every chapter  | `descent.balance.ts` — per-depth finish rate                   | 0.50 deep   | `anchorSlope`, re-derived. **The shape is wrong**; see below                                          |
-| every chapter  | `gear.spec.ts` — top grade's share of drops                    | 18.7%       | `gradeSoftness` → 755 at chapter 30. It is always `stages / 2`; what it wants is a saturating tilt    |
+| every chapter  | `gear.spec.ts` — top grade's share of drops                    | 18.7%       | `gradeSoftness` → 785 at chapter 31. It is always `stages / 2`; what it wants is a saturating tilt    |
 | every chapter  | `descent.balance.ts` / `expedition.balance.ts` — deepest depth | **red**     | Re-anchor both modes. `anchorSlope` has no working setting; see below                                 |
 | chapter 17     | `gear.spec.ts` — the grade ladder is exhausted                 | Relic 100   | Nothing. There is no sixth grade; write it down                                                       |
 | ~~chapter 29~~ | `levels.spec.ts` — rungs unspent above the ladder              | **retired** | Fired at 29 (725 against 700) and was **retired rather than slid** — the fifth guard retired this way |

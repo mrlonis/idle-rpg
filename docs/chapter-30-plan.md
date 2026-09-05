@@ -1,8 +1,10 @@
 # Chapter 30 plan
 
-Status: premise and faction research complete; chapter authoring has not started.
-Measurements below use repository revision `fd65d6d`. No shipped content, combat rules,
-economy tuning, or test thresholds were changed for this research.
+Status: implemented and validated on 2026-09-05 as **The Gravefault**.
+The premise and faction choices below were retained.
+The original research measurements below use repository revision `fd65d6d`. No shipped content,
+combat rules, economy tuning, or test thresholds were changed during that research. The
+implementation results are recorded separately at the end.
 
 ## Decisions
 
@@ -244,3 +246,75 @@ the application; the only repository change from this session is this plan.
 The bundle's `README.md` records replay commands and fixture definitions. The existing unit
 and balance suites were not run in this planning session; production simulator calls and the
 chapter-29 final reproduction were used to verify the research setup.
+
+## Implemented result
+
+`src/data/chapter-30.ts` contains sixty stages, `c30-s1` through `c30-s60`, at the planned
+725–755 level line and Relic 100 gear. **The Gravefault** follows graves exposed by the
+Overburden's workings. The twelve new ordinary bodies distinguish separate halves, reachable
+pairing and protected pairing; the Jointfinder anchors stages 10/20/30/40/50 and the unique
+Gravefault closes stage 60 from the back rank. Each new block has a fixed level-1 stat line;
+no per-stage normalization cancels the climb.
+
+The actual roster is **19 distinct bodies**: twelve new ordinary Undead, five returning ordinary
+bodies, the lieutenant and the boss. Thus the ordinary quota is **12/17 = 70.6%**. The returns
+are Sheafless Shade, Spoilroof Hand, Deadrock Bearer, Capstone Drudge and Lidstone Warden.
+Undead occupy **278/299 slots = 93.0%**. Dwarf slots by band are **4, 6, 5, 3, 2, 1**;
+the support thins after band 2. No celestial or Monster appears. All new bodies have tank gear
+archetypes, physical damage skills and no sustain, hostile status or ultimate.
+
+The actual formation measurements narrowed the early returning shortlist. Wisp, Bindweed Dead
+and Headlong Runner were not needed: the early draft could clear their boards, but Headlong
+Runner made the sampled drop into band 2 read **0.646** against the existing **0.85** bar.
+Sheafless Shade remains on a four-body opening. A late Lidstone Warden in front made `c30-s54`
+read **45% wins**; Capstone Drudge in back, with the new Undead front restored, gives **100%**
+and a **44.3s** maximum. This is a formation correction, not a rejection of Dwarf support.
+
+### Authored-board measurements
+
+Every complete encounter was tested under its final ID with the production resolver and
+simulator, the planned reference five, and forty attempts rooted at `0xc0ffee`.
+
+| Stages | Lowest win rate | Largest board mean | Longest fight |
+| ------ | --------------- | ------------------ | ------------- |
+| 1–10   | 100%            | 19.29s             | 21.0s         |
+| 11–20  | 100%            | 23.98s             | 26.9s         |
+| 21–30  | 100%            | 31.17s             | 34.0s         |
+| 31–40  | 100%            | 36.83s             | 39.8s         |
+| 41–50  | 100%            | 37.62s             | 40.6s         |
+| 51–60  | 97.5%           | 45.07s             | 60.9s         |
+
+There were **zero timeouts in all 2,400 fights**. The final reads **97.5% wins**, **3.90 mean
+survivors**, **45.0675s mean** and **60.9s maximum**. Its single protected boss carries
+0.24 chance × 1.15 amplification; the ordinary upper register remains 0.20 × 1.15.
+The sampled difficulty spine passes the unchanged step and closing-third guards. These are
+finite deterministic samples; the original synthetic multi-root controls remain separate evidence.
+
+### Integration and validation
+
+- Appended `CHAPTERS`, enemy and skill registries, and exports. Preserved chapter 29's party
+  as `OVERBURDEN`; the new `INVESTED` level derives from the chapter close and rarity cap.
+- Campaign totals are **30 chapters, 1,510 stages, 460 enemy archetypes**. Campaign first-clear
+  crystals total **437,750**, including **17,250** for this chapter. Existing reward and
+  achievement formulas continue to derive from content.
+- Set `gradeSoftness` to **755**, preserving the existing drop-share guard. No reward,
+  ascension-cap, combat or save-schema change was needed.
+- Descent's new depth **1,510** measured **5.00 survivors** and joined the explicit
+  `RUNG_TROUGH` list. Its existing assertion still requires that listed depth to remain a
+  measured walkover. Expedition required no retuning.
+- Audited final IDs, levels, boss appearances, faction shares, distinct roster, quota, gear
+  archetypes, stat keys and the chapter header's mechanical prose claims.
+- **2,215 unit tests passed**, including save encode/decode and continuation from the former
+  endpoint: no duplicated old boss bonus, and the new stage pays its first clear once.
+- Ran the **full five-file balance suite**: campaign, towers, signatures and expeditions passed;
+  its sole failure was the new Descent trough above. After recording that measured depth,
+  **all 14 Descent tests passed** on a focused rerun. All **136 balance tests** therefore pass
+  across the full run and its targeted correction. No win-rate or clock threshold changed.
+- The candidate final also passed the **17 signature tests early**, including reach monotonicity.
+- Full repository lint passed. Production build passed with
+  `NG_BUILD_CACHE_STORE=sqlite npm run build`, after the default native LMDB cache aborted.
+  Existing stylesheet/bundle budget and CommonJS warnings remain; no build configuration changed.
+
+Temporary tuning probes were removed from the repository. The final source, this report and the
+permanent suites are the shipped evidence; local tuning JSON and audit helpers are retained only
+under `/private/tmp/c30-authoring/` and `/private/tmp/c30-*.json`.

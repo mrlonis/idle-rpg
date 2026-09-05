@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Twenty-nine chapters and one thousand
-four hundred and fifty stages** — 10, 20, 30, 40, then fifteen of fifty and ten of sixty. ⚠️ **That
+The campaign, and how a run's position in it is expressed. **Thirty chapters and one thousand
+five hundred and ten stages** — 10, 20, 30, 40, then fifteen of fifty and eleven of sixty. ⚠️ **That
 count was wrong here by three chapters and a hundred and eighty stages when chapter 26 read it**, so
 recompute it rather than quoting it. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
@@ -72,6 +72,12 @@ third chapter running to price a lone carrier's rank and the first to get no ans
 is also the chapter that retired `levels.spec.ts`'s rung-headroom guard and answered the roadmap
 question behind it: the campaign's ceiling is chapter 38**, unless the ascension ladder grows.
 See [authoring](authoring.md).
+
+Chapter 30 is **The Gravefault**, levels **725–755**. It pairs enemy `critChance` with
+`critDamageAmp`: can the party reach the body whose frequent critical hits also hit hard?
+Undead lead, with Dwarf support thinning toward the close. The reference five remain at
+`ascended` rarity and effective level 500, making the sixth identical seam link. The settled
+1.30-nat preference for staying is unchanged. See [the measured plan](chapter-30-plan.md).
 
 ## The shape
 

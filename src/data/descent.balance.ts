@@ -326,6 +326,9 @@ const RUNG_TROUGH: readonly number[] = [
   chapterEnd(27),
   chapterEnd(28),
   chapterEnd(29),
+  // Chapter 30: measured 5.00 survivors at depth 1,510. The unchanged anchor cap
+  // produces the same known trough; the assertion below deletes this licence if it changes.
+  chapterEnd(30),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */

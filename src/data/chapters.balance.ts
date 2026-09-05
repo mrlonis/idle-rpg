@@ -1389,9 +1389,25 @@ const WINDTHROW: FormationData = mono(
  * The clamp is `Math.min` rather than a written number so a retune of either side moves it, and
  * `legal` throws rather than quietly fielding an over-levelled party.
  */
+const OVERBURDEN_RARITY = rarityIndex('ascended');
+const OVERBURDEN_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[28] - 1].level,
+  LEVEL_CURVE.caps[OVERBURDEN_RARITY],
+);
+
+const OVERBURDEN: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(OVERBURDEN_LEVEL, OVERBURDEN_RARITY),
+  OVERBURDEN_RARITY,
+);
+
+/** Chapter 30 keeps the capped ascended five: the sixth identical seam link.
+ * The settled 1.30-nat preference for staying remains constant. The plan's pool and
+ * interaction measurements license new Undead boards, with Dwarf supporting bodies.
+ */
 const INVESTED_RARITY = rarityIndex('ascended');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
-
 const INVESTED: FormationData = mono(
   BUILT_FRONT,
   BUILT_BACK,
@@ -1593,6 +1609,11 @@ const windthrowSweeps = stages.map((stage) => ({
   stage,
   ...sweep(WINDTHROW, stage),
 }));
+const overburdenSweeps = stages.map((stage) => ({
+  label: 'overburden',
+  stage,
+  ...sweep(OVERBURDEN, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1648,6 +1669,7 @@ const everySweep = [
   ...roughcastSweeps,
   ...looselineSweeps,
   ...windthrowSweeps,
+  ...overburdenSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1745,6 +1767,7 @@ const LOOSELINE_END = CHAPTER_ENDS[26];
 
 /** Where The Windthrow ends, for {@link WINDTHROW}'s seam. */
 const WINDTHROW_END = CHAPTER_ENDS[27];
+const OVERBURDEN_END = CHAPTER_ENDS[28];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2719,6 +2742,24 @@ describe('ladder balance', () => {
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
 
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 29 clear chapters 1 through 29', () => {
+    const unreliable = overburdenSweeps
+      .slice(0, OVERBURDEN_END)
+      .filter((entry) => entry.winRate < 0.9)
+      .map((entry) => entry.stage.id);
+    expect(unreliable).toEqual([]);
+  });
+
+  it('does not let that party walk The Gravefault as well', () => {
+    // Identical capped parties make this the sixth degenerate link. The inherited
+    // whole-ladder momentum bar is non-binding on this slice; preserve its threshold.
+    const walked = overburdenSweeps
+      .slice(OVERBURDEN_END)
+      .filter((entry) => entry.winRate >= 0.9)
+      .map((entry) => entry.stage.id);
     expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
   });
 

@@ -89,6 +89,13 @@ them**; this paragraph had
 gone three chapters stale before chapter 19 brought it current, which is the ordinary fate of a
 running total carried by hand.
 
+Chapter 30, **The Gravefault**, takes the campaign to **1,510 stages** and the current enemy
+registry from **446 to 460 archetypes** after the intervening tower additions. It adds twelve
+ordinary Undead bodies, the Jointfinder at five mini-bosses, and a unique final boss. Undead
+lead with returning Dwarf support; critical chance and amplification meet on increasingly
+protected carriers. No runtime or save-schema change is needed. The research and implementation
+measurements are in [the chapter plan](chapter-30-plan.md).
+
 ### The fifth hundred: the height is 500 and all seven towers are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the

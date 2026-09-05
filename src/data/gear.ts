@@ -417,7 +417,8 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    gradeSoftness: 725,
+    // Chapter 30: 1,510 / 2 preserves the top-grade drop share; the guard remains unchanged.
+    gradeSoftness: 755,
   },
 
   /**

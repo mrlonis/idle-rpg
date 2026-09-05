@@ -33,7 +33,7 @@ import { TOWER_UNDEAD } from './tower-undead';
  *
  * ## Six hundred floors, levels 1 to 283
  *
- * **Inside the campaign's own range, deliberately.** The shipped ladder runs to level 725 over 1,450
+ * **Inside the campaign's own range, deliberately.** The shipped ladder runs to level 755 over 1,510
  * stages and first reaches 283 at stage 566, so a tower's top floor is a fight the campaign asks for
  * about two fifths of the way along it. That is the whole statement about where difficulty lives: a
  * tower charges for roster *breadth*, and charging for investment as well would make it a second

@@ -395,6 +395,20 @@ import {
   ALONG_THE_GRAIN,
   THE_FROE_AND_THE_MALLET,
   IT_OPENS_TO_THE_HEART,
+  BEHIND_THE_SPLIT,
+  CARRY_THE_EDGE,
+  CUT_AT_THE_JOIN,
+  DOWN_THE_GRAVESEAM,
+  DUST_FINDS_THE_JOINT,
+  FEEL_FOR_THE_SEAM,
+  FIND_THE_LIVING_JOINT,
+  FROM_THE_FAULTHEART,
+  KEEP_THE_FRACTURE,
+  THE_GRAVES_PART,
+  THE_JOIN_GIVES,
+  THE_LAST_JOIN_OPENS,
+  THE_SECOND_FRACTURE,
+  THE_STONE_PARTS,
 } from './skills';
 import { ROOTBOUND, THORNMAIL } from './statuses';
 
@@ -16672,7 +16686,163 @@ export const THE_UNMOVED = {
   skills: [FINDING_IT_STOPS_PAYING],
 } as const;
 
+// Chapter 30: light Undead bodies for overlapping critical chance and amplification.
+export const FAULTDUST_WALKER = {
+  id: 'faultdust-walker',
+  name: 'Faultdust Walker',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: { hp: 100, atk: 7, def: 5, haste: 70, critChance: 0.16, critDamageAmp: 0.5 },
+  skills: [DUST_FINDS_THE_JOINT],
+} as const;
+
+export const SPLITGRAVE_BEARER = {
+  id: 'splitgrave-bearer',
+  name: 'Splitgrave Bearer',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: { hp: 105, atk: 7, def: 5, haste: 72, critChance: 0.05, critDamageAmp: 1.05 },
+  skills: [THE_STONE_PARTS],
+} as const;
+
+export const SEAMFEELER_DEAD = {
+  id: 'seamfeeler-dead',
+  name: 'Seamfeeler Dead',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: { hp: 90, atk: 7, def: 5, haste: 76, critChance: 0.2, critDamageAmp: 0.5 },
+  skills: [FEEL_FOR_THE_SEAM],
+} as const;
+
+export const HOLLOWEDGE_PORTER = {
+  id: 'hollowedge-porter',
+  name: 'Hollowedge Porter',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: { hp: 95, atk: 6.5, def: 5, haste: 74, critChance: 0.05, critDamageAmp: 1.15 },
+  skills: [CARRY_THE_EDGE],
+} as const;
+
+export const FAULTLINE_REAVER = {
+  id: 'faultline-reaver',
+  name: 'Faultline Reaver',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: { hp: 27, atk: 2.7, def: 4, haste: 75, critChance: 0.12, critDamageAmp: 0.85 },
+  skills: [CUT_AT_THE_JOIN],
+} as const;
+
+export const OPENJOINT_STALKER = {
+  id: 'openjoint-stalker',
+  name: 'Openjoint Stalker',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: { hp: 26, atk: 2.6, def: 4, haste: 78, critChance: 0.16, critDamageAmp: 1.0 },
+  skills: [THE_JOIN_GIVES],
+} as const;
+
+export const SPLITVAULT_LURKER = {
+  id: 'splitvault-lurker',
+  name: 'Splitvault Lurker',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: { hp: 25, atk: 2.5, def: 4, haste: 74, critChance: 0.2, critDamageAmp: 1.0 },
+  skills: [BEHIND_THE_SPLIT],
+} as const;
+
+export const GRAVESEAM_LANCER = {
+  id: 'graveseam-lancer',
+  name: 'Graveseam Lancer',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: { hp: 24, atk: 2.4, def: 4, haste: 76, critChance: 0.16, critDamageAmp: 1.15 },
+  skills: [DOWN_THE_GRAVESEAM],
+} as const;
+
+export const DEEPFAULT_KEEPER = {
+  id: 'deepfault-keeper',
+  name: 'Deepfault Keeper',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: { hp: 23, atk: 2.4, def: 4, haste: 75, critChance: 0.2, critDamageAmp: 1.15 },
+  skills: [KEEP_THE_FRACTURE],
+} as const;
+
+export const SUNDERJOINT_DEAD = {
+  id: 'sunderjoint-dead',
+  name: 'Sunderjoint Dead',
+  faction: 'undead',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: { hp: 22, atk: 2.3, def: 4, haste: 78, critChance: 0.2, critDamageAmp: 1.15 },
+  skills: [THE_SECOND_FRACTURE],
+} as const;
+
+export const FAULTHEART_BEARER = {
+  id: 'faultheart-bearer',
+  name: 'Faultheart Bearer',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: { hp: 70, atk: 6, def: 4, haste: 74, critChance: 0.2, critDamageAmp: 1.15 },
+  skills: [FROM_THE_FAULTHEART],
+} as const;
+
+export const LASTJOINT_WARDEN = {
+  id: 'lastjoint-warden',
+  name: 'Lastjoint Warden',
+  faction: 'undead',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: { hp: 75, atk: 6, def: 4, haste: 72, critChance: 0.2, critDamageAmp: 1.15 },
+  skills: [THE_LAST_JOIN_OPENS],
+} as const;
+
+export const THE_JOINTFINDER = {
+  id: 'the-jointfinder',
+  name: 'The Jointfinder',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: { hp: 11, atk: 1, def: 4, haste: 75, critChance: 0.2, critDamageAmp: 1.15 },
+  skills: [FIND_THE_LIVING_JOINT],
+} as const;
+
+export const THE_GRAVEFAULT = {
+  id: 'the-gravefault',
+  name: 'The Gravefault',
+  faction: 'undead',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: { hp: 13, atk: 1.0, def: 4, haste: 76, critChance: 0.24, critDamageAmp: 1.15 },
+  skills: [THE_GRAVES_PART],
+} as const;
+
 export const ENEMIES = [
+  FAULTDUST_WALKER,
+  SPLITGRAVE_BEARER,
+  SEAMFEELER_DEAD,
+  HOLLOWEDGE_PORTER,
+  FAULTLINE_REAVER,
+  OPENJOINT_STALKER,
+  SPLITVAULT_LURKER,
+  GRAVESEAM_LANCER,
+  DEEPFAULT_KEEPER,
+  SUNDERJOINT_DEAD,
+  FAULTHEART_BEARER,
+  LASTJOINT_WARDEN,
+  THE_JOINTFINDER,
+  THE_GRAVEFAULT,
+
   PSALMSTONE_LECTOR,
   GRAVELIGHT_BEADLE,
   CAIRNCHOIR_SEXTON,

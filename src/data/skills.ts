@@ -10724,7 +10724,149 @@ export const FINDING_IT_STOPS_PAYING = {
   priority: 4,
 } as const;
 
+// Chapter 30: the Gravefault. The interaction lives in the carriers' stats.
+export const DUST_FINDS_THE_JOINT = {
+  id: 'dust-finds-the-joint',
+  name: 'Dust Finds The Joint',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
+export const THE_STONE_PARTS = {
+  id: 'the-stone-parts',
+  name: 'The Stone Parts',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 62,
+  priority: 1,
+} as const;
+
+export const FEEL_FOR_THE_SEAM = {
+  id: 'feel-for-the-seam',
+  name: 'Feel For The Seam',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
+export const CARRY_THE_EDGE = {
+  id: 'carry-the-edge',
+  name: 'Carry The Edge',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 64,
+  priority: 1,
+} as const;
+
+export const CUT_AT_THE_JOIN = {
+  id: 'cut-at-the-join',
+  name: 'Cut At The Join',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
+export const THE_JOIN_GIVES = {
+  id: 'the-join-gives',
+  name: 'The Join Gives',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 62,
+  priority: 1,
+} as const;
+
+export const BEHIND_THE_SPLIT = {
+  id: 'behind-the-split',
+  name: 'Behind The Split',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 64,
+  priority: 1,
+} as const;
+
+export const DOWN_THE_GRAVESEAM = {
+  id: 'down-the-graveseam',
+  name: 'Down The Graveseam',
+  target: 'enemy-back',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.3 }],
+  cooldown: 66,
+  priority: 1,
+} as const;
+
+export const KEEP_THE_FRACTURE = {
+  id: 'keep-the-fracture',
+  name: 'Keep The Fracture',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
+export const THE_SECOND_FRACTURE = {
+  id: 'the-second-fracture',
+  name: 'The Second Fracture',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 64,
+  priority: 1,
+} as const;
+
+export const FROM_THE_FAULTHEART = {
+  id: 'from-the-faultheart',
+  name: 'From The Faultheart',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+  cooldown: 60,
+  priority: 1,
+} as const;
+
+export const THE_LAST_JOIN_OPENS = {
+  id: 'the-last-join-opens',
+  name: 'The Last Join Opens',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.6 }],
+  cooldown: 64,
+  priority: 1,
+} as const;
+
+export const FIND_THE_LIVING_JOINT = {
+  id: 'find-the-living-joint',
+  name: 'Find The Living Joint',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.7 }],
+  cooldown: 64,
+  priority: 1,
+} as const;
+
+export const THE_GRAVES_PART = {
+  id: 'the-graves-part',
+  name: 'The Graves Part',
+  target: 'enemy-front',
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.9 }],
+  cooldown: 64,
+  priority: 1,
+} as const;
+
 export const SKILLS = [
+  DUST_FINDS_THE_JOINT,
+  THE_STONE_PARTS,
+  FEEL_FOR_THE_SEAM,
+  CARRY_THE_EDGE,
+  CUT_AT_THE_JOIN,
+  THE_JOIN_GIVES,
+  BEHIND_THE_SPLIT,
+  DOWN_THE_GRAVESEAM,
+  KEEP_THE_FRACTURE,
+  THE_SECOND_FRACTURE,
+  FROM_THE_FAULTHEART,
+  THE_LAST_JOIN_OPENS,
+  FIND_THE_LIVING_JOINT,
+  THE_GRAVES_PART,
+
   THE_STONE_IS_WHERE_IT_WAS,
   THE_SAME_NOTE,
   NEVER_ONCE_BROKEN_STEP,
