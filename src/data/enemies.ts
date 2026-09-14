@@ -1,4 +1,9 @@
 import {
+  PACKFANG_STRIKE,
+  THE_WATER_DRAGS,
+  CALL_ACROSS_THE_WAKE,
+  BREAK_THE_PACE,
+  THE_WAKE_CLOSES,
   ACID_WIND,
   ADD_IT_UP,
   AHEAD_OF_THE_ANSWER,
@@ -16827,7 +16832,301 @@ export const THE_GRAVEFAULT = {
   skills: [THE_GRAVES_PART],
 } as const;
 
+// Chapter 31: fixed cohorts, separate slow callers and basic-attack hunters.
+export const SILTBACK_GRAZER = {
+  id: 'siltback-grazer',
+  name: 'Siltback Grazer',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 44.38014346,
+    atk: 4.992766139,
+    def: 3.328510759,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const WAKEPAD_PROWLER = {
+  id: 'wakepad-prowler',
+  name: 'Wakepad Prowler',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 44.38014346,
+    atk: 4.992766139,
+    def: 3.328510759,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const MIRETHROAT_CALLER = {
+  id: 'mirethroat-caller',
+  name: 'Mirethroat Caller',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 44.38014346,
+    atk: 4.992766139,
+    def: 3.328510759,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [THE_WATER_DRAGS],
+} as const;
+
+export const RUNOUT_BOUNDER = {
+  id: 'runout-bounder',
+  name: 'Runout Bounder',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 44.38014346,
+    atk: 4.992766139,
+    def: 3.328510759,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    attackSpeed: 10,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const BANKROOT_BRUTE = {
+  id: 'bankroot-brute',
+  name: 'Bankroot Brute',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 45.065199075,
+    atk: 4.506519908,
+    def: 2.703911945,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const GAPTRACK_HUNTER = {
+  id: 'gaptrack-hunter',
+  name: 'Gaptrack Hunter',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 14.466336379,
+    atk: 1.446633638,
+    def: 0.867980183,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    attackSpeed: 10,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const REEDLUNG_CALLER = {
+  id: 'reedlung-caller',
+  name: 'Reedlung Caller',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 14.466336379,
+    atk: 1.446633638,
+    def: 0.867980183,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [CALL_ACROSS_THE_WAKE],
+} as const;
+
+export const SLIPSTREAM_HUNTER = {
+  id: 'slipstream-hunter',
+  name: 'Slipstream Hunter',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 14.466336379,
+    atk: 1.446633638,
+    def: 0.867980183,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    attackSpeed: 15,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const SHOALHIDE_BEAST = {
+  id: 'shoalhide-beast',
+  name: 'Shoalhide Beast',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 48.740932025,
+    atk: 4.224214109,
+    def: 2.437046601,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const FOAMSPUR_HUNTER = {
+  id: 'foamspur-hunter',
+  name: 'Foamspur Hunter',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 15.531851227,
+    atk: 1.346093773,
+    def: 0.776592561,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    attackSpeed: 20,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const DEEPWATER_CALLER = {
+  id: 'deepwater-caller',
+  name: 'Deepwater Caller',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 48.740932025,
+    atk: 4.224214109,
+    def: 2.437046601,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [CALL_ACROSS_THE_WAKE],
+} as const;
+
+export const LASTBANK_BEAST = {
+  id: 'lastbank-beast',
+  name: 'Lastbank Beast',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 51.252128779,
+    atk: 3.880518322,
+    def: 2.196519805,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const UNDERTOW_HUNTER = {
+  id: 'undertow-hunter',
+  name: 'Undertow Hunter',
+  faction: 'monster',
+  tier: 'legendary',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 16.212628385,
+    atk: 1.227527578,
+    def: 0.694826931,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+    attackSpeed: 20,
+  },
+  skills: [PACKFANG_STRIKE],
+} as const;
+
+export const WAKEHOLLOW_CALLER = {
+  id: 'wakehollow-caller',
+  name: 'Wakehollow Caller',
+  faction: 'monster',
+  tier: 'common',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 51.252128779,
+    atk: 3.880518322,
+    def: 2.196519805,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [CALL_ACROSS_THE_WAKE],
+} as const;
+
+export const THE_PACEBREAKER = {
+  id: 'the-pacebreaker',
+  name: 'The Pacebreaker',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 4.957705132,
+    atk: 0.429667778,
+    def: 0.247885257,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [BREAK_THE_PACE],
+} as const;
+
+export const THE_WAKE_MAW = {
+  id: 'the-wake-maw',
+  name: 'The Wake-Maw',
+  faction: 'monster',
+  tier: 'ascended',
+  gearArchetype: 'tank',
+  stats: {
+    hp: 5.137214495,
+    atk: 0.388960526,
+    def: 0.220166335,
+    haste: 75,
+    critChance: 0.05,
+    critDamageAmp: 0.5,
+  },
+  skills: [THE_WAKE_CLOSES],
+} as const;
 export const ENEMIES = [
+  SILTBACK_GRAZER,
+  WAKEPAD_PROWLER,
+  MIRETHROAT_CALLER,
+  RUNOUT_BOUNDER,
+  BANKROOT_BRUTE,
+  GAPTRACK_HUNTER,
+  REEDLUNG_CALLER,
+  SLIPSTREAM_HUNTER,
+  SHOALHIDE_BEAST,
+  FOAMSPUR_HUNTER,
+  DEEPWATER_CALLER,
+  LASTBANK_BEAST,
+  UNDERTOW_HUNTER,
+  WAKEHOLLOW_CALLER,
+  THE_PACEBREAKER,
+  THE_WAKE_MAW,
+
   FAULTDUST_WALKER,
   SPLITGRAVE_BEARER,
   SEAMFEELER_DEAD,

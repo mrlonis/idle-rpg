@@ -10851,7 +10851,69 @@ export const THE_GRAVES_PART = {
   priority: 1,
 } as const;
 
+export const PACKFANG_STRIKE = {
+  id: 'packfang-strike',
+  name: 'Packfang Strike',
+  target: 'enemy-front',
+  cooldown: 60,
+  priority: 1,
+  effects: [{ kind: 'damage', damageType: 'physical', power: 1.5 }],
+} as const;
+
+export const THE_WATER_DRAGS = {
+  id: 'the-water-drags',
+  name: 'The Water Drags',
+  target: 'enemy-back',
+  cooldown: 60,
+  priority: 1,
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SLOW, chance: 0.35 },
+  ],
+} as const;
+
+export const CALL_ACROSS_THE_WAKE = {
+  id: 'call-across-the-wake',
+  name: 'Call Across The Wake',
+  target: 'enemy-back',
+  cooldown: 60,
+  priority: 1,
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SLOW, chance: 0.65 },
+  ],
+} as const;
+
+export const BREAK_THE_PACE = {
+  id: 'break-the-pace',
+  name: 'Break The Pace',
+  target: 'enemy-back',
+  cooldown: 60,
+  priority: 1,
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SLOW, chance: 0.65 },
+  ],
+} as const;
+
+export const THE_WAKE_CLOSES = {
+  id: 'the-wake-closes',
+  name: 'The Wake Closes',
+  target: 'enemy-back',
+  cooldown: 60,
+  priority: 1,
+  effects: [
+    { kind: 'damage', damageType: 'physical', power: 1.5 },
+    { kind: 'status', status: SLOW, chance: 0.65 },
+  ],
+} as const;
+
 export const SKILLS = [
+  PACKFANG_STRIKE,
+  THE_WATER_DRAGS,
+  CALL_ACROSS_THE_WAKE,
+  BREAK_THE_PACE,
+  THE_WAKE_CLOSES,
   DUST_FINDS_THE_JOINT,
   THE_STONE_PARTS,
   FEEL_FOR_THE_SEAM,

@@ -329,6 +329,9 @@ const RUNG_TROUGH: readonly number[] = [
   // Chapter 30: measured 5.00 survivors at depth 1,510. The unchanged anchor cap
   // produces the same known trough; the assertion below deletes this licence if it changes.
   chapterEnd(30),
+  // Chapter 31: depth 1,570 finishes 20/20 runs with 5.00 survivors, carded or bare.
+  // Keep the self-deleting trough criteria and the ordinary walkover bar unchanged.
+  chapterEnd(31),
 ];
 
 /** The depths the mode's own difficulty claims are made about — everything but the known trough. */

@@ -96,6 +96,14 @@ lead with returning Dwarf support; critical chance and amplification meet on inc
 protected carriers. No runtime or save-schema change is needed. The research and implementation
 measurements are in [the chapter plan](chapter-30-plan.md).
 
+Chapter 31, **The Dragwake**, extends the campaign to **1,570 stages**, levels 755–785, and
+**476 enemy archetypes**. Fourteen ordinary Monster blocks and two antagonists cooperate through
+single-target SLOW callers and separate `attackSpeed` hunters; four unchanged Undead returns
+connect the flooded runout to the Gravefault. All sixty authored encounters won all 7,200
+three-root fights. The seventh capped `ascended` seam remains unchanged in power. The full
+[implementation record](chapter-31-plan.md#implementation-results) records integration, validation,
+the measured Descent trough at 1,570, and save continuation without a migration.
+
 ### The fifth hundred: the height is 500 and all seven towers are there
 
 ⚠️ **The Human Tower's floors 401–500 landed with the bump, and the `PENDING` lists went back in the
@@ -1521,7 +1529,8 @@ about shape. That is backwards: the bound has never moved _because it is not sup
 `gradeSoftness` in `data/gear.ts` moves to meet it, by hand, once a chapter — **twenty-three times
 now**, always to `stages / 2`, always restoring 18.7% — and it is done by hand on purpose, so the
 saturating tilt it is papering over stays visible. Chapter 25's landing was **605**, chapter 26's
-**635**, chapter 27's **665**, chapter 28's **695** and chapter 29's **725**; chapter 30 wants **755**. ⚠️ **Check both sides of a
+**635**, chapter 27's **665**, chapter 28's **695** and chapter 29's **725**; chapter 30 landed at **755** and chapter 31 uses **785**. At depth 1,570, leaving 755 would
+still pass at 19.6714%; the new value deliberately preserves the 18.7392% endpoint share. ⚠️ **Check both sides of a
 guard before calling it stale; the half that moves may not be the half the guard is written in.**
 
 ⚠️ **The margin rule went with the flattening.** Chapters no longer close past the cap of the rung

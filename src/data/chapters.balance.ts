@@ -1402,9 +1402,21 @@ const OVERBURDEN: FormationData = mono(
   OVERBURDEN_RARITY,
 );
 
-/** Chapter 30 keeps the capped ascended five: the sixth identical seam link.
- * The settled 1.30-nat preference for staying remains constant. The plan's pool and
- * interaction measurements license new Undead boards, with Dwarf supporting bodies.
+/** The Gravefault's invested five, preserved at its derived close. */
+const GRAVEFAULT_RARITY = rarityIndex('ascended');
+const GRAVEFAULT_LEVEL = Math.min(
+  stages[CHAPTER_ENDS[29] - 1].level,
+  LEVEL_CURVE.caps[GRAVEFAULT_RARITY],
+);
+const GRAVEFAULT: FormationData = mono(
+  BUILT_FRONT,
+  BUILT_BACK,
+  legal(GRAVEFAULT_LEVEL, GRAVEFAULT_RARITY),
+  GRAVEFAULT_RARITY,
+);
+
+/** Chapter 31 keeps the capped ascended five: the seventh identical seam link.
+ * The established 1.30-nat staying margin is constant; the fielded pool licenses new Monsters.
  */
 const INVESTED_RARITY = rarityIndex('ascended');
 const INVESTED_LEVEL = Math.min(stages[stages.length - 1].level, LEVEL_CURVE.caps[INVESTED_RARITY]);
@@ -1614,6 +1626,11 @@ const overburdenSweeps = stages.map((stage) => ({
   stage,
   ...sweep(OVERBURDEN, stage),
 }));
+const gravefaultSweeps = stages.map((stage) => ({
+  label: 'gravefault',
+  stage,
+  ...sweep(GRAVEFAULT, stage),
+}));
 const investedSweeps = stages.map((stage) => ({
   label: 'invested',
   stage,
@@ -1670,6 +1687,7 @@ const everySweep = [
   ...looselineSweeps,
   ...windthrowSweeps,
   ...overburdenSweeps,
+  ...gravefaultSweeps,
   ...investedSweeps,
   ...boostedSweeps,
   ...monoSweeps,
@@ -1768,6 +1786,7 @@ const LOOSELINE_END = CHAPTER_ENDS[26];
 /** Where The Windthrow ends, for {@link WINDTHROW}'s seam. */
 const WINDTHROW_END = CHAPTER_ENDS[27];
 const OVERBURDEN_END = CHAPTER_ENDS[28];
+const GRAVEFAULT_END = CHAPTER_ENDS[29];
 
 /**
  * How far past its own chapter a seam party's momentum may carry it, as a share of the ladder.
@@ -2760,6 +2779,20 @@ describe('ladder balance', () => {
       .slice(OVERBURDEN_END)
       .filter((entry) => entry.winRate >= 0.9)
       .map((entry) => entry.stage.id);
+    expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
+  });
+
+  it('lets the party that finished chapter 30 clear chapters 1 through 30', () => {
+    expect(
+      gravefaultSweeps
+        .slice(0, GRAVEFAULT_END)
+        .filter((entry) => entry.winRate < 0.9)
+        .map((entry) => entry.stage.id),
+    ).toEqual([]);
+  });
+  it('does not let that party walk The Dragwake as well', () => {
+    // Seventh identical capped seam; preserve the inherited whole-ladder momentum bar.
+    const walked = gravefaultSweeps.slice(GRAVEFAULT_END).filter((entry) => entry.winRate >= 0.9);
     expect(walked.length).toBeLessThanOrEqual(stages.length * MOMENTUM_CEILING);
   });
 

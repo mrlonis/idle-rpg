@@ -1,7 +1,7 @@
 # The ladder
 
-The campaign, and how a run's position in it is expressed. **Thirty chapters and one thousand
-five hundred and ten stages** — 10, 20, 30, 40, then fifteen of fifty and eleven of sixty. ⚠️ **That
+The campaign, and how a run's position in it is expressed. **Thirty-one chapters and one thousand
+five hundred and seventy stages** — 10, 20, 30, 40, then fifteen of fifty and twelve of sixty. ⚠️ **That
 count was wrong here by three chapters and a hundred and eighty stages when chapter 26 read it**, so
 recompute it rather than quoting it. Read [`core/ladder.ts`](../src/core/ladder.ts) before
 touching progression, and [authoring](authoring.md) before adding a chapter.
@@ -78,6 +78,13 @@ Chapter 30 is **The Gravefault**, levels **725–755**. It pairs enemy `critChan
 Undead lead, with Dwarf support thinning toward the close. The reference five remain at
 `ascended` rarity and effective level 500, making the sixth identical seam link. The settled
 1.30-nat preference for staying is unchanged. See [the measured plan](chapter-30-plan.md).
+
+Chapter 31 is **The Dragwake**, levels **755–785**, ending at depth **1,570**. Monster callers
+apply a temporary SLOW to one back-rank target while separate hunters accelerate their basic
+attacks. Four unchanged Undead bodies return through the first four bands. The reference five
+remain at `ascended` rarity, cap 500: the seventh identical seam link, with the established
+1.30-nat staying margin. Its sixty encounters add 17,250 first-clear crystals. See the
+[implementation record](chapter-31-plan.md#implementation-results).
 
 ## The shape
 

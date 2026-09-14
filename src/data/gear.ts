@@ -417,8 +417,9 @@ export const GEAR_RULES = {
      * explicitly rather than rolling for it. The dial that would move it is Worn's own multiplier,
      * which sits at 0.175 against a 0.2 limit and is not free.
      */
-    // Chapter 30: 1,510 / 2 preserves the top-grade drop share; the guard remains unchanged.
-    gradeSoftness: 755,
+    // Chapter 31: 1,570 / 2 preserves 18.7392% top-grade share. Keeping 755 would
+    // still pass the 20% guard at 19.6714%; this change preserves the endpoint distribution.
+    gradeSoftness: 785,
   },
 
   /**

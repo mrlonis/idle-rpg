@@ -1,7 +1,7 @@
 # Authoring content
 
 The procedure for adding a chapter or a hundred tower floors, distilled from the sessions that
-shipped fourteen hundred and fifty stages and thirty-five hundred floors. `AGENTS.md` states the rules and the
+shipped 1,570 stages and 4,200 tower floors. `AGENTS.md` states the rules and the
 reference docs explain the systems; **this file is the order to do things in and the traps that
 have actually fired.** Every trap below is one a session hit after a previous session had already
 written it down.
@@ -13,9 +13,9 @@ boards, and a content session is mostly a conversation with it.
 
 | Unit             | Count                                        |
 | ---------------- | -------------------------------------------- |
-| Campaign         | 29 chapters, 1450 stages, enemy levels 1–725 |
-| Towers           | 7 × 500 floors, enemy levels 1–236           |
-| Enemy archetypes | 418                                          |
+| Campaign         | 31 chapters, 1570 stages, enemy levels 1–785 |
+| Towers           | 7 × 600 floors                               |
+| Enemy archetypes | 476                                          |
 | Characters       | 56, with 14 signature items                  |
 | The Descent      | 24 boards, 14 card families                  |
 | Expeditions      | 3 maps                                       |
@@ -80,6 +80,7 @@ section below before assuming ten more boards is ten more boards.
 | 28      | 665   | 695    | 30     |
 | 29      | 695   | 725    | 30     |
 | 30      | 725   | 755    | 30     |
+| 31      | 755   | 785    | 30     |
 
 ⚠️ **Chapter 13 is the first to close _above_ its rung's cap since the margin rule was retired, and
 it is not that rule coming back.** `legendary-plus` caps at 260 against The Quarry's close of 275, so
@@ -1694,40 +1695,41 @@ tower leaning on a faction needs depth in it. The invariants:
 
 ### The name, the setting and the signature
 
-The shipped thirty, with the level range each closes over:
+The shipped thirty-one, with the level range each closes over:
 
-| #   | Name               | Stages | Levels    | What its boards have an opinion about           |
-| --- | ------------------ | ------ | --------- | ----------------------------------------------- |
-| 1   | The Sunken Fen     | 10     | 1 → 14    | the three opening locks, fought by hand         |
-| 2   | The Drowned Ward   | 20     | 14 → 15   | teaching accuracy and penetration               |
-| 3   | The Cinder Mire    | 30     | 15 → 30   | the fen giving way to the ash                   |
-| 4   | The Ashfall Reach  | 40     | 30 → 50   | volume against the first real investment        |
-| 5   | The Bound Marches  | 50     | 50 → 75   | routing: where damage is _allowed_ to go        |
-| 6   | The Sundered Vault | 50     | 75 → 100  | pairs, and the celestial tax                    |
-| 7   | The Waking Barrows | 50     | 100 → 125 | **how** the party's damage arrives              |
-| 8   | The Sunless Weald  | 50     | 125 → 150 | **where** it lands                              |
-| 9   | The Hollow Anvil   | 50     | 150 → 175 | whether anything the party does **stays done**  |
-| 10  | The Bleeding Wild  | 50     | 175 → 200 | what the damage **does to what it is spent on** |
-| 11  | The Standing Line  | 50     | 200 → 225 | what the party spends it on **first**           |
-| 12  | The Rustwood       | 50     | 225 → 250 | how much of it **survives contact**             |
-| 13  | The Quarry         | 50     | 250 → 275 | whether it lands **at all**                     |
-| 14  | The Shutgate       | 50     | 275 → 300 | whether it arrives **big enough**               |
-| 15  | The Underroad      | 50     | 300 → 325 | whether there is **an end to it**               |
-| 16  | The Spoilfield     | 50     | 325 → 350 | whether it is **the party's own damage at all** |
-| 17  | The Quickmire      | 50     | 350 → 375 | whether it can be **spent fast enough**         |
-| 18  | The Slowgrowth     | 50     | 375 → 400 | whether it **adds up**                          |
-| 19  | The Backcut        | 50     | 400 → 425 | whether the party can **afford** to spend it    |
-| 20  | The Commonage      | **60** | 425 → 455 | whether it gets to **choose where it goes**     |
-| 21  | The Longebb        | 60     | 455 → 485 | whether it **still holds its value**            |
-| 22  | The Downstroke     | 60     | 485 → 515 | whether it **arrives all at once**              |
-| 23  | The Evenfall       | 60     | 515 → 545 | whether it **ever lands well**                  |
-| 24  | The Nevermark      | 60     | 545 → 575 | whether anything it does **takes hold**         |
-| 25  | The Thinground     | 60     | 575 → 605 | whether there is **anyone left to spend it**    |
-| 26  | The Roughcast      | 60     | 605 → 635 | whether any of it **can be counted on**         |
-| 27  | The Looseline      | 60     | 635 → 665 | whether it can be **made to connect**           |
-| 28  | The Windthrow      | 60     | 665 → 695 | whether it ever gets **a gap to land in**       |
-| 29  | The Overburden     | 60     | 695 → 725 | whether it **counts for what it costs**         |
-| 30  | The Gravefault     | 60     | 725 → 755 | reaching **the paired critical-hit carrier**    |
+| #   | Name               | Stages | Levels    | What its boards have an opinion about                              |
+| --- | ------------------ | ------ | --------- | ------------------------------------------------------------------ |
+| 1   | The Sunken Fen     | 10     | 1 → 14    | the three opening locks, fought by hand                            |
+| 2   | The Drowned Ward   | 20     | 14 → 15   | teaching accuracy and penetration                                  |
+| 3   | The Cinder Mire    | 30     | 15 → 30   | the fen giving way to the ash                                      |
+| 4   | The Ashfall Reach  | 40     | 30 → 50   | volume against the first real investment                           |
+| 5   | The Bound Marches  | 50     | 50 → 75   | routing: where damage is _allowed_ to go                           |
+| 6   | The Sundered Vault | 50     | 75 → 100  | pairs, and the celestial tax                                       |
+| 7   | The Waking Barrows | 50     | 100 → 125 | **how** the party's damage arrives                                 |
+| 8   | The Sunless Weald  | 50     | 125 → 150 | **where** it lands                                                 |
+| 9   | The Hollow Anvil   | 50     | 150 → 175 | whether anything the party does **stays done**                     |
+| 10  | The Bleeding Wild  | 50     | 175 → 200 | what the damage **does to what it is spent on**                    |
+| 11  | The Standing Line  | 50     | 200 → 225 | what the party spends it on **first**                              |
+| 12  | The Rustwood       | 50     | 225 → 250 | how much of it **survives contact**                                |
+| 13  | The Quarry         | 50     | 250 → 275 | whether it lands **at all**                                        |
+| 14  | The Shutgate       | 50     | 275 → 300 | whether it arrives **big enough**                                  |
+| 15  | The Underroad      | 50     | 300 → 325 | whether there is **an end to it**                                  |
+| 16  | The Spoilfield     | 50     | 325 → 350 | whether it is **the party's own damage at all**                    |
+| 17  | The Quickmire      | 50     | 350 → 375 | whether it can be **spent fast enough**                            |
+| 18  | The Slowgrowth     | 50     | 375 → 400 | whether it **adds up**                                             |
+| 19  | The Backcut        | 50     | 400 → 425 | whether the party can **afford** to spend it                       |
+| 20  | The Commonage      | **60** | 425 → 455 | whether it gets to **choose where it goes**                        |
+| 21  | The Longebb        | 60     | 455 → 485 | whether it **still holds its value**                               |
+| 22  | The Downstroke     | 60     | 485 → 515 | whether it **arrives all at once**                                 |
+| 23  | The Evenfall       | 60     | 515 → 545 | whether it **ever lands well**                                     |
+| 24  | The Nevermark      | 60     | 545 → 575 | whether anything it does **takes hold**                            |
+| 25  | The Thinground     | 60     | 575 → 605 | whether there is **anyone left to spend it**                       |
+| 26  | The Roughcast      | 60     | 605 → 635 | whether any of it **can be counted on**                            |
+| 27  | The Looseline      | 60     | 635 → 665 | whether it can be **made to connect**                              |
+| 28  | The Windthrow      | 60     | 665 → 695 | whether it ever gets **a gap to land in**                          |
+| 29  | The Overburden     | 60     | 695 → 725 | whether it **counts for what it costs**                            |
+| 30  | The Gravefault     | 60     | 725 → 755 | reaching **the paired critical-hit carrier**                       |
+| 31  | The Dragwake       | 60     | 755 → 785 | keeping the back rank acting while **separate hunters accelerate** |
 
 **A chapter wants one sentence its whole board list answers**, and from chapter 7 on each is a
 different question about the party's own damage rather than a new mechanic. That is what makes a
@@ -1744,7 +1746,7 @@ party defined by the chapter it has just finished, with `INVESTED` re-pointed at
 chapter asks for. The chain runs `BUILT` → `ARRIVED` → `MARCHED` → `VAULTED` → `BARROWED` →
 `WEALDED` → `ANVILLED` → `WILDED` → `LINED` → `RUSTED` → `QUARRIED` → `SHUTGATED` → `UNDERROAD` →
 `SPOILED` → `QUICKMIRED` → `SLOWGROWTH` → `BACKCUT` → `COMMONAGE` → `LONGEBB` → `DOWNSTROKE` →
-`EVENFALL` → `NEVERMARK` → `THINGROUND` → `ROUGHCAST` → `LOOSELINE` → `INVESTED`. ⚠️ **Chapter 25's rung move ended the `mythic-plus` degenerate
+`EVENFALL` → `NEVERMARK` → `THINGROUND` → `ROUGHCAST` → `LOOSELINE` → `WINDTHROW` → `OVERBURDEN` → `GRAVEFAULT` → `INVESTED`. ⚠️ **Chapter 25's rung move ended the `mythic-plus` degenerate
 stretch at two links** — `DOWNSTROKE`, `EVENFALL` and `NEVERMARK` are one set of five on that rung's
 cap of 420, and `INVESTED` is the first party in four chapters that is genuinely different, eighty
 levels and a rung above them (×8.36). **Expect the chain to re-form at chapter 26**, as it has after
@@ -1803,6 +1805,36 @@ a measured pass over every final and would plausibly fail on the early ones for 
 Recorded rather than taken.
 
 ---
+
+### Chapter 31: a caller and its beneficiaries are separate bodies
+
+The Dragwake implements the [settled plan](chapter-31-plan.md) with fourteen ordinary Monster
+blocks, the Pacebreaker at s10/20/30/40/50, and the Wake-Maw only at s60. Four fixed cohorts use
+literal, fractional level-1 stats converted once in research. No stage normalizes its enemies.
+Hunters retain cooldown 60 so their basic-attack speed can operate; callers use single-target
+`enemy-back`, chance 0.35 or 0.65, existing SLOW duration 45 and cooldown 60. New-body crit stays
+0.05/0.50. Early callers are reachable; later callers move among protected back slots.
+
+The complete authored-ID pass measured **7,200/7,200 victories**, zero timeouts, maximum per-root
+mean **32.7775s**, longest fight **36.8s**. This includes three roots for every stage, not only
+endpoints. The final retains **4.00 survivors**. The production difficulty probe's sixteen samples
+have no backward ratio below 0.85; closing-third mean threshold **1,235,311.09** exceeds opening
+**936,598.30**. No encounter needed adjustment after its first complete measured pass.
+
+The fielded roster is **20 distinct bodies**, ordinary novelty **14/18 = 77.8%**, and Monster
+share **282/300 = 94%**. Returning Undead slots are **6/6/4/2/0/0**, each in back and at most one
+per encounter. `research/chapter-31/authored.ts` and `integration.ts` retain the measurement and
+claim audit. The full acceptance record lives in the plan.
+
+At depth 1,570 Descent measured **20/20 finishes, 5.00 survivors**, carded and bare, maximum
+fight **5.4s**, zero timeouts. Only after this reading, `chapterEnd(31)` joined the explicit
+self-deleting trough list. The walkover bar and calibration stayed unchanged. The three
+Expedition maps each finished **10/10** with cards and without; all retained five survivors,
+so their endpoint card benefit is equal, not positive.
+
+The gear adjustment **755 → 785** preserves **18.7392%** top-grade share at the new endpoint.
+Leaving 755 would have yielded **19.6714%**, still below the unchanged 20% guard. This is deliberate
+endpoint-share preservation, not repair of a red guard or permission for a saturating-tilt redesign.
 
 ## Adding tower floors
 
@@ -2779,8 +2811,8 @@ and the seventh prediction checked a chapter ahead.** ⚠️ **Chapter 27 landed
 exactly as predicted — the twenty-first landing and the eighth prediction checked a chapter ahead.**
 ⚠️ **Chapter 28 landed on it and wanted 695, exactly as predicted — the twenty-second landing and the
 ninth prediction checked a chapter ahead.** ⚠️ **Chapter 29 landed on it and wanted 725, exactly as
-predicted — the twenty-third landing and the tenth prediction checked a chapter ahead.** Chapter 30
-wants **755**. **Twenty-one landings is well past the point where re-deriving is
+predicted — the twenty-third landing and the tenth prediction checked a chapter ahead.** Chapter 30 landed at **755**. Chapter 31 deliberately uses **785** to preserve the endpoint
+share; leaving 755 would still pass the guard (19.6714%). **Twenty-one landings is well past the point where re-deriving is
 learning anything**; the next session in `data/gear.ts` for any reason should write the saturating
 tilt while it is already there.
 
